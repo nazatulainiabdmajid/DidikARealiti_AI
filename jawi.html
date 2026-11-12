@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Jawi di Sekelilingku AR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Noto+Naskh+Arabic:wght@700&display=swap">
+<script type="importmap">
+{"imports":{
+  "three":"https://unpkg.com/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/",
+  "mindar-image":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js",
+  "mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+}}
+</script>
+<style>
+:root{--paper:#F5F7FA;--card:#fff;--ink:#16233B;--muted:#56657D;--line:#D8DFEA;--soft:#EBF0F7;--phase:#1F4FD1;--ai:#B4236A;--ai-soft:#FBE7F1;--ar:#0B7A8C;--ar-soft:#E0F3F6;--ps:#A85A06;--ps-soft:#FDF0DC;--ok:#137A45;--ok-soft:#E2F4EA;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--f-b:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;--f-j:"Noto Naskh Arabic","Traditional Arabic",serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-b);font-size:17px;line-height:1.55}
+main{max-width:900px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left)) 40px;display:flex;flex-direction:column;gap:22px}
+h1,h2{font-family:var(--f-d);margin:0;line-height:1.15}
+h1{font-size:clamp(28px,6vw,40px)} h2{font-size:22px}
+p{margin:0}
+.muted{color:var(--muted)}
+.chip{display:inline-flex;gap:6px;align-items:center;font-size:13.5px;font-weight:700;border-radius:999px;padding:2px 10px;border:1.5px solid}
+.chip.ai{color:var(--ai);border-color:var(--ai);background:var(--ai-soft)}.chip.ar{color:var(--ar);border-color:var(--ar);background:var(--ar-soft)}.chip.ps{color:var(--ps);border-color:var(--ps);background:var(--ps-soft)}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}
+.cards figure{margin:0;text-align:center;font-weight:700}
+.cards img{width:100%;height:auto;display:block;border-radius:6px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:12px;padding:12px 20px;background:var(--phase);color:#fff;cursor:pointer}
+.btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+ol{margin:0;padding-left:22px}
+.prog{height:10px;background:var(--soft);border-radius:999px;overflow:hidden}.prog span{display:block;height:100%;width:0;background:var(--phase);transition:width .3s}
+.err{background:#FDE8E6;color:#B42318;border-radius:10px;padding:10px 12px}
+/* AR */
+#arWrap{position:fixed;inset:0;z-index:50;background:#000}
+#arBox{position:absolute;inset:0;overflow:hidden}
+.hud{position:absolute;left:0;right:0;top:0;z-index:60;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.hud .bar{display:flex;gap:8px;align-items:center;justify-content:space-between}
+.pill{background:rgba(255,255,255,.94);border-radius:999px;padding:5px 12px;font-weight:700;font-size:15px;color:var(--ink)}
+.mission{background:rgba(255,255,255,.96);border-radius:14px;padding:8px 12px;font-size:15.5px;color:var(--ink);border:2px solid var(--ai)}
+.mission .j{font-family:var(--f-j);font-size:26px;line-height:1.2}
+.closeAR{pointer-events:auto;font:inherit;font-weight:700;border:0;border-radius:999px;padding:6px 14px;background:var(--ink);color:#fff}
+.toast{position:absolute;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:61;background:var(--ink);color:#fff;font-weight:700;border-radius:14px;padding:10px 16px;opacity:0;transition:opacity .3s;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+.found{display:flex;gap:8px;flex-wrap:wrap}
+.found span{border:1.5px solid var(--line);border-radius:10px;padding:4px 10px;background:#fff}
+.found span.got{border-color:var(--ok);background:var(--ok-soft)}
+.found .j{font-family:var(--f-j);font-size:22px}
+@media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;left:0;top:0;width:100%}.cards{grid-template-columns:repeat(2,6.5cm);gap:1cm}.cards figure{break-inside:avoid}}
+</style>
+</head>
+<body>
+<main>
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <span class="muted" style="font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:13px">Pendidikan Islam · Jawi · Sekolah rendah</span>
+    <h1>Jawi di Sekelilingku AR</h1>
+    <p class="muted">Halakan telefon ke kad gambar. Perkataan Jawi akan muncul di atas kad, dan huruf-hurufnya di bawah kad.</p>
+    <div class="row"><span class="chip ar">▲ AR: kad dikesan kamera</span><span class="chip ai">◆ AI Adaptif: misi huruf</span><span class="chip ps">● Persuasif: koleksi dan bintang</span></div>
+  </header>
+
+  <section class="box" id="printArea">
+    <h2>Langkah 1 · Cetak kad</h2>
+    <p class="muted">Cetak berwarna, saiz sekurang-kurangnya 6 cm. Kertas yang rata dan tidak berkilat lebih mudah dikesan.</p>
+    <div class="cards" id="cards"></div>
+    <div class="row"><button class="btn ghost" onclick="window.print()">Cetak kad</button></div>
+  </section>
+
+  <section class="box">
+    <h2>Langkah 2 · Mula AR</h2>
+    <ol>
+      <li>Buka halaman ini di telefon (pautan https).</li>
+      <li>Tekan <b>Mula AR</b> dan benarkan kamera.</li>
+      <li>Kali pertama, telefon menyediakan kad untuk dikesan (10–30 saat).</li>
+      <li>Halakan kamera ke kad pada jarak 20–40 cm.</li>
+    </ol>
+    <div class="row"><button class="btn" id="startBtn">Mula AR</button><span class="muted" id="status"></span></div>
+    <div class="prog" id="prog" hidden><span></span></div>
+    <div class="err" id="err" hidden></div>
+  </section>
+
+  <section class="box">
+    <h2>Koleksi saya</h2>
+    <div class="found" id="found"></div>
+    <p class="muted" id="summary">Belum ada kad dijumpai.</p>
+  </section>
+
+  <section class="box">
+    <h2>Selepas AR · Renung</h2>
+    <p>Lihat koleksi kamu. Huruf apakah yang paling kerap muncul? Huruf manakah yang tidak bersambung dengan huruf selepasnya?</p>
+    <p class="muted">Guru: bincangkan jawapan bersama murid sebelum masuk ke latihan menulis.</p>
+  </section>
+  <p class="muted" style="font-size:14px">Imej kamera diproses dalam telefon sahaja dan tidak direkod atau dihantar. Ejaan Jawi perlu disahkan oleh guru Pendidikan Islam.</p>
+</main>
+
+<div id="arWrap" hidden>
+  <div id="arBox"></div>
+  <div class="hud">
+    <div class="bar"><span class="pill" id="hCount">Kad: 0/6</span><span class="pill" id="hStars">★ 0</span><button class="closeAR" id="closeAR">Tutup</button></div>
+    <div class="mission" id="hMission"></div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script type="module">
+const WORDS=[
+  {w:"buku",l:["ب","و","ک","و"]},{w:"bola",l:["ب","و","ل","ا"]},{w:"jam",l:["ج","م"]},
+  {w:"cawan",l:["چ","ا","و","ن"]},{w:"kerusi",l:["ک","ر","و","س","ي"]},{w:"pintu",l:["ڤ","ي","ن","ت","و"]}
+];
+const NAMES={"ا":"alif","ب":"ba","ت":"ta","ج":"jim","چ":"ca","ر":"ra","س":"sin","ک":"kaf","ل":"lam","م":"mim","ن":"nun","و":"wau","ي":"ya","ڤ":"pa"};
+const PRAISE=["Hebat!","Bagus sekali!","Syabas!","Tepat!","Cemerlang!"];
+const $=s=>document.querySelector(s);
+const KEY="jawi-ar-v1";let st={};try{st=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){}
+st.found=st.found||[];st.stars=st.stars||0;st.weak=st.weak||{};st.done=st.done||[];
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}};
+
+$("#cards").innerHTML=WORDS.map(o=>`<figure><img src="${o.w}.png" alt="Kad ${o.w}"><figcaption>${o.w}</figcaption></figure>`).join("");
+function renderFound(){
+  $("#found").innerHTML=WORDS.map(o=>`<span class="${st.found.includes(o.w)?"got":""}"><span class="j">${st.found.includes(o.w)?o.l.join(""):"؟"}</span> ${o.w}</span>`).join("");
+  $("#summary").textContent=st.found.length?`${st.found.length}/6 kad dijumpai · ★ ${st.stars} · ${st.done.length} misi huruf selesai`:"Belum ada kad dijumpai.";
+}
+renderFound();
+
+/* ---------- misi adaptif ---------- */
+const allLetters=[...new Set(WORDS.flatMap(o=>o.l))];
+let mission=null;
+function nextMission(){
+  // utamakan huruf yang pernah tersilap, kemudian huruf yang belum dijumpai dalam misi
+  const pool=allLetters.filter(l=>!st.done.includes(l));
+  if(!pool.length){mission=null;$("#hMission").innerHTML="<b>Semua misi huruf selesai!</b> Lencana Peneroka Jawi.";return;}
+  const w=l=>1+(st.weak[l]||0)*3;const tot=pool.reduce((s,l)=>s+w(l),0);let r=Math.random()*tot;
+  mission=pool.find(l=>(r-=w(l))<=0)||pool[0];
+  $("#hMission").innerHTML=`Misi: cari kad yang ada huruf <span class="j">${mission}</span> (${NAMES[mission]})`+(st.weak[mission]?" · diulang untuk latihan":"");
+}
+let toastT;function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove("show"),2600);}
+function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="ms-MY";const v=speechSynthesis.getVoices().find(v=>/^(ms|id)/i.test(v.lang));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+function hud(){$("#hCount").textContent=`Kad: ${st.found.length}/6`;$("#hStars").textContent=`★ ${st.stars}`;}
+let lastFound={};
+function onFound(o){
+  const now=Date.now();if(lastFound[o.w]&&now-lastFound[o.w]<4000)return;lastFound[o.w]=now;
+  speak(o.w);
+  if(!st.found.includes(o.w)){st.found.push(o.w);st.stars++;toast(`${PRAISE[Math.floor(Math.random()*PRAISE.length)]} ${o.w} = ${o.l.join("")}`);}
+  if(mission){
+    if(o.l.includes(mission)){st.stars+=2;st.done.push(mission);if(st.weak[mission])st.weak[mission]--;toast(`Misi berjaya! Huruf ${NAMES[mission]} ada dalam ${o.w}. +2 bintang`);setTimeout(nextMission,1200);}
+    else{st.weak[mission]=(st.weak[mission]||0)+1;toast(`${o.w} tiada huruf ${NAMES[mission]}. Cuba kad lain.`);}
+  }
+  if(st.found.length===6&&!st.badge){st.badge=true;setTimeout(()=>toast("Semua kad dijumpai! Lencana Pengumpul Jawi."),2700);}
+  save();hud();renderFound();
+}
+
+/* ---------- tekstur label ---------- */
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function labelCanvas(o){
+  const cv=document.createElement("canvas");cv.width=1024;cv.height=460;const c=cv.getContext("2d");
+  rr(c,12,12,1000,436,60);c.fillStyle="#fff";c.fill();c.lineWidth=16;c.strokeStyle="#0B7A8C";c.stroke();
+  c.fillStyle="#16233B";c.textAlign="center";c.textBaseline="middle";c.direction="rtl";
+  c.font='700 200px "Noto Naskh Arabic", serif';c.fillText(o.l.join(""),512,200);
+  c.direction="ltr";c.font='700 64px "Atkinson Hyperlegible", sans-serif';c.fillStyle="#56657D";c.fillText(o.w,512,392);
+  return cv;
+}
+function lettersCanvas(o){
+  const n=o.l.length,cv=document.createElement("canvas");cv.width=1024;cv.height=300;const c=cv.getContext("2d");
+  const w=Math.min(190,980/n-14),gap=14,total=n*w+(n-1)*gap,start=(1024+total)/2;
+  o.l.forEach((L,i)=>{const x=start-(i+1)*w-i*gap;rr(c,x,20,w,260,30);c.fillStyle="#fff";c.fill();c.lineWidth=8;c.strokeStyle="#1F4FD1";c.stroke();
+    c.fillStyle="#16233B";c.textAlign="center";c.textBaseline="middle";c.font='700 130px "Noto Naskh Arabic", serif';c.fillText(L,x+w/2,125);
+    c.font='700 44px "Atkinson Hyperlegible", sans-serif';c.fillStyle="#56657D";c.fillText(NAMES[L],x+w/2,240);});
+  return cv;
+}
+
+/* ---------- sasaran: guna targets.mind jika ada, jika tidak kompil dalam pelayar ---------- */
+function idb(){return new Promise((res,rej)=>{const r=indexedDB.open("jawi-ar",1);r.onupgradeneeded=()=>r.result.createObjectStore("k");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function idbGet(k){try{const db=await idb();return await new Promise(r=>{const q=db.transaction("k").objectStore("k").get(k);q.onsuccess=()=>r(q.result);q.onerror=()=>r(null);});}catch(e){return null;}}
+async function idbSet(k,v){try{const db=await idb();db.transaction("k","readwrite").objectStore("k").put(v,k);}catch(e){}}
+async function targetsURL(){
+  try{const r=await fetch("targets.mind",{cache:"no-store"});if(r.ok){$("#status").textContent="Menggunakan fail targets.mind";return "targets.mind";}}catch(e){}
+  const VER="v1-"+WORDS.map(o=>o.w).join(",");
+  let buf=await idbGet(VER);
+  if(!buf){
+    $("#status").textContent="Menyediakan kad untuk dikesan (sekali sahaja)…";$("#prog").hidden=false;
+    const mod=await import("mindar-image");
+    const Compiler=mod.Compiler||(window.MINDAR&&window.MINDAR.IMAGE&&window.MINDAR.IMAGE.Compiler);
+    if(!Compiler)throw new Error("Pengkompil MindAR tidak ditemui.");
+    const imgs=await Promise.all(WORDS.map(o=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=`${o.w}.png`;})));
+    const comp=new Compiler();
+    await comp.compileImageTargets(imgs,p=>{$("#prog span").style.width=Math.round(p)+"%";});
+    buf=await comp.exportData();await idbSet(VER,buf);$("#prog").hidden=true;
+  }
+  return URL.createObjectURL(new Blob([buf]));
+}
+
+/* ---------- AR ---------- */
+let mindar=null,THREE=null;
+$("#startBtn").onclick=async()=>{
+  $("#err").hidden=true;$("#startBtn").disabled=true;
+  try{
+    if(!window.isSecureContext)throw new Error("Kamera hanya berfungsi melalui pautan https (contohnya GitHub Pages).");
+    await Promise.all([document.fonts.load('700 120px "Noto Naskh Arabic"'),document.fonts.load('700 40px "Atkinson Hyperlegible"')]).catch(()=>{});
+    const src=await targetsURL();
+    $("#status").textContent="Membuka kamera…";
+    THREE=await import("three");const {MindARThree}=await import("mindar-image-three");
+    $("#arWrap").hidden=false;
+    mindar=new MindARThree({container:$("#arBox"),imageTargetSrc:src,maxTrack:1,uiLoading:"no",uiScanning:"yes"});
+    const {renderer,scene,camera}=mindar;
+    WORDS.forEach((o,i)=>{
+      const a=mindar.addAnchor(i);
+      const t1=new THREE.CanvasTexture(labelCanvas(o));t1.colorSpace=THREE.SRGBColorSpace;
+      const lab=new THREE.Mesh(new THREE.PlaneGeometry(1,.45),new THREE.MeshBasicMaterial({map:t1,transparent:true}));lab.position.set(0,.8,0);
+      const t2=new THREE.CanvasTexture(lettersCanvas(o));t2.colorSpace=THREE.SRGBColorSpace;
+      const let_=new THREE.Mesh(new THREE.PlaneGeometry(1,.29),new THREE.MeshBasicMaterial({map:t2,transparent:true}));let_.position.set(0,-.72,0);
+      a.group.add(lab);a.group.add(let_);a.lab=lab;
+      a.onTargetFound=()=>onFound(o);
+    });
+    nextMission();hud();
+    await mindar.start();
+    const clock=new THREE.Clock();
+    renderer.setAnimationLoop(()=>{const t=clock.getElapsedTime();mindar.anchors.forEach(a=>{if(a.lab)a.lab.position.z=.04+Math.sin(t*2)*.03;});renderer.render(scene,camera);});
+    $("#status").textContent="";
+  }catch(e){
+    console.error(e);$("#arWrap").hidden=true;$("#prog").hidden=true;
+    $("#err").hidden=false;$("#err").textContent="AR tidak dapat dimulakan: "+(e&&e.message?e.message:e)+" Pastikan kamera dibenarkan dan halaman dibuka melalui https.";
+    $("#status").textContent="";
+  }
+  $("#startBtn").disabled=false;
+};
+$("#closeAR").onclick=async()=>{try{mindar&&mindar.renderer.setAnimationLoop(null);mindar&&await mindar.stop();}catch(e){}
+  $("#arBox").innerHTML="";mindar=null;$("#arWrap").hidden=true;renderFound();};
+</script>
+</body>
+</html>
