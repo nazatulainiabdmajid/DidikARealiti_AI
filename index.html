@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<title>Pelan dan Dongakan AR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap">
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<style>
+:root{--paper:#F5F7FA;--card:#fff;--ink:#16233B;--muted:#56657D;--line:#D8DFEA;--soft:#EBF0F7;--phase:#1F4FD1;--phase-soft:#E3EBFF;--ai:#B4236A;--ai-soft:#FBE7F1;--ar:#0B7A8C;--ar-soft:#E0F3F6;--ps:#A85A06;--ps-soft:#FDF0DC;--ok:#137A45;--ok-soft:#E2F4EA;--bad:#B42318;--bad-soft:#FDE8E6;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;--f-b:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-b);font-size:17px;line-height:1.55}
+main{max-width:960px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left)) 40px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--f-d);margin:0;line-height:1.15}
+h1{font-size:clamp(28px,6vw,40px)} h2{font-size:22px} h3{font-size:18px}
+p{margin:0}.muted{color:var(--muted)}
+.chip{display:inline-flex;gap:6px;align-items:center;font-size:13.5px;font-weight:700;border-radius:999px;padding:2px 10px;border:1.5px solid}
+.chip.ai{color:var(--ai);border-color:var(--ai);background:var(--ai-soft)}.chip.ar{color:var(--ar);border-color:var(--ar);background:var(--ar-soft)}.chip.ps{color:var(--ps);border-color:var(--ps);background:var(--ps-soft)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.btn{font:inherit;font-weight:700;border:0;border-radius:10px;padding:9px 16px;background:var(--phase);color:#fff;cursor:pointer}
+.btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn.sm{padding:6px 12px;font-size:15px}
+.btn[aria-pressed="true"]{border-color:var(--phase);background:var(--phase-soft)}
+.btn:disabled{opacity:.45}
+model-viewer{display:block;width:100%;height:360px;background:linear-gradient(#EEF3F9,#DCE6F2);border-radius:12px;--poster-color:transparent}
+#arBtn{position:absolute;right:12px;bottom:12px;font:inherit;font-weight:700;border:0;border-radius:999px;padding:10px 16px;background:var(--ar);color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.lbl{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.92);border-radius:8px;padding:3px 10px;font-size:14px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:1.2fr 1fr;gap:16px}
+@media (max-width:760px){.layout{grid-template-columns:1fr}}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vopt{background:#fff;border:2px solid var(--line);border-radius:12px;padding:8px;display:grid;place-items:center;min-height:100px;cursor:pointer}
+.vopt svg{max-width:100%;height:auto}
+.vopt.right{border-color:var(--ok);background:var(--ok-soft)}.vopt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{border-radius:10px;padding:9px 12px;font-size:15.5px}.fb.ok{background:var(--ok-soft);color:var(--ok)}.fb.bad{background:var(--bad-soft);color:var(--bad)}.fb.info{background:var(--soft)}
+.grid{overflow-x:auto}
+.grid table{border-collapse:collapse;width:100%;font-size:15px}
+.grid th,.grid td{border:1px solid var(--line);padding:6px 8px;text-align:center}
+.grid td.got{background:var(--ok-soft);color:var(--ok);font-weight:700}
+.level{display:inline-flex;gap:3px;align-items:center;font-weight:700;color:var(--ai);font-size:14px}.level i{width:10px;height:10px;border-radius:3px;background:var(--line)}.level i.on{background:var(--ai)}
+</style>
+</head>
+<body>
+<main>
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <span class="muted" style="font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:13px">Matematik · Tingkatan 3</span>
+    <h1>Pelan dan Dongakan AR</h1>
+    <p class="muted">Letakkan pepejal maya di atas meja sebenar. Berjalan mengelilinginya untuk melihat dari atas, depan dan sisi kanan, kemudian pilih lukisan yang betul.</p>
+    <div class="row"><span class="chip ar">▲ AR: pepejal di atas meja</span><span class="chip ai">◆ AI Adaptif: pepejal dan soalan ikut prestasi</span><span class="chip ps">● Persuasif: misi, bintang, lencana</span></div>
+  </header>
+
+  <div class="layout">
+    <section class="box">
+      <div class="row" style="justify-content:space-between"><h2 id="pName">Pepejal A</h2><span class="level" id="lvl">Tahap <i></i><i></i><i></i><i></i></span></div>
+      <div style="position:relative">
+        <model-viewer id="mv" src="model/pepejal-A.glb" alt="Pepejal daripada kubus" ar ar-modes="webxr scene-viewer quick-look" ar-placement="floor" ar-scale="auto"
+          camera-controls touch-action="pan-y" camera-orbit="35deg 60deg auto" min-camera-orbit="auto 0deg auto" max-camera-orbit="auto 180deg auto"
+          shadow-intensity="1" exposure="1.1" interaction-prompt="auto">
+          <button slot="ar-button" id="arBtn">Letak di atas meja (AR)</button>
+        </model-viewer>
+        <span class="lbl" id="vLbl">Seret untuk memusing</span>
+      </div>
+      <div class="row">
+        <button class="btn ghost sm" data-v="top">Dari atas</button>
+        <button class="btn ghost sm" data-v="front">Dari depan</button>
+        <button class="btn ghost sm" data-v="side">Dari sisi kanan</button>
+        <button class="btn ghost sm" data-v="iso">3D</button>
+      </div>
+      <p class="muted" style="font-size:14.5px">Bahagian <b>depan</b> pepejal menghadap anda semasa ia mula diletakkan. Kubus berwarna selang-seli supaya mudah dikira.</p>
+    </section>
+
+    <section class="box">
+      <div class="row" style="justify-content:space-between"><span class="muted" id="mis">Misi: 0/12</span><b style="color:var(--ps)" id="stars">★ 0</b></div>
+      <h3 id="q">Pilih pelan yang betul</h3>
+      <p class="muted" id="why" style="font-size:14.5px"></p>
+      <div class="opts" id="opts"></div>
+      <div id="fb"></div>
+      <div class="row"><button class="btn ghost sm" id="hint" disabled>Petunjuk: lihat dari arah itu</button><button class="btn sm" id="next" hidden>Seterusnya</button></div>
+    </section>
+  </div>
+
+  <section class="box">
+    <h2>Rekod kemajuan</h2>
+    <div class="grid"><table><thead><tr><th>Pepejal</th><th>Pelan</th><th>Dongakan depan</th><th>Dongakan sisi kanan</th></tr></thead><tbody id="rec"></tbody></table></div>
+    <p class="muted" id="sumTxt"></p>
+  </section>
+
+  <section class="box">
+    <h2>Selepas AR · Renung</h2>
+    <p>Pandangan manakah yang paling sukar? Kenapa pelan tidak menunjukkan ketinggian? Lukis pelan dan dongakan satu pepejal yang kamu bina sendiri daripada kubus.</p>
+  </section>
+  <p class="muted" style="font-size:14px">AR menggunakan ARCore (Android) atau AR Quick Look (iPhone). Imej kamera tidak direkod atau dihantar.</p>
+</main>
+
+<script>
+(function(){
+"use strict";
+const SHAPES={A:[[2,1],[1,0]],B:[[1,2,1],[0,1,0]],C:[[3,1,0],[2,1,1]],D:[[1,0,1],[2,1,1],[3,2,0]]};
+const ORDER=["A","B","C","D"],VN={top:"pelan",front:"dongakan depan",side:"dongakan sisi kanan"};
+const ORBIT={top:"0deg 0deg auto",front:"0deg 90deg auto",side:"90deg 90deg auto",iso:"35deg 60deg auto"};
+const PRAISE=["Hebat!","Bagus sekali!","Syabas!","Tepat!","Cemerlang!"];
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const KEY="pelan-ar-v1";let st={};try{st=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){}
+st.done=st.done||{};st.stars=st.stars||0;st.weak=st.weak||{top:0,front:0,side:0};st.cur=st.cur||"A";
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}};
+const rnd=n=>Math.floor(Math.random()*n),shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* rows[d][x], d=0 baris depan */
+function views(rows){
+  const D=rows.length,W=rows[0].length,H=Math.max(...rows.flat());
+  const top=[];for(let d=D-1;d>=0;d--)top.push(rows[d].map(h=>h>0?1:0));
+  const front=[];for(let y=H;y>=1;y--)front.push(Array.from({length:W},(_,x)=>Math.max(...rows.map(r=>r[x]))>=y?1:0));
+  const side=[];for(let y=H;y>=1;y--)side.push(Array.from({length:D},(_,d)=>Math.max(...rows[d])>=y?1:0));
+  return {top,front,side};
+}
+const trim=m=>{const r=m.filter(x=>x.some(v=>v));const c=r[0].map((_,i)=>r.some(x=>x[i]));const a=c.indexOf(true),b=c.lastIndexOf(true);return r.map(x=>x.slice(a,b+1));};
+const sig=m=>trim(m).map(r=>r.join("")).join("|");
+function svg(m){m=trim(m);const s=26,p=4,R=m.length,C=m[0].length;let o=`<svg viewBox="0 0 ${C*s+p*2} ${R*s+p*2}" width="${C*s+p*2}" height="${R*s+p*2}" role="img" aria-label="Lukisan">`;
+  m.forEach((row,r)=>row.forEach((v,c)=>{if(v)o+=`<rect x="${p+c*s}" y="${p+r*s}" width="${s}" height="${s}" fill="#E3EBFF" stroke="#1F4FD1" stroke-width="2"/>`;}));return o+"</svg>";}
+function mutate(m){const a=m.map(r=>r.slice());const cells=[];a.forEach((r,i)=>r.forEach((v,j)=>cells.push([i,j])));const [i,j]=cells[rnd(cells.length)];a[i][j]=a[i][j]?0:1;if(!a.flat().some(v=>v))a[0][0]=1;return a;}
+
+const mv=$("#mv");
+function setView(v){mv.setAttribute("camera-orbit",ORBIT[v]);$("#vLbl").textContent=v==="iso"?"Pandangan 3D":"Dilihat "+({top:"dari atas",front:"dari depan",side:"dari sisi kanan"})[v];$$("[data-v]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v));}
+$$("[data-v]").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+
+function loadShape(k){st.cur=k;save();mv.src=`model/pepejal-${k}.glb`;$("#pName").textContent="Pepejal "+k;
+  const i=ORDER.indexOf(k);$$("#lvl i").forEach((e,n)=>e.classList.toggle("on",n<=i));setView("iso");newQ();}
+
+let Q=null;
+function newQ(){
+  const k=st.cur,rows=SHAPES[k],vs=views(rows);const doneK=st.done[k]||{};
+  let types=["top","front","side"].filter(t=>!doneK[t]);if(!types.length)types=["top","front","side"];
+  const w=t=>1+(st.weak[t]||0)*2;let r=Math.random()*types.reduce((s,t)=>s+w(t),0);const type=types.find(t=>(r-=w(t))<=0)||types[0];
+  const right=sig(vs[type]);const cand=[];["top","front","side"].forEach(t=>{if(t!==type)cand.push(vs[t]);});cand.push(vs[type].map(x=>x.slice().reverse()));for(let i=0;i<8;i++)cand.push(mutate(vs[type]));
+  const seen=new Set([right]),wrong=[];for(const c of cand){const s=sig(c);if(!seen.has(s)){seen.add(s);wrong.push(c);}if(wrong.length===2)break;}
+  Q={type,opts:shuffle([{m:vs[type],ok:true},{m:wrong[0],ok:false},{m:wrong[1],ok:false}]),tries:0};
+  $("#q").textContent="Pilih "+VN[type]+" yang betul";
+  $("#why").textContent=st.weak[type]>0?"Soalan "+VN[type]+" diulang kerana perlu latihan.":"Lihat pepejal dari arah itu dahulu jika perlu.";
+  $("#opts").innerHTML=Q.opts.map((o,i)=>`<button class="vopt" data-i="${i}" aria-label="Pilihan ${i+1}">${svg(o.m)}</button>`).join("");
+  $$("#opts .vopt").forEach(b=>b.onclick=()=>answer(b));$("#fb").innerHTML="";$("#next").hidden=true;$("#hint").disabled=true;
+}
+function answer(b){
+  if($("#opts .right"))return;const o=Q.opts[+b.dataset.i];
+  if(!o.ok){b.classList.add("wrong");Q.tries++;st.weak[Q.type]=(st.weak[Q.type]||0)+1;save();$("#hint").disabled=false;
+    $("#fb").innerHTML=`<div class="fb bad">Belum tepat. Tekan petunjuk, atau berjalan ke arah ${VN[Q.type]} dalam AR, kemudian cuba lagi.</div>`;return;}
+  b.classList.add("right");const clean=Q.tries===0;st.stars+=clean?2:1;if(clean&&st.weak[Q.type])st.weak[Q.type]--;
+  st.done[st.cur]=st.done[st.cur]||{};st.done[st.cur][Q.type]=true;setView(Q.type);
+  let msg=(clean?PRAISE[rnd(PRAISE.length)]+" +2 bintang.":"Betul selepas mencuba. +1 bintang.");
+  const finished=["top","front","side"].every(t=>st.done[st.cur][t]);const i=ORDER.indexOf(st.cur);
+  if(finished&&i<ORDER.length-1){msg+=` Pepejal ${st.cur} selesai. Seterusnya: Pepejal ${ORDER[i+1]} yang lebih mencabar.`;Q.advance=ORDER[i+1];}
+  if(finished&&i===ORDER.length-1)msg+=" Semua pepejal selesai! Lencana Arkitek Muda.";
+  $("#fb").innerHTML=`<div class="fb ok">${msg}</div>`;$("#next").hidden=false;$("#hint").disabled=true;save();render();
+}
+$("#hint").onclick=()=>setView(Q.type);
+$("#next").onclick=()=>{if(Q.advance)loadShape(Q.advance);else newQ();};
+function render(){
+  let n=0;$("#rec").innerHTML=ORDER.map(k=>`<tr><th><button class="btn ghost sm" data-k="${k}">${k}</button></th>${["top","front","side"].map(t=>{const g=st.done[k]&&st.done[k][t];if(g)n++;return `<td class="${g?"got":""}">${g?"✓":"–"}</td>`;}).join("")}</tr>`).join("");
+  $$("#rec [data-k]").forEach(b=>b.onclick=()=>loadShape(b.dataset.k));
+  $("#mis").textContent=`Misi: ${n}/12`;$("#stars").textContent="★ "+st.stars;
+  const weakest=Object.entries(st.weak).sort((a,b)=>b[1]-a[1])[0];
+  $("#sumTxt").textContent=n?`${n}/12 lukisan betul · ★ ${st.stars}`+(weakest&&weakest[1]>0?` · Perlu latihan: ${VN[weakest[0]]}`:""):"Belum ada rekod.";
+}
+render();loadShape(st.cur);
+})();
+</script>
+</body>
+</html>
