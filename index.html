@@ -4,29 +4,55 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="only light">
-<title>Contoh AR Makmal Kolb</title>
+<title>Didik A-Realiti AI</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap">
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#F5F7FA;color:#16233B;font-family:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;font-size:17px;line-height:1.55}
-main{max-width:820px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left)) 40px;display:flex;flex-direction:column;gap:18px}
-h1,h2{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;margin:0;line-height:1.15}
-h1{font-size:clamp(28px,6vw,40px)}
-p{margin:0;color:#56657D}
-a.card{display:flex;flex-direction:column;gap:6px;background:#fff;border:2px solid #D8DFEA;border-radius:16px;padding:18px;text-decoration:none;color:#16233B}
-a.card:hover,a.card:focus-visible{border-color:#1F4FD1}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+body{margin:0;background:#F4F6F1;color:#1B2430;font-family:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;font-size:17px;line-height:1.55}
+main{max-width:900px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,6vw,42px)} h2{font-size:22px} h3{font-size:19px}
+p{margin:0;color:#5B6675}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+a.card{display:flex;flex-direction:column;gap:6px;background:#fff;border:2px solid #D9DED3;border-radius:16px;padding:16px;text-decoration:none;color:#1B2430}
+a.card:hover,a.card:focus-visible{border-color:#1864AB}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tags span{font-size:12.5px;font-weight:700;border-radius:999px;padding:1px 9px;background:#ECEFE7}
+.tags .k{background:#E1EEFB;color:#1864AB}.tags .g{background:#FFE8DC;color:#D9480F}.tags .a{background:#E0F3F6;color:#0B7285}
+.sec{display:flex;flex-direction:column;gap:10px}
 </style>
 </head>
 <body>
 <main>
-  <h1>Contoh AR untuk kitaran Kolb</h1>
-  <p>Dua contoh aplikasi web dengan AR sebenar, AI adaptif berasaskan peraturan dan pencetus persuasif. Buka di telefon.</p>
-  <div class="grid">
-    <a class="card" href="jawi.html"><h2>Jawi di Sekelilingku</h2><span>Sekolah rendah · Kad bercetak dikesan kamera (MindAR)</span></a>
-    <a class="card" href="matematik.html"><h2>Pelan dan Dongakan</h2><span>Tingkatan 3 · Pepejal 3D di atas meja (model-viewer)</span></a>
-  </div>
-  <p style="font-size:14.5px">Imej kamera diproses dalam telefon sahaja dan tidak direkod atau dihantar.</p>
+  <h1>Didik A-Realiti AI</h1>
+  <p>Contoh aplikasi pembelajaran STEM dan bahasa yang menggabungkan kitaran Kolb, AR, AI dan elemen persuasif. Buka di telefon atau komputer melalui Chrome.</p>
+
+  <section class="sec">
+    <h2>Simulator kitaran Kolb penuh</h2>
+    <p>Empat fasa: Alami, Renung, Faham, Cuba. Gerak tangan melalui kamera, suara ke teks, kuiz adaptif.</p>
+    <div class="grid">
+      <a class="card" href="tuas.html"><h3>Makmal Tuas</h3><span>Sains Tingkatan 2 · Tuas dan momen daya</span><div class="tags"><span class="k">Kolb penuh</span><span class="g">Tolak dengan jari</span></div></a>
+      <a class="card" href="apung.html"><h3>Makmal Apung</h3><span>Sains Tingkatan 1 · Ketumpatan, terapung dan tenggelam</span><div class="tags"><span class="k">Kolb penuh</span><span class="g">Cubit dan seret</span></div></a>
+      <a class="card" href="daun.html"><h3>Makmal Daun</h3><span>Sains Tahun 4 · Fotosintesis</span><div class="tags"><span class="k">Kolb penuh</span><span class="g">Cubit dan seret</span></div></a>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>Permainan gerak tangan</h2>
+    <p>Latihan pantas dengan kamera: cubit untuk memegang, buka jari untuk melepaskan.</p>
+    <div class="grid">
+      <a class="card" href="arab.html"><h3>Padan Nombor Arab ١–١٠</h3><span>Bahasa Arab · Padankan perkataan dengan nombor</span><div class="tags"><span class="g">Cubit dan seret</span><span>Carta Top 10</span><span>Mod guru</span></div></a>
+    </div>
+  </section>
+
+  <section class="sec">
+    <h2>AR objek dan kad</h2>
+    <div class="grid">
+      <a class="card" href="jawi.html"><h3>Jawi di Sekelilingku</h3><span>Sekolah rendah · Kad bercetak dikesan kamera</span><div class="tags"><span class="a">AR kad (MindAR)</span><span class="k">Kolb</span></div></a>
+      <a class="card" href="matematik.html"><h3>Pelan dan Dongakan</h3><span>Matematik Tingkatan 3 · Pepejal 3D di atas meja</span><div class="tags"><span class="a">AR meja (model-viewer)</span><span class="k">Kolb</span></div></a>
+    </div>
+  </section>
+  <p style="font-size:14.5px">Kamera dan mikrofon memerlukan pautan https dan kebenaran pengguna. Imej kamera diproses dalam peranti sahaja dan tidak direkod atau dihantar. Suara ke teks dalam Chrome diproses oleh perkhidmatan Google.</p>
 </main>
 </body>
 </html>

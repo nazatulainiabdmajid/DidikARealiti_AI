@@ -1,0 +1,564 @@
+<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Makmal Tuas AR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="color-scheme" content="only light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Susun atur: bar fasa Kolb melekat di atas; setiap fasa satu panel; makmal kanvas di tengah. Warna fasa ikut kitaran Kolb. */
+:root{
+  color-scheme: only light;
+  --paper:#F4F6F1; --card:#FFFFFF; --ink:#1B2430; --muted:#5B6675; --line:#D9DED3; --soft:#ECEFE7;
+  --ce:#D9480F; --ce-soft:#FFE8DC; --ro:#6741D9; --ro-soft:#ECE5FF; --ac:#1864AB; --ac-soft:#E1EEFB; --ae:#2B8A3E; --ae-soft:#E3F4E6;
+  --ar:#0B7285; --ai:#C2255C; --ps:#B35C00;
+  --ok:#2B8A3E; --bad:#C92A2A;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --f-b:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--paper);color:var(--ink)}
+body{margin:0;font-family:var(--f-b);font-size:16.5px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--card)}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-d);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(28px,5vw,42px);font-weight:800} h2{font-size:clamp(22px,3.4vw,28px);font-weight:800} h3{font-size:18px;font-weight:600}
+p{margin:0} .muted{color:var(--muted)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--line);margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
+.top .wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.brand{font-family:var(--f-d);font-weight:800;margin-right:auto}
+.ph{display:flex;gap:6px;flex-wrap:wrap}
+.phb{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px 4px 5px;display:flex;gap:6px;align-items:center;font-size:14px;font-weight:700;color:var(--ink)}
+.phb .n{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12.5px}
+.phb[data-p="0"] .n{background:var(--ce)}.phb[data-p="1"] .n{background:var(--ro)}.phb[data-p="2"] .n{background:var(--ac)}.phb[data-p="3"] .n{background:var(--ae)}
+.phb[aria-current="true"]{border-color:var(--ink)}
+.phb.done::after{content:"✓";color:var(--ok);font-weight:800}
+@media (max-width:520px){.brand{display:none}.phb{padding:3px 9px 3px 4px;font-size:13px}.phb .n{width:19px;height:19px}.lensbtn{padding:3px 9px;font-size:13px}}
+.stars{font-weight:800;color:var(--ps);font-variant-numeric:tabular-nums}
+.lensbtn{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:700;color:var(--ink)}
+.lensbtn[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+main{padding-block:22px 40px;display:flex;flex-direction:column;gap:18px}
+.hero{display:flex;flex-direction:column;gap:8px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px;border-top:6px solid var(--c,var(--ink))}
+.panel[data-p="0"]{--c:var(--ce);--cs:var(--ce-soft)}.panel[data-p="1"]{--c:var(--ro);--cs:var(--ro-soft)}.panel[data-p="2"]{--c:var(--ac);--cs:var(--ac-soft)}.panel[data-p="3"]{--c:var(--ae);--cs:var(--ae-soft)}
+.eyebrow{font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+.lens{display:none;flex-wrap:wrap;gap:6px}
+.lens-on .lens{display:flex}
+.tag{font-size:13px;font-weight:700;border-radius:8px;padding:3px 9px;border:1.5px dashed;background:#fff}
+.tag.ar{color:var(--ar);border-color:var(--ar)}.tag.ai{color:var(--ai);border-color:var(--ai)}.tag.ps{color:var(--ps);border-color:var(--ps)}
+.guide{display:flex;gap:12px;align-items:flex-start;background:var(--cs,var(--soft));border-radius:14px;padding:12px 14px}
+.guide .av{flex:none;width:46px;height:46px;border-radius:50%;background:var(--c,var(--ink));color:#fff;display:grid;place-items:center;font-family:var(--f-d);font-weight:800;font-size:18px}
+.guide p{font-size:16px}
+.guide b.who{display:block;font-size:13px;color:var(--muted);font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:12px;padding:10px 18px;font-weight:700;background:var(--c,var(--ink));color:#fff}
+.btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn.sm{padding:6px 12px;font-size:14.5px}
+.btn.big{font-size:19px;padding:14px 26px;border-radius:16px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font-weight:700;font-size:14.5px;color:var(--ink)}
+.chip[aria-pressed="true"]{border-color:var(--c);background:var(--cs)}
+
+.lab{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(#F7F9FC,#E7ECE1);touch-action:none;user-select:none}
+.lab video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.lab canvas{position:relative;display:block;width:100%;height:340px}
+.hud{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.hud span{background:rgba(255,255,255,.93);border-radius:8px;padding:3px 9px;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.meter{position:absolute;right:10px;top:10px;width:150px;background:rgba(255,255,255,.93);border-radius:10px;padding:6px 9px;font-size:13px;pointer-events:none}
+.meter .bar{height:10px;border-radius:999px;background:var(--soft);overflow:hidden;margin-top:4px}
+.meter .bar span{display:block;height:100%;background:var(--ce);width:0}
+.missions{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.mis{border:2px solid var(--line);border-radius:12px;padding:8px 12px;font-size:15px;background:#fff}
+.mis.cur{border-color:var(--ce);background:var(--ce-soft)}
+.mis.done{border-color:var(--ok);background:#E3F4E6}
+.mis b{display:block;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.fb{border-radius:10px;padding:9px 12px;font-size:15.5px}
+.fb.ok{background:#E3F4E6;color:var(--ok)}.fb.bad{background:#FFE3E3;color:var(--bad)}.fb.info{background:var(--soft)}
+
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left}
+th{font-family:var(--f-d);font-size:13.5px;background:var(--soft)}
+tr.sel td{background:var(--cs)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0;background:#fff}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{border:2px solid var(--line);background:#fff;border-radius:10px;padding:6px 14px;color:var(--ink)}
+.opt.right{border-color:var(--ok);background:#E3F4E6}.opt.wrong{border-color:var(--bad);background:#FFE3E3}
+textarea,input[type=number]{font:inherit;width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
+textarea{min-height:70px;resize:vertical}
+.formula{font-family:var(--f-d);font-size:clamp(20px,3.6vw,28px);font-weight:800;text-align:center;padding:12px;border-radius:12px;background:var(--cs)}
+.map{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center;font-variant-numeric:tabular-nums}
+.map .side{border-radius:12px;padding:10px;background:var(--soft)}
+.map .eq{font-family:var(--f-d);font-size:28px;font-weight:800}
+.classes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media (max-width:640px){.classes{grid-template-columns:1fr}}
+.classes .card svg{width:100%;height:auto}
+.level{display:inline-flex;gap:3px;align-items:center;font-weight:700;font-size:14px;color:var(--ai)}
+.level i{width:10px;height:10px;border-radius:3px;background:var(--line)}.level i.on{background:var(--ai)}
+.sliders{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.sliders label{display:flex;flex-direction:column;gap:2px;font-weight:700;font-size:14.5px}
+input[type=range]{width:100%;accent-color:var(--ae)}
+.chal{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.chal button{text-align:left;border:2px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;color:var(--ink);display:flex;flex-direction:column;gap:2px}
+.chal button[aria-pressed="true"]{border-color:var(--ae);background:var(--ae-soft)}
+.chal button small{color:var(--muted);font-size:13.5px}
+.chal button.done{border-color:var(--ok)}
+.chal button.done b::after{content:" ✓";color:var(--ok)}
+.evidence{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.evidence div{border-radius:12px;background:var(--soft);padding:10px;text-align:center}
+.evidence b{display:block;font-family:var(--f-d);font-size:26px}
+.mic{border:2px solid var(--ai);color:var(--ai);background:#fff;border-radius:999px;padding:6px 14px;font-weight:700}
+.mic.on{background:var(--ai);color:#fff}
+.teacher{background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;font-size:15.5px}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;transition:all .3s;z-index:50;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="top"><div class="wrap">
+  <span class="brand">Makmal Tuas</span>
+  <nav class="ph" aria-label="Fasa Kolb">
+    <button class="phb" data-p="0" aria-current="true"><span class="n">1</span>Alami</button>
+    <button class="phb" data-p="1"><span class="n">2</span>Renung</button>
+    <button class="phb" data-p="2"><span class="n">3</span>Faham</button>
+    <button class="phb" data-p="3"><span class="n">4</span>Cuba</button>
+  </nav>
+  <span class="stars" id="stars">★ 0</span>
+</div></div>
+
+<main class="wrap" id="app">
+  <header class="hero">
+    <span class="muted" style="font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:13px">Sains Tingkatan 2 · Bab 8 Daya dan Gerakan · Tuas dan momen daya</span>
+    <h1>Boleh kamu angkat batu 40 N dengan satu jari?</h1>
+    <p class="muted">Main dahulu, fikir kemudian. Aplikasi ini membawa kamu melalui empat fasa: alami, renung, faham dan cuba.</p>
+  </header>
+
+  <!-- FASA 1: ALAMI -->
+  <section class="panel" data-p="0" id="p0">
+    <span class="eyebrow">Fasa 1 · Alami (pengalaman konkrit)</span>
+    <div class="guide"><span class="av">PT</span><p><b class="who">Pak Tuas</b><span id="g0">Ada sebatang papan, satu fulkrum dan beberapa beban. Tekan pada papan di sebelah kanan fulkrum. Semakin lama kamu tekan, semakin besar daya kamu. Boleh kamu angkat bebannya?</span></p></div>
+    <div class="row">
+      <button class="btn big" id="startBtn">Mula Alami</button>
+      <button class="btn ghost" id="camBtn">Guna kamera dan gerak tangan (AR)</button>
+      <span class="muted" id="camStat" style="font-size:14.5px"></span>
+    </div>
+    <div class="row" role="group" aria-label="Pilih beban">
+      <span class="muted" style="font-size:14.5px;font-weight:700">Beban:</span>
+      <button class="chip" data-w="10" aria-pressed="false">Buah 10 N</button>
+      <button class="chip" data-w="20" aria-pressed="true">Kotak 20 N</button>
+      <button class="chip" data-w="40" aria-pressed="false">Batu 40 N</button>
+    </div>
+    <div class="lab" id="lab">
+      <video id="vid" playsinline muted hidden></video>
+      <canvas id="cv" aria-label="Makmal tuas: seret fulkrum dan beban, tekan papan untuk memberi daya"></canvas>
+      <div class="hud"><span id="hW">Beban 20 N</span><span id="hDW">Jarak beban 0.60 m</span><span id="hDE">Jarak daya –</span></div>
+      <div class="meter"><span>Daya kamu: <b id="hE">0</b> N</span><div class="bar"><span id="hEbar"></span></div></div>
+    </div>
+    <p class="muted" style="font-size:14.5px">Seret <b>segi tiga</b> untuk mengalih fulkrum. Seret <b>beban</b> untuk mengubah kedudukannya. Tekan dan tahan pada papan di kanan fulkrum untuk menekan.</p>
+    <div class="missions" id="missions"></div>
+    <div id="fb0"></div>
+  </section>
+
+  <!-- FASA 2: RENUNG -->
+  <section class="panel" data-p="1" id="p1" hidden>
+    <span class="eyebrow">Fasa 2 · Renung (pemerhatian reflektif)</span>
+    <div class="guide"><span class="av">PT</span><p><b class="who">Pak Tuas</b>Setiap kali kamu berjaya mengangkat beban, makmal mencatatnya. Lihat semula data kamu sendiri. Apa yang berubah apabila kamu menekan lebih jauh dari fulkrum?</p></div>
+    <div class="grid2">
+      <div class="card"><h3>Log percubaan kamu</h3><div class="tbl"><table><thead><tr><th>#</th><th>Beban (N)</th><th>Jarak beban (m)</th><th>Jarak daya (m)</th><th>Daya diperlukan (N)</th></tr></thead><tbody id="logBody"></tbody></table></div></div>
+      <div class="card"><h3>Graf: daya diperlukan melawan jarak daya</h3><canvas id="chart" style="width:100%;height:240px" aria-label="Graf daya melawan jarak daya"></canvas><p class="muted" style="font-size:14px" id="chartNote"></p></div>
+    </div>
+    <div class="card" id="roQ"></div>
+    <div class="card">
+      <h3>Apa yang paling mengejutkan kamu?</h3>
+      <textarea id="roText" placeholder="Tulis atau tekan butang mikrofon dan bercakap."></textarea>
+      <div class="row"><button class="mic" id="roMic">🎤 Cakap</button><span class="muted" id="roMicStat" style="font-size:14px"></span></div>
+    </div>
+    <div class="row"><button class="btn" data-go="2">Teruskan ke Faham</button></div>
+  </section>
+
+  <!-- FASA 3: FAHAM -->
+  <section class="panel" data-p="2" id="p2" hidden>
+    <span class="eyebrow">Fasa 3 · Faham (konsep abstrak)</span>
+    <div class="guide"><span class="av">PT</span><p><b class="who">Pak Tuas</b>Apa yang kamu rasa tadi ada namanya: <b>momen daya</b>. Mari kita padankan pengalaman kamu dengan konsep.</p></div>
+    <div class="formula">Momen daya = Daya × Jarak tegak dari fulkrum</div>
+    <p>Tuas <b>seimbang</b> apabila momen beban sama dengan momen daya: <b>Beban × jarak beban = Daya × jarak daya</b>. Jika momen daya lebih besar, beban terangkat.</p>
+    <div class="card">
+      <h3>Pengalaman kamu, dalam bentuk konsep</h3>
+      <div class="opts" id="mapPick"></div>
+      <div class="map" id="mapBox"></div>
+      <p id="mapNote"></p>
+    </div>
+    <div class="card">
+      <h3>Tiga kelas tuas</h3>
+      <div class="classes" id="classes"></div>
+    </div>
+    <div class="card">
+      <h3>Terangkan dengan suara sendiri</h3>
+      <p class="muted">Kenapa batu 40 N boleh diangkat dengan daya yang kecil?</p>
+      <textarea id="acText" placeholder="Tekan mikrofon dan terangkan, atau taip di sini."></textarea>
+      <div class="row"><button class="mic" id="acMic">🎤 Cakap</button><button class="btn sm" id="acCheck">Semak penerangan</button><span class="muted" id="acMicStat" style="font-size:14px"></span></div>
+      <div id="acFb"></div>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h3>Uji kefahaman</h3><span class="level" id="qLvl">Tahap <i class="on"></i><i></i><i></i></span></div>
+      <p class="muted" style="font-size:14.5px" id="qProg">Soalan 1 daripada 6</p>
+      <p id="qText"></p>
+      <div class="opts" id="qOpts"></div>
+      <div id="qFb"></div>
+      <div class="row"><button class="btn sm" id="qNext" hidden>Soalan seterusnya</button></div>
+    </div>
+    <div class="row"><button class="btn" data-go="3">Teruskan ke Cuba</button></div>
+  </section>
+
+  <!-- FASA 4: CUBA -->
+  <section class="panel" data-p="3" id="p3" hidden>
+    <span class="eyebrow">Fasa 4 · Cuba (uji kaji aktif)</span>
+    <div class="guide"><span class="av">PT</span><p><b class="who">Pak Tuas</b>Kini bahan dan situasi baharu. <b>Ramal dahulu</b> daya yang diperlukan, kemudian uji. Jika ramalan kamu tepat, maknanya pengalaman tadi sudah menjadi pengetahuan.</p></div>
+    <div class="chal" id="chalList"></div>
+    <div class="card">
+      <h3 id="cTitle"></h3>
+      <p id="cDesc"></p>
+      <div class="lab"><canvas id="cv2" style="height:260px" aria-label="Tuas untuk cabaran"></canvas></div>
+      <div class="sliders" id="cSliders"></div>
+      <div class="row" style="align-items:flex-end">
+        <label style="display:flex;flex-direction:column;gap:2px;font-weight:700;font-size:14.5px;flex:1 1 200px">Ramalan saya: daya diperlukan (N)<input type="number" id="cPred" min="0" step="0.5" inputmode="decimal"></label>
+        <button class="btn" id="cTest">Uji</button>
+      </div>
+      <div id="cFb"></div>
+    </div>
+    <div class="card">
+      <h3>Bukti: pengalaman menjadi pengetahuan</h3>
+      <div class="evidence">
+        <div><b id="evDone">0/4</b>cabaran selesai</div>
+        <div><b id="evAcc">–</b>purata ketepatan ramalan</div>
+        <div><b id="evQuiz">–</b>kuiz konsep betul</div>
+        <div><b id="evTrials">0</b>percubaan dalam fasa Alami</div>
+      </div>
+      <p class="muted" style="font-size:14.5px" id="evNote">Ramalan dikira tepat jika dalam lingkungan 10% daripada nilai sebenar.</p>
+    </div>
+  </section>
+
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const KEY="makmal-tuas-v1";let S={};try{S=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){S={};}
+S.stars=S.stars||0;S.log=S.log||[];S.mis=S.mis||{};S.phase=S.phase||0;S.done=S.done||{};S.quiz=S.quiz||{ok:0,n:0};S.chal=S.chal||{};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+let tT;function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>e.classList.remove("show"),2600);}
+const PRAISE=["Hebat!","Syabas!","Bagus sekali!","Tepat!","Cemerlang!"];const pr=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
+function star(n){S.stars+=n;save();$("#stars").textContent="★ "+S.stars;}
+$("#stars").textContent="★ "+S.stars;
+const f2=x=>(Math.round(x*100)/100).toFixed(2),f1=x=>(Math.round(x*10)/10).toString();
+
+/* ---------- navigasi fasa ---------- */
+function go(p){S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
+  $$(".phb").forEach(b=>b.classList.toggle("done",!!S.done[b.dataset.p]));window.scrollTo({top:0,behavior:"smooth"});
+  if(p===1)renderRO();if(p===2)renderAC();if(p===3)renderAE();if(p===0)L.size();}
+$$(".phb").forEach(b=>b.onclick=()=>go(+b.dataset.p));$$("[data-go]").forEach(b=>b.onclick=()=>{S.done[S.phase]=true;go(+b.dataset.go);});
+
+
+/* ================= FASA 1: makmal tuas ================= */
+const BEAM=2.4; // panjang papan (m)
+const L={pf:1.0,pl:0.4,W:20,E:0,pe:null,press:false,ang:0,lifted:false,recorded:false,cv:$("#cv"),hand:null};
+const OBJ={10:{n:"Buah",c:"#E8590C"},20:{n:"Kotak",c:"#B08968"},40:{n:"Batu",c:"#868E96"}};
+const MIS=[
+  {id:"m1",t:"Angkat kotak 20 N.",ok:r=>r.W===20},
+  {id:"m2",t:"Angkat batu 40 N dengan daya kurang daripada 20 N.",ok:r=>r.W===40&&r.E<20},
+  {id:"m3",t:"Angkat batu 40 N dengan daya 10 N atau kurang!",ok:r=>r.W===40&&r.E<=10},
+  {id:"m4",t:"Angkat sesuatu dengan daya LEBIH besar daripada beratnya. Bilakah ini berlaku?",ok:r=>r.E>r.W}
+];
+function renderMissions(){const cur=MIS.find(m=>!S.mis[m.id]);$("#missions").innerHTML=MIS.map((m,i)=>`<div class="mis ${S.mis[m.id]?"done":m===cur?"cur":""}"><b>Misi ${i+1}${S.mis[m.id]?" ✓":""}</b>${m.t}</div>`).join("");}
+renderMissions();
+let started=false;
+$("#startBtn").onclick=()=>{started=true;$("#startBtn").hidden=true;$("#g0").textContent="Mula dengan Misi 1. Tekan dan tahan papan di sebelah kanan fulkrum. Perhatikan berapa daya yang diperlukan.";toast("Misi 1 dimulakan");};
+$$(".chip[data-w]").forEach(b=>b.onclick=()=>{L.W=+b.dataset.w;$$(".chip[data-w]").forEach(x=>x.setAttribute("aria-pressed",x===b));L.recorded=false;});
+function geom(){const c=L.cv,w=c.clientWidth,h=c.clientHeight;const m=40,sx=(w-2*m)/BEAM,y0=h*0.62;return {w,h,m,sx,y0,X:p=>m+p*sx};}
+L.size=function(){const c=L.cv,r=c.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;c.getContext("2d").setTransform(d,0,0,d,0,0);};
+window.addEventListener("resize",()=>{L.size();C2.size();if(A.cur)drawA();if(S.phase===1)drawChart(sample());});
+const need=()=>L.pe!=null&&L.pe>L.pf+0.02?L.W*(L.pf-L.pl)/(L.pe-L.pf):Infinity;
+function drawLever(ctx,g,o){
+  // o: {pf,pl,pe,W,ang,E,effortUp,labelW,colW}
+  const {X,y0}=g;const cx=X(o.pf);
+  ctx.save();ctx.translate(cx,y0);
+  // fulkrum
+  ctx.fillStyle="#495057";ctx.beginPath();ctx.moveTo(0,4);ctx.lineTo(-22,52);ctx.lineTo(22,52);ctx.closePath();ctx.fill();
+  ctx.rotate(o.ang);
+  const bx=X(0)-cx,bw=X(BEAM)-X(0);
+  ctx.fillStyle="#C08B5C";ctx.strokeStyle="#7F5539";ctx.lineWidth=2;ctx.fillRect(bx,-10,bw,14);ctx.strokeRect(bx,-10,bw,14);
+  // tanda skala setiap 0.2 m
+  ctx.fillStyle="#7F5539";for(let p=0;p<=BEAM+1e-6;p+=0.2){ctx.fillRect(X(p)-cx-0.5,-10,1,5);}
+  // beban
+  const lx=X(o.pl)-cx,s=o.W>=40?44:o.W>=20?36:28;ctx.fillStyle=o.colW||"#B08968";
+  if(o.W===10){ctx.beginPath();ctx.arc(lx,-10-s/2,s/2,0,Math.PI*2);ctx.fill();}else{ctx.fillRect(lx-s/2,-10-s,s,s);}
+  ctx.fillStyle="#1B2430";ctx.font="700 13px 'Atkinson Hyperlegible',sans-serif";ctx.textAlign="center";ctx.fillText(o.labelW||o.W+" N",lx,-16-s);
+  // anak panah beban
+  arrow(ctx,lx,-10+20,lx,-10+20+Math.min(60,10+o.W),"#495057");
+  // daya
+  if(o.pe!=null&&o.E>0){const ex=X(o.pe)-cx,len=Math.min(90,12+o.E*1.6);
+    if(o.effortUp)arrow(ctx,ex,8+len,ex,8,"#D9480F");else arrow(ctx,ex,-14-len,ex,-14,"#D9480F");
+    ctx.fillStyle="#D9480F";ctx.fillText(f1(o.E)+" N",ex,o.effortUp?24+len:-20-len);}
+  ctx.restore();
+}
+function arrow(ctx,x1,y1,x2,y2,col){ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();const a=Math.atan2(y2-y1,x2-x1);ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-12*Math.cos(a-.4),y2-12*Math.sin(a-.4));ctx.lineTo(x2-12*Math.cos(a+.4),y2-12*Math.sin(a+.4));ctx.closePath();ctx.fill();}
+let last=performance.now();
+function loop(t){
+  const dt=Math.min(.05,(t-last)/1000);last=t;
+  const c=L.cv,ctx=c.getContext("2d"),g=geom();ctx.clearRect(0,0,g.w,g.h);
+  // daya: tekan lama = daya bertambah (sentuhan), atau kedalaman jari (gerak tangan)
+  if(L.hand){/* ditetapkan oleh pengesan tangan */}
+  else if(L.press&&started){L.E=Math.min(60,L.E+18*dt);} else if(!L.press){L.E=Math.max(0,L.E-40*dt);}
+  const req=need();let target=0;
+  target=-0.16;if(L.pe!=null&&L.E>0){const mE=L.E*(L.pe-L.pf),mW=L.W*(L.pf-L.pl);target=mE>mW?0.2:-0.16;}
+  L.ang+=(target-L.ang)*Math.min(1,dt*6);
+  // catat kejayaan
+  if(target>0&&!L.lifted&&started){L.lifted=true;record(req);}
+  if(target<0&&L.E<0.5)L.lifted=false;
+  // garis jarak
+  ctx.save();ctx.globalAlpha=.9;const yy=g.y0+70;ctx.strokeStyle="#5B6675";ctx.fillStyle="#5B6675";ctx.lineWidth=1.5;ctx.font="700 12px 'Atkinson Hyperlegible',sans-serif";ctx.textAlign="center";
+  ctx.beginPath();ctx.moveTo(g.X(L.pl),yy);ctx.lineTo(g.X(L.pf),yy);ctx.stroke();ctx.fillText(f2(L.pf-L.pl)+" m",(g.X(L.pl)+g.X(L.pf))/2,yy+16);
+  if(L.pe!=null){ctx.strokeStyle="#D9480F";ctx.fillStyle="#D9480F";ctx.beginPath();ctx.moveTo(g.X(L.pf),yy);ctx.lineTo(g.X(L.pe),yy);ctx.stroke();ctx.fillText(f2(L.pe-L.pf)+" m",(g.X(L.pf)+g.X(L.pe))/2,yy+16);}
+  ctx.restore();
+  drawLever(ctx,g,{pf:L.pf,pl:L.pl,pe:L.pe,W:L.W,ang:L.ang,E:L.E,effortUp:false,labelW:OBJ[L.W].n+" "+L.W+" N",colW:OBJ[L.W].c});
+  if(L.hand&&L.hand.x!=null){ctx.fillStyle="rgba(217,72,15,.85)";ctx.beginPath();ctx.arc(L.hand.x,L.hand.y,12,0,Math.PI*2);ctx.fill();}
+  if(!started){ctx.fillStyle="rgba(27,36,48,.55)";ctx.fillRect(0,0,g.w,g.h);ctx.fillStyle="#fff";ctx.font="800 22px 'Bricolage Grotesque',sans-serif";ctx.textAlign="center";ctx.fillText("Tekan Mula Alami",g.w/2,g.h/2);}
+  $("#hW").textContent=`Beban ${L.W} N`;$("#hDW").textContent=`Jarak beban ${f2(L.pf-L.pl)} m`;$("#hDE").textContent=L.pe!=null?`Jarak daya ${f2(L.pe-L.pf)} m`:"Jarak daya –";
+  $("#hE").textContent=f1(L.E);$("#hEbar").style.width=Math.min(100,L.E/60*100)+"%";
+  requestAnimationFrame(loop);
+}
+function record(req){
+  const r={W:L.W,dW:+(L.pf-L.pl).toFixed(2),dE:+(L.pe-L.pf).toFixed(2),E:+req.toFixed(1),t:Date.now()};
+  S.log.push(r);if(S.log.length>40)S.log.shift();star(1);
+  let msg=`Terangkat! Daya diperlukan sekitar ${f1(r.E)} N.`;
+  for(const m of MIS){if(!S.mis[m.id]&&m.ok(r)){S.mis[m.id]=true;star(2);msg=`${pr()} Misi selesai: ${m.t}`;break;}}
+  const left=MIS.filter(m=>!S.mis[m.id]).length;
+  $("#fb0").innerHTML=`<div class="fb ok">${msg}</div>`+(left===0?`<div class="fb info" style="margin-top:8px"><b>Semua misi selesai!</b> Teruskan ke fasa Renung untuk melihat data kamu. <button class="btn sm" style="--c:var(--ro)" id="toRO">Ke Renung</button></div>`:"");
+  if(left===0){S.done[0]=true;const b=$("#toRO");if(b)b.onclick=()=>go(1);}
+  $("#g0").textContent=hintFor(r);renderMissions();save();
+}
+function hintFor(r){const nx=MIS.find(m=>!S.mis[m.id]);if(!nx)return "Kamu sudah merasa bagaimana tuas berfungsi. Kenapa jarak begitu penting? Mari renung dalam fasa seterusnya.";
+  if(nx.id==="m2"||nx.id==="m3")return `Misi seterusnya: ${nx.t} Cuba tekan di tempat lain pada papan, atau alihkan fulkrum. Apa yang berubah?`;
+  if(nx.id==="m4")return "Misi terakhir: boleh kamu buat tuas yang menyusahkan, sehingga daya lebih besar daripada beban? Cuba tekan sangat dekat dengan fulkrum.";
+  return "Misi seterusnya: "+nx.t;}
+// interaksi sentuhan/tetikus
+let drag=null;
+function pos(e){const r=L.cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+const toP=(x,g)=>(x-g.m)/g.sx;
+L.cv.addEventListener("pointerdown",e=>{if(!started)return;const g=geom(),p=pos(e),pp=toP(p.x,g);L.cv.setPointerCapture(e.pointerId);
+  if(Math.abs(p.x-g.X(L.pf))<26&&p.y>g.y0&&p.y<g.y0+60){drag="f";return;}
+  if(Math.abs(p.x-g.X(L.pl))<28&&p.y<g.y0+4&&p.y>g.y0-70){drag="l";return;}
+  if(pp>L.pf+0.05&&pp<=BEAM+0.3){L.pe=Math.min(BEAM,pp);L.press=true;drag="e";}});
+L.cv.addEventListener("pointermove",e=>{if(!drag)return;const g=geom(),pp=toP(pos(e).x,g);
+  if(drag==="f"){L.pf=Math.max(0.3,Math.min(BEAM-0.3,pp));if(L.pl>L.pf-0.1)L.pl=Math.max(0.05,L.pf-0.1);if(L.pe!=null&&L.pe<L.pf+0.05)L.pe=null;L.recorded=false;}
+  if(drag==="l"){L.pl=Math.max(0.05,Math.min(L.pf-0.1,pp));}
+  if(drag==="e"&&pp>L.pf+0.05){L.pe=Math.min(BEAM,pp);}});
+const up=()=>{drag=null;L.press=false;};L.cv.addEventListener("pointerup",up);L.cv.addEventListener("pointercancel",up);
+L.size();requestAnimationFrame(loop);
+
+/* ---------- AR: kamera + gerak tangan (MediaPipe) ---------- */
+$("#camBtn").onclick=async()=>{
+  const st=$("#camStat");
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("Pelayar ini tidak menyokong kamera.");
+    st.textContent="Membuka kamera…";
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});
+    const v=$("#vid");v.srcObject=stream;v.hidden=false;await v.play();
+    st.textContent="Memuatkan pengesan tangan…";
+    const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");
+    const fs=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+    const hl=await vision.HandLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numHands:1});
+    if(!started)$("#startBtn").click();
+    st.textContent="Gerak tangan aktif: letakkan hujung jari telunjuk di atas papan, kemudian tolak ke bawah.";
+    L.hand={x:null,y:null};let lastT=-1;
+    const tick=()=>{if(v.readyState>=2&&v.currentTime!==lastT){lastT=v.currentTime;const res=hl.detectForVideo(v,performance.now());
+        const g=geom();
+        if(res.landmarks&&res.landmarks.length){const tip=res.landmarks[0][8];
+          // video dicerminkan dan memenuhi kanvas (object-fit: cover)
+          const vw=v.videoWidth,vh=v.videoHeight,sc=Math.max(g.w/vw,g.h/vh),ox=(g.w-vw*sc)/2,oy=(g.h-vh*sc)/2;
+          const x=g.w-(tip.x*vw*sc+ox),y=tip.y*vh*sc+oy;L.hand.x=x;L.hand.y=y;
+          const pp=toP(x,g);
+          if(pp>L.pf+0.05&&pp<=BEAM+0.3){L.pe=Math.min(BEAM,pp);const depth=y-(g.y0-30);L.E=Math.max(0,Math.min(60,depth*0.45));}else{L.E=Math.max(0,L.E-1.5);}
+        }else{L.hand.x=null;L.E=Math.max(0,L.E-1.5);}}
+      requestAnimationFrame(tick);};tick();
+  }catch(e){st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";L.hand=null;}
+};
+
+/* ================= FASA 2: RENUNG ================= */
+function sample(){if(S.log.length>=3)return S.log;return [{W:20,dW:.6,dE:.6,E:20},{W:20,dW:.6,dE:1.2,E:10},{W:40,dW:.6,dE:1.2,E:20},{W:40,dW:.3,dE:1.2,E:10}];}
+function renderRO(){
+  const data=sample(),own=S.log.length>=3;
+  $("#logBody").innerHTML=data.map((r,i)=>`<tr><td>${i+1}</td><td>${r.W}</td><td>${f2(r.dW)}</td><td>${f2(r.dE)}</td><td><b>${f1(r.E)}</b></td></tr>`).join("")+(own?"":`<tr><td colspan="5" class="muted">Contoh data. Kembali ke fasa Alami untuk menghasilkan data kamu sendiri.</td></tr>`);
+  drawChart(data);
+  // soalan refleksi berdasarkan data
+  const qs=[
+    {q:"Lihat data kamu. Apabila <b>jarak daya</b> dari fulkrum bertambah, daya yang diperlukan…",o:["bertambah","berkurang","tidak berubah"],a:1,why:"Semakin jauh kamu menekan dari fulkrum, semakin kecil daya yang diperlukan."},
+    {q:"Apabila <b>beban</b> diletakkan lebih dekat dengan fulkrum, daya yang diperlukan…",o:["bertambah","berkurang","tidak berubah"],a:1,why:"Beban yang dekat dengan fulkrum menghasilkan kesan putaran yang kecil, jadi daya yang diperlukan berkurang."},
+    {q:"Apabila <b>beban</b> lebih berat tetapi semua jarak sama, daya yang diperlukan…",o:["bertambah","berkurang","tidak berubah"],a:0,why:"Beban yang lebih berat memerlukan daya yang lebih besar jika jarak tidak berubah."}];
+  let i=0;
+  const show=()=>{const q=qs[i];$("#roQ").innerHTML=`<h3>Renung ${i+1}/3</h3><p>${q.q}</p><div class="opts">${q.o.map((o,k)=>`<button class="opt" data-k="${k}">${o}</button>`).join("")}</div><div id="roFb"></div>`;
+    $$("#roQ .opt").forEach(b=>b.onclick=()=>{if($("#roQ .right"))return;const ok=+b.dataset.k===q.a;b.classList.add(ok?"right":"wrong");if(!ok)$$("#roQ .opt")[q.a].classList.add("right");
+      if(ok)star(1);$("#roFb").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?pr():"Lihat semula jadual."} ${q.why}</div>`+(i<2?`<div class="row" style="margin-top:8px"><button class="btn sm" id="roNext">Soalan seterusnya</button></div>`:`<div class="fb info" style="margin-top:8px">Kamu sudah perasan corak ini. Dalam fasa Faham, kita beri nama kepada corak tersebut.</div>`);
+      const n=$("#roNext");if(n)n.onclick=()=>{i++;show();};if(i===2)S.done[1]=true;save();});};
+  show();
+}
+function drawChart(data){
+  const c=$("#chart"),r=c.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;const x=c.getContext("2d");x.setTransform(d,0,0,d,0,0);
+  const W=r.width,H=r.height,m={l:40,r:10,t:10,b:34};x.clearRect(0,0,W,H);
+  const maxX=Math.max(2,...data.map(p=>p.dE)),maxY=Math.max(10,...data.map(p=>p.E))*1.1;
+  const X=v=>m.l+v/maxX*(W-m.l-m.r),Y=v=>H-m.b-v/maxY*(H-m.t-m.b);
+  x.strokeStyle="#D9DED3";x.lineWidth=1;x.fillStyle="#5B6675";x.font="12px 'Atkinson Hyperlegible',sans-serif";x.textAlign="right";
+  for(let k=0;k<=4;k++){const v=maxY*k/4;x.beginPath();x.moveTo(m.l,Y(v));x.lineTo(W-m.r,Y(v));x.stroke();x.fillText(Math.round(v),m.l-6,Y(v)+4);}
+  x.textAlign="center";for(let k=0;k<=4;k++){const v=maxX*k/4;x.fillText(v.toFixed(1),X(v),H-m.b+16);}x.fillText("Jarak daya dari fulkrum (m)",(W+m.l)/2,H-4);
+  x.save();x.translate(12,(H-m.b)/2);x.rotate(-Math.PI/2);x.fillText("Daya (N)",0,0);x.restore();
+  const col={10:"#E8590C",20:"#7F5539",40:"#495057"};
+  data.forEach(p=>{x.fillStyle=col[p.W]||"#1B2430";x.beginPath();x.arc(X(p.dE),Y(p.E),6,0,Math.PI*2);x.fill();});
+  $("#chartNote").textContent="Warna titik: oren = 10 N, coklat = 20 N, kelabu = 40 N. Adakah titik-titik menurun apabila jarak bertambah?";
+}
+
+/* ---------- suara ke teks (Web Speech API) ---------- */
+function mic(btn,ta,stat){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  btn.onclick=()=>{
+    if(!SR){stat.textContent="Pelayar ini tidak menyokong suara ke teks. Guna Chrome atau Edge, atau taip sahaja.";return;}
+    try{const r=new SR();r.lang="ms-MY";r.interimResults=true;r.continuous=false;const base=ta.value?ta.value+" ":"";
+      btn.classList.add("on");stat.textContent="Mendengar… bercakap sekarang.";
+      r.onresult=e=>{let t="";for(const res of e.results)t+=res[0].transcript;ta.value=base+t;};
+      r.onerror=e=>{stat.textContent=e.error==="not-allowed"?"Mikrofon tidak dibenarkan. Buka melalui pautan https dan benarkan mikrofon.":"Tidak dapat mendengar ("+e.error+"). Cuba lagi atau taip.";};
+      r.onend=()=>{btn.classList.remove("on");if(stat.textContent.startsWith("Mendengar"))stat.textContent="Selesai. Semak teks di atas.";};
+      r.start();}catch(e){stat.textContent="Suara ke teks tidak dapat dimulakan di sini. Taip sahaja.";}
+  };
+}
+mic($("#roMic"),$("#roText"),$("#roMicStat"));mic($("#acMic"),$("#acText"),$("#acMicStat"));
+$("#roText").value=S.roText||"";$("#roText").oninput=()=>{S.roText=$("#roText").value;save();};
+
+/* ================= FASA 3: FAHAM ================= */
+let mapSel=0;
+function renderAC(){
+  const data=sample();if(mapSel>=data.length)mapSel=0;
+  $("#mapPick").innerHTML=data.map((r,i)=>`<button class="opt" data-i="${i}" ${i===mapSel?'style="border-color:var(--ac);background:var(--ac-soft)"':""}>Percubaan ${i+1}</button>`).join("");
+  $$("#mapPick .opt").forEach(b=>b.onclick=()=>{mapSel=+b.dataset.i;renderAC();});
+  const r=data[mapSel],mW=r.W*r.dW,mE=r.E*r.dE;
+  $("#mapBox").innerHTML=`<div class="side"><b>Momen beban</b><br>${r.W} N × ${f2(r.dW)} m<br><b style="font-size:22px">${f2(mW)} Nm</b></div><div class="eq">=</div><div class="side"><b>Momen daya</b><br>${f1(r.E)} N × ${f2(r.dE)} m<br><b style="font-size:22px">${f2(mE)} Nm</b></div>`;
+  const ratio=r.dE/r.dW;
+  $("#mapNote").innerHTML=ratio>1.02?`Dalam percubaan ${mapSel+1}, kamu menekan ${f2(r.dE)} m dari fulkrum, iaitu ${ratio.toFixed(1)} kali jarak beban. Sebab itu daya kamu hanya ${f1(r.E)} N, lebih kecil daripada berat beban ${r.W} N.`
+    :ratio<0.98?`Dalam percubaan ${mapSel+1}, kamu menekan lebih dekat dengan fulkrum berbanding beban. Sebab itu daya kamu (${f1(r.E)} N) lebih besar daripada berat beban ${r.W} N.`
+    :`Dalam percubaan ${mapSel+1}, jarak daya sama dengan jarak beban, jadi daya kamu sama dengan berat beban (${r.W} N).`;
+  if(!$("#classes").innerHTML)$("#classes").innerHTML=[
+    ["Kelas 1","Fulkrum di tengah, antara beban dan daya.","Jongkang-jongket, gunting, pembuka tin cat",[0.5,0.15,0.9,false]],
+    ["Kelas 2","Beban di tengah, antara fulkrum dan daya.","Kereta sorong, pembuka botol, pemecah kacang",[0.05,0.45,0.95,true]],
+    ["Kelas 3","Daya di tengah, antara fulkrum dan beban.","Penyepit, penyapu, lengan manusia",[0.05,0.95,0.45,true]]
+  ].map(([t,d,e,cfg])=>`<div class="card"><b>${t}</b>${miniLever(...cfg)}<span>${d}</span><span class="muted" style="font-size:14px">Contoh: ${e}</span></div>`).join("");
+  $("#acText").value=S.acText||"";
+  newQ(true);
+}
+function miniLever(f,l,e,up){const X=p=>10+p*180;return `<svg viewBox="0 0 200 90" role="img" aria-label="Rajah tuas"><rect x="10" y="44" width="180" height="8" fill="#C08B5C"/><polygon points="${X(f)},52 ${X(f)-12},76 ${X(f)+12},76" fill="#495057"/><rect x="${X(l)-11}" y="22" width="22" height="22" fill="#868E96"/><text x="${X(l)}" y="16" font-size="11" text-anchor="middle" fill="#1B2430">beban</text>${up?`<line x1="${X(e)}" y1="82" x2="${X(e)}" y2="58" stroke="#D9480F" stroke-width="4"/><polygon points="${X(e)},54 ${X(e)-6},64 ${X(e)+6},64" fill="#D9480F"/>`:`<line x1="${X(e)}" y1="14" x2="${X(e)}" y2="38" stroke="#D9480F" stroke-width="4"/><polygon points="${X(e)},42 ${X(e)-6},32 ${X(e)+6},32" fill="#D9480F"/>`}<text x="${X(e)}" y="${up?89:10}" font-size="11" text-anchor="middle" fill="#D9480F">daya</text><text x="${X(f)}" y="88" font-size="11" text-anchor="middle" fill="#495057">${up&&Math.abs(e-f)<0.2?"":"fulkrum"}</text></svg>`;}
+/* maklum balas penerangan: berasaskan kata kunci konsep */
+$("#acText").oninput=()=>{S.acText=$("#acText").value;save();};
+$("#acCheck").onclick=()=>{
+  const t=$("#acText").value.toLowerCase();if(t.trim().length<8){$("#acFb").innerHTML=`<div class="fb info">Terangkan dalam satu atau dua ayat dahulu.</div>`;return;}
+  const K=[["jarak",/jarak|jauh|panjang|dekat/],["fulkrum",/fulkrum|fulcrum|titik tumpu|paksi/],["momen",/momen|putaran|pusing/],["daya kecil",/daya (lebih )?kecil|kurang daya|sedikit daya|ringan|mudah/]];
+  const got=K.filter(([,re])=>re.test(t)).map(([k])=>k),miss=K.filter(([,re])=>!re.test(t)).map(([k])=>k);
+  const sc=got.length;S.acScore=Math.max(S.acScore||0,sc);save();
+  $("#acFb").innerHTML=`<div class="fb ${sc>=3?"ok":"info"}">${sc>=3?pr()+" Penerangan kamu menyentuh "+got.join(", ")+".":"Penerangan kamu menyentuh: "+(got.join(", ")||"belum ada konsep utama")+"."} ${miss.length?"Cuba kaitkan juga dengan: <b>"+miss.join(", ")+"</b>.":"Lengkap!"}</div>`;
+  if(sc>=3&&!S.acStar){S.acStar=true;star(2);}
+};
+/* kuiz adaptif */
+const Q={lvl:1,streak:0,wrong:0,n:0,cur:null};
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+function genQ(){
+  if(Q.lvl===1){const W=rnd([20,30,40,60]),dW=rnd([.2,.3,.4,.5]),dE=rnd([.8,1,1.2,1.5]),E=W*dW/dE;
+    return {t:`Beban ${W} N diletakkan ${dW} m dari fulkrum. Kamu menekan ${dE} m dari fulkrum. Berapakah daya yang diperlukan untuk mengimbangkan tuas?`,a:f1(E)+" N",o:[f1(E),f1(W*dE/dW),f1(W*dW),f1(E*2)].map(v=>v+" N"),h:`Momen beban = ${W} × ${dW}. Bahagikan dengan jarak daya ${dE}.`};}
+  if(Q.lvl===2){const W=rnd([30,40,50,60]),dW=rnd([.3,.4,.5]),E=rnd([10,15,20]),dE=W*dW/E;
+    return {t:`Kamu hanya mampu menekan dengan daya ${E} N. Beban ${W} N berada ${dW} m dari fulkrum. Pada jarak berapakah dari fulkrum kamu perlu menekan?`,a:f2(dE)+" m",o:[f2(dE),f2(E*dW/W),f2(dE/2),f2(dE+.5)].map(v=>v+" m"),h:`Daya × jarak daya = ${W} × ${dW}. Jadi jarak daya = ${f2(W*dW)} ÷ ${E}.`};}
+  const it=rnd([["kereta sorong","Kelas 2"],["penyepit","Kelas 3"],["jongkang-jongket","Kelas 1"],["pembuka botol","Kelas 2"],["penyapu","Kelas 3"],["gunting","Kelas 1"]]);
+  return {t:`Apakah kelas tuas bagi <b>${it[0]}</b>?`,a:it[1],o:["Kelas 1","Kelas 2","Kelas 3"],h:"Cari apa yang berada di tengah: fulkrum (Kelas 1), beban (Kelas 2) atau daya (Kelas 3)."};
+}
+function newQ(reset){
+  if(reset&&Q.cur)return;if(Q.n>=6){$("#qText").innerHTML="<b>Kuiz selesai!</b> "+`Betul ${S.quiz.ok} daripada ${S.quiz.n}.`+(S.quiz.ok>=5?" Lencana Pakar Momen.":"");$("#qOpts").innerHTML="";$("#qFb").innerHTML="";$("#qNext").hidden=true;S.done[2]=true;save();return;}
+  Q.cur=genQ();Q.tries=0;const uniq=[...new Set(Q.cur.o)];while(uniq.length<3)uniq.push((Math.random()*50).toFixed(1)+" N");
+  const opts=uniq.sort(()=>Math.random()-.5);
+  $("#qProg").textContent=`Soalan ${Q.n+1} daripada 6`;$("#qText").innerHTML=Q.cur.t;$("#qFb").innerHTML="";$("#qNext").hidden=true;
+  $$("#qLvl i").forEach((e,k)=>e.classList.toggle("on",k<Q.lvl));
+  $("#qOpts").innerHTML=opts.map(o=>`<button class="opt">${o}</button>`).join("");
+  $$("#qOpts .opt").forEach(b=>b.onclick=()=>{if($("#qOpts .right"))return;const ok=b.textContent===Q.cur.a;
+    if(ok){b.classList.add("right");const clean=Q.tries===0;S.quiz.n++;if(clean)S.quiz.ok++;star(clean?2:1);Q.n++;
+      let msg=pr();if(clean){Q.streak++;Q.wrong=0;if(Q.streak>=2&&Q.lvl<3){Q.lvl++;Q.streak=0;msg+=" Naik ke tahap "+Q.lvl+".";}}else{Q.streak=0;}
+      $("#qFb").innerHTML=`<div class="fb ok">${msg}</div>`;$("#qNext").hidden=false;}
+    else{b.classList.add("wrong");Q.tries++;Q.wrong++;
+      if(Q.wrong>=2&&Q.lvl>1){Q.lvl--;Q.wrong=0;}
+      $("#qFb").innerHTML=`<div class="fb bad">Belum tepat. Petunjuk: ${Q.cur.h} Ingat percubaan kamu dalam fasa Alami.</div>`;}
+    save();});
+}
+$("#qNext").onclick=()=>newQ(false);
+
+/* ================= FASA 4: CUBA ================= */
+const CH=[
+  {id:"c1",t:"Batu besar 60 N",d:"Daya maksimum kamu hanya 15 N. Susun kedudukan fulkrum dan tempat menekan supaya batu boleh diangkat. Ramal dahulu daya yang diperlukan.",cls:1,W:60,limit:15,ctl:["pf","pe"],init:{pf:.8,pl:.3,pe:2.0}},
+  {id:"c2",t:"Kereta sorong",d:"Roda ialah fulkrum di hujung kiri, dan kamu mengangkat pemegang di hujung kanan. Muatan 120 N. Alihkan muatan supaya daya angkat tidak melebihi 40 N.",cls:2,W:120,limit:40,ctl:["pl"],init:{pf:.05,pl:1.4,pe:2.35}},
+  {id:"c3",t:"Penyepit",d:"Fulkrum di hujung kiri, ketulan ais 2 N di hujung kanan, dan jari kamu menekan di tengah. Ramal daya jari. Kenapa daya lebih besar daripada beban, tetapi penyepit tetap berguna?",cls:3,W:2,limit:null,ctl:["pe"],init:{pf:.05,pl:2.35,pe:1.0}},
+  {id:"c4",t:"Reka cabaran sendiri",d:"Pilih beban dan susun tuas sesuka hati. Ramal daya, uji, kemudian cabar rakan kamu dengan susunan yang sama.",cls:1,W:30,limit:null,ctl:["W","pf","pl","pe"],init:{pf:1.2,pl:.5,pe:2.1}}
+];
+const A={cur:null,pf:1,pl:.3,pe:2,W:60,ang:-0.14,tested:false,E:0,cv:$("#cv2")};
+const C2={size(){const c=A.cv,r=c.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1;c.width=r.width*d;c.height=r.height*d;c.getContext("2d").setTransform(d,0,0,d,0,0);}};
+function reqA(){const c=A.cur;const dW=Math.abs(A.pl-A.pf),dE=Math.abs(A.pe-A.pf);return dE<0.02?Infinity:A.W*dW/dE;}
+function nextChallenge(){
+  // AI adaptif (berasaskan peraturan): pilih cabaran pertama yang belum selesai; jika ramalan lepas jauh tersasar, cadang cabaran kelas yang sama sekali lagi
+  const pending=CH.filter(c=>!S.chal[c.id]);return pending[0]||CH[CH.length-1];}
+function renderAE(){
+  $("#chalList").innerHTML=CH.map(c=>`<button data-id="${c.id}" class="${S.chal[c.id]?"done":""}" aria-pressed="${A.cur&&A.cur.id===c.id}"><b>${c.t}</b><small>Tuas kelas ${c.cls}${c.limit?" · had "+c.limit+" N":""}</small></button>`).join("");
+  $$("#chalList button").forEach(b=>b.onclick=()=>pickC(CH.find(c=>c.id===b.dataset.id)));
+  if(!A.cur)pickC(nextChallenge());else{C2.size();drawA();}
+  evidence();
+}
+function pickC(c){A.cur=c;Object.assign(A,c.init);A.W=c.W;A.tested=false;A.ang=-0.14;A.E=0;
+  $$("#chalList button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.id===c.id));
+  $("#cTitle").textContent=c.t;$("#cDesc").textContent=c.d;$("#cPred").value="";$("#cFb").innerHTML="";
+  const lab={pf:"Kedudukan fulkrum (m)",pl:"Kedudukan beban (m)",pe:"Kedudukan daya (m)",W:"Beban (N)"};
+  $("#cSliders").innerHTML=c.ctl.map(k=>k==="W"?`<label>${lab.W}: <span id="v_W">${A.W}</span><input type="range" id="s_W" min="10" max="100" step="5" value="${A.W}"></label>`:`<label>${lab[k]}: <span id="v_${k}">${f2(A[k])}</span><input type="range" id="s_${k}" min="0.05" max="2.35" step="0.05" value="${A[k]}"></label>`).join("");
+  c.ctl.forEach(k=>{const s=$("#s_"+k);s.oninput=()=>{A[k]=+s.value;fix();$("#v_"+k).textContent=k==="W"?A.W:f2(A[k]);A.tested=false;A.ang=-0.14;A.E=0;drawA();};});
+  C2.size();drawA();
+}
+function fix(){const c=A.cur;
+  if(c.cls===1){A.pl=Math.min(A.pl,A.pf-0.1);A.pe=Math.max(A.pe,A.pf+0.1);}
+  if(c.cls===2){A.pl=Math.max(A.pf+0.1,Math.min(A.pl,A.pe-0.1));}
+  if(c.cls===3){A.pe=Math.max(A.pf+0.1,Math.min(A.pe,A.pl-0.1));}}
+function drawA(){const c=A.cv,ctx=c.getContext("2d"),w=c.clientWidth,h=c.clientHeight;if(!w)return;ctx.clearRect(0,0,w,h);
+  const g={m:30,sx:(w-60)/BEAM,y0:h*0.55};g.X=p=>g.m+p*g.sx;g.w=w;g.h=h;
+  const up=A.cur.cls!==1;const ang=A.ang*(up?-1:1);
+  drawLever(ctx,g,{pf:A.pf,pl:A.pl,pe:A.pe,W:A.W,ang,E:A.tested?A.E:Math.max(1,A.E),effortUp:up,labelW:A.W+" N",colW:A.cur.id==="c3"?"#74C0FC":"#868E96"});
+  ctx.fillStyle="#5B6675";ctx.font="700 12px 'Atkinson Hyperlegible',sans-serif";ctx.textAlign="center";
+  ctx.fillText(`jarak beban ${f2(Math.abs(A.pl-A.pf))} m · jarak daya ${f2(Math.abs(A.pe-A.pf))} m`,w/2,h-10);}
+function animA(){A.ang+=(0.2-A.ang)*0.15;drawA();if(Math.abs(0.2-A.ang)>0.003)requestAnimationFrame(animA);}
+$("#cTest").onclick=()=>{
+  const p=parseFloat($("#cPred").value);if(isNaN(p)){$("#cFb").innerHTML=`<div class="fb info">Tulis ramalan kamu dahulu. Ramalan ialah hipotesis yang akan diuji.</div>`;return;}
+  const r=reqA(),c=A.cur,err=Math.abs(p-r)/r,acc=Math.max(0,1-err);A.E=r;A.tested=true;A.ang=-0.14;animA();
+  const okPred=err<=0.10,okLim=c.limit==null||r<=c.limit+1e-9;
+  let msg=`Daya sebenar diperlukan: <b>${f1(r)} N</b> (momen beban ${A.W} × ${f2(Math.abs(A.pl-A.pf))} = ${f2(A.W*Math.abs(A.pl-A.pf))} Nm). Ramalan kamu ${f1(p)} N, ketepatan ${(acc*100).toFixed(0)}%.`;
+  if(c.limit!=null)msg+=okLim?` Daya dalam had ${c.limit} N.`:` Daya melebihi had ${c.limit} N. Ubah susunan dan cuba lagi.`;
+  if(c.id==="c3")msg+=" Penyepit memerlukan daya lebih besar, tetapi hujungnya bergerak lebih jauh dan lebih tepat, jadi sesuai untuk memegang benda kecil.";
+  const solved=okPred&&okLim;
+  if(solved&&!S.chal[c.id]){S.chal[c.id]={acc};star(3);}
+  else if(solved){S.chal[c.id].acc=Math.max(S.chal[c.id].acc,acc);}
+  S.accs=S.accs||[];S.accs.push(acc);save();
+  $("#cFb").innerHTML=`<div class="fb ${solved?"ok":"info"}">${solved?pr()+" ":""}${msg}</div>`+(solved?(CH.every(x=>S.chal[x.id])?`<div class="fb ok" style="margin-top:8px"><b>Lencana Jurutera Tuas!</b> Semua cabaran selesai.</div>`:`<div class="row" style="margin-top:8px"><button class="btn sm" id="cNext">Cabaran seterusnya</button></div>`):(okPred?"":`<div class="fb info" style="margin-top:8px">Petunjuk: Beban × jarak beban = Daya × jarak daya. Kira momen beban dahulu.</div>`));
+  const n=$("#cNext");if(n)n.onclick=()=>pickC(nextChallenge());
+  renderAEList();evidence();if(CH.every(x=>S.chal[x.id])){S.done[3]=true;save();}
+};
+function renderAEList(){$$("#chalList button").forEach(b=>b.classList.toggle("done",!!S.chal[b.dataset.id]));}
+function evidence(){const done=CH.filter(c=>S.chal[c.id]).length;$("#evDone").textContent=done+"/4";
+  const a=S.accs||[];$("#evAcc").textContent=a.length?Math.round(a.slice(-6).reduce((s,x)=>s+x,0)/Math.min(6,a.length)*100)+"%":"–";
+  $("#evQuiz").textContent=S.quiz.n?S.quiz.ok+"/"+S.quiz.n:"–";$("#evTrials").textContent=S.log.length;}
+
+go(S.phase||0);
+})();
+</script>
+</body></html>
