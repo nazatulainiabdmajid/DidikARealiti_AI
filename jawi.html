@@ -168,7 +168,7 @@ input[type=range]{width:100%;accent-color:var(--ae)}
 @media print{body *{visibility:hidden}#printArea,#printArea *{visibility:visible}#printArea{position:absolute;left:0;top:0;width:100%}.cards{grid-template-columns:repeat(2,6.5cm);gap:1cm}.cards figure{break-inside:avoid}}
 </style>
 <div class="top"><div class="wrap">
-  <a class="home" href="contoh.html" title="Kembali ke menu contoh">🏠 Menu</a><span class="brand">Jawi di Sekelilingku</span>
+  <a class="home" href="contoh.html" title="Kembali ke menu contoh">🏠 Menu</a><button class="home" id="resetAll" type="button" data-key="jawi-ar-v2" title="Padam kemajuan dan mula semula">🔄 Mula semula</button><span class="brand">Jawi di Sekelilingku</span>
   <nav class="ph" aria-label="Fasa Kolb">
     <button class="phb" data-p="0" aria-current="true"><span class="n">1</span>Alami</button>
     <button class="phb" data-p="1"><span class="n">2</span>Renung</button>
@@ -294,12 +294,13 @@ function sdTag(type){const p=document.querySelector('.panel:not([hidden]) .guide
 let MSEL=null;
 function misUI(el,MIS,done,opt){opt=opt||{};const n=MIS.filter(m=>done[m.id]).length;if(el._n!==n){el._n=n;MSEL=null;}
   const cur=MIS.find(m=>!done[m.id]),f=MIS.find(m=>m.id===MSEL)||cur;let h;
-  if(!f)h=`<div class="mcur all"><span class="mlab">Semua ${MIS.length} misi selesai ✓</span><b>Tahniah! Teruskan ke fasa 2 Renung.</b></div>`;
+  if(!f)h=`<div class="mcur all"><span class="mlab">Semua ${MIS.length} misi selesai ✓</span><b>Tahniah! Teruskan ke fasa 2 Renung.</b><button class="btn ghost sm mreset" type="button">🔄 Mahu cuba lagi dari awal?</button></div>`;
   else{const i=MIS.indexOf(f),st=opt.started&&opt.started();
     h=`<div class="mcur ${done[f.id]?"isdone":""}"><span class="mlab">🎯 Misi ${i+1} daripada ${MIS.length}${done[f.id]?" · selesai ✓":f===cur?" · sekarang":""}</span><b class="mt">${f.t}</b>${f.h?`<p>💡 <b>Cara:</b> ${f.h}</p>`:""}${opt.extra&&f===cur?opt.extra(f):""}${!st&&opt.start?`<button class="btn sm mgo">▶ Mula misi ini</button>`:""}</div>`;}
   h+=`<div class="mdots" role="group" aria-label="Pilih misi">${MIS.map((m,i)=>`<button class="${done[m.id]?"done":""} ${f&&m.id===f.id?"on":""}" data-m="${m.id}" aria-label="Misi ${i+1}">${i+1}${done[m.id]?" ✓":""}</button>`).join("")}<span>${n}/${MIS.length} selesai</span></div>`;
   el.innerHTML=h;el.classList.add("mpanel");
   el.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{MSEL=b.dataset.m;misUI(el,MIS,done,opt);});
+  const rs=el.querySelector(".mreset");if(rs)rs.onclick=()=>{if(window.resetApp){window.resetApp();rs.textContent="Tekan 🔄 di atas sekali lagi untuk sahkan";}};
   const g=el.querySelector(".mgo");if(g)g.onclick=()=>{opt.start();misUI(el,MIS,done,opt);};}
 
 $("#stars").textContent="★ "+S.stars;
@@ -478,12 +479,17 @@ renderFound();go(S.phase||0);
 
 <style>
 .home{display:inline-flex;align-items:center;gap:4px;font-weight:800;font-size:14.5px;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.home{cursor:pointer;font-family:inherit}.home.warn{border-color:#C92A2A;color:#C92A2A;background:#FFF5F5}
 .home:hover,.home:focus-visible{border-color:var(--ink)}
 .pnav{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;border-top:1.5px dashed var(--line);margin-top:6px;padding-top:14px}
 .pnav .btn{flex:0 1 auto}
 .pnav .sp{flex:1}
 </style>
 <script>
+(function(){const R=document.getElementById('resetAll');let armT=null;
+  window.resetApp=function(){if(!R)return;if(!R.classList.contains('warn')){R.classList.add('warn');R.textContent='Tekan lagi untuk padam semua';clearTimeout(armT);armT=setTimeout(()=>{R.classList.remove('warn');R.textContent='🔄 Mula semula';},4000);R.scrollIntoView({block:'nearest'});return;}
+    try{localStorage.removeItem(R.dataset.key);}catch(e){}location.reload();};
+  if(R)R.addEventListener('click',window.resetApp);})();
 (function(){const N=["Alami","Renung","Faham","Cuba"];
   const ph=n=>document.querySelector('.phb[data-p="'+n+'"]');
   document.querySelectorAll('.panel[data-p]').forEach(p=>{const i=+p.dataset.p;const d=document.createElement('div');d.className='pnav';
