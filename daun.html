@@ -119,6 +119,7 @@ input[type=range]{width:100%;accent-color:var(--ae)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
+<style>.sd{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;border-radius:6px;padding:1px 7px;margin-right:4px;color:#fff;vertical-align:2px}.sd-pencetus{background:#D9480F}.sd-peringatan{background:#6741D9}.sd-cadangan{background:#1864AB}.sd-pujian{background:#2B8A3E}.sd-ganjaran{background:#B35C00}#badges{cursor:pointer}.mode2{display:flex;gap:10px;flex-wrap:wrap}.mode2 .btn{flex:1 1 240px;justify-content:center}.mpanel{display:flex!important;flex-direction:column;gap:8px}.mcur{border:2.5px solid var(--ce);background:var(--ce-soft);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}.mcur.isdone,.mcur.all{border-color:var(--ok);background:#E3F4E6}.mlab{font-size:12.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}.mcur .mt{font-size:18px}.mcur p{margin:0;font-size:15.5px}.mdots{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.mdots button{font:inherit;font-weight:800;font-size:14px;min-width:44px;min-height:36px;border-radius:999px;border:2px solid var(--line);background:#fff;cursor:pointer}.mdots button.done{border-color:var(--ok);background:#E3F4E6}.mdots button.on{outline:3px solid var(--ce);outline-offset:1px}.mdots span{font-size:14px;color:var(--muted);margin-left:4px}</style>
 <style>
 .garden{position:relative;height:400px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(#E7F5FF 0%,#F4FCE3 70%,#D8C3A5 70%);touch-action:none;user-select:none}
 .garden video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);opacity:.9}
@@ -129,6 +130,7 @@ input[type=range]{width:100%;accent-color:var(--ae)}
 .tok.held{cursor:grabbing;border-color:var(--ce);box-shadow:0 8px 20px rgba(217,72,15,.3);z-index:6}
 .leafbox{position:absolute;z-index:3;border:3px dashed rgba(43,138,62,.55);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;pointer-events:none;transition:background .3s,border-color .3s}
 .leafbox.hot{border-color:var(--ce);background:rgba(217,72,15,.08)}
+.garden.real .plant{visibility:hidden}.garden.real video{opacity:1}.garden.real .leafbox{border-color:#fff;border-width:4px;box-shadow:0 0 0 3px rgba(43,138,62,.8)}
 .leafbox.glow{background:rgba(255,224,102,.35);border-color:#F59F00}
 .inleaf{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-height:36px}
 .inleaf span{border:1.5px solid var(--line);border-radius:999px;padding:2px 10px;background:#fff;font-weight:700;font-size:14px}
@@ -142,14 +144,14 @@ input[type=range]{width:100%;accent-color:var(--ae)}
 .scene .big{font-size:42px}
 </style>
 <div class="top"><div class="wrap">
-  <span class="brand">Makmal Daun</span>
+  <a class="home" href="contoh.html" title="Kembali ke menu contoh">🏠 Menu</a><span class="brand">Makmal Daun</span>
   <nav class="ph" aria-label="Fasa Kolb">
     <button class="phb" data-p="0" aria-current="true"><span class="n">1</span>Alami</button>
     <button class="phb" data-p="1"><span class="n">2</span>Renung</button>
     <button class="phb" data-p="2"><span class="n">3</span>Faham</button>
     <button class="phb" data-p="3"><span class="n">4</span>Cuba</button>
   </nav>
-  <span class="stars" id="stars">★ 0</span>
+  <span class="stars" id="stars">★ 0</span><span class="stars" id="badges" title="Lencana">🏅 0</span>
 </div></div>
 
 <main class="wrap" id="app">
@@ -163,10 +165,10 @@ input[type=range]{width:100%;accent-color:var(--ae)}
     <span class="eyebrow">Fasa 1 · Alami (pengalaman konkrit)</span>
     <div class="guide"><span class="av">CD</span><p><b class="who">Cik Daun</b><span id="g0">Saya lapar! Bahan-bahan sedang terapung di sekeliling saya. Seret bahan ke dalam daun saya, kemudian tekan "Uji daun". Bahan manakah yang saya perlukan?</span></p></div>
     <div class="row">
-      <button class="btn big" id="startBtn">Mula Alami</button>
-      <button class="btn ghost" id="camBtn">Guna kamera dan gerak tangan (AR)</button>
+      <div class="mode2"><button class="btn big" id="startBtn">✋ Mula: seret dengan jari / tetikus</button><button class="btn big" style="--c:var(--ar)" id="camBtn">📷 Mula: kamera + gerak tangan</button></div>
       <span class="muted" id="camStat" style="font-size:14.5px"></span>
     </div>
+    <div class="missions" id="missions"></div>
     <div class="garden" id="garden">
       <video id="vid" playsinline muted hidden></video>
       <svg class="plant" viewBox="0 0 300 380" aria-hidden="true">
@@ -180,12 +182,12 @@ input[type=range]{width:100%;accent-color:var(--ae)}
       <div id="toks"></div>
       <canvas id="fx"></canvas>
     </div>
+    <div class="row" id="realRow" hidden><button class="btn ghost sm" id="realBtn" aria-pressed="false">🌱 Guna pokok sebenar</button><span class="muted" id="realTip" style="font-size:14.5px">Letak pokok sebenar di hadapan kamera. Daun lukisan disembunyikan; gerakkan pokok supaya daunnya berada dalam bulatan putus-putus.</span></div>
     <div class="row" style="justify-content:space-between">
       <div class="inleaf" id="inleaf"><span class="muted" style="border:0;background:none">Dalam daun: kosong</span></div>
       <div class="row"><button class="btn" id="testBtn">Uji daun</button><button class="btn ghost sm" id="emptyBtn">Kosongkan daun</button></div>
     </div>
     <p class="muted" style="font-size:14.5px">Seret bahan dengan jari atau tetikus ke kawasan bergaris pada daun besar. Dengan kamera: cubit (ibu jari + telunjuk) untuk memegang, buka jari untuk melepaskan.</p>
-    <div class="missions" id="missions"></div>
     <div id="fb0"></div>
   </section>
 
@@ -197,7 +199,7 @@ input[type=range]{width:100%;accent-color:var(--ae)}
     <div class="card">
       <h3>Apa yang paling mengejutkan kamu?</h3>
       <textarea id="roText" placeholder="Tulis atau tekan butang mikrofon dan bercakap."></textarea>
-      <div class="row"><button class="mic" id="roMic">🎤 Cakap</button><span class="muted" id="roMicStat" style="font-size:14px"></span></div>
+      <div class="row"><button class="mic" id="roMic">🎤 Cakap</button><button class="btn sm" id="roCheck">Semak refleksi</button><span class="muted" id="roMicStat" style="font-size:14px"></span></div><div id="roTxtFb"></div>
     </div>
     <div class="row"><button class="btn" data-go="2">Teruskan ke Faham</button></div>
   </section>
@@ -271,8 +273,49 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
 let tT;function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>e.classList.remove("show"),2600);}
 const PRAISE=["Hebat!","Syabas!","Bagus sekali!","Tepat!","Cemerlang!"];const pr=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
 function star(n){S.stars+=n;save();$("#stars").textContent="★ "+S.stars;}
+/* ===== Sokongan Dialog (Oinas-Kukkonen & Harjumaa, 2009): pencetus, peringatan, cadangan, pujian, ganjaran ===== */
+const SD_L={pencetus:"Pencetus",peringatan:"Peringatan",cadangan:"Cadangan",pujian:"Pujian",ganjaran:"Ganjaran"};
+const SD_IH=Object.getOwnPropertyDescriptor(Element.prototype,"innerHTML");
+const sdChip=t=>`<span class="sd sd-${t}">${SD_L[t]}</span> `;
+function sd(type,html){const p=document.querySelector('.panel:not([hidden]) .guide p');if(!p)return;let t=p.querySelector('span[id]');
+  if(!t){const who=p.querySelector('.who');const rest=[...p.childNodes].filter(n=>n!==who);t=document.createElement('span');t.id="sdg"+Math.random().toString(36).slice(2,7);rest.forEach(n=>t.appendChild(n));p.appendChild(t);}
+  SD_IH.set.call(t,sdChip(type)+html);}
+// mesej watak dalam fasa Alami dilabel sebagai Cadangan secara automatik
+(function(){const g=document.getElementById("g0");if(!g)return;
+  Object.defineProperty(g,"innerHTML",{configurable:true,get(){return SD_IH.get.call(g);},set(v){v=String(v);SD_IH.set.call(g,v.startsWith('<span class="sd ')?v:sdChip("cadangan")+v);}});
+  Object.defineProperty(g,"textContent",{configurable:true,get(){return g.innerText;},set(v){SD_IH.set.call(g,sdChip("cadangan")+String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;"));}});})();
+S.badges=S.badges||[];
+function badgeUI(){const b=document.getElementById("badges");if(b)b.textContent="🏅 "+S.badges.length;}
+function award(name){if(S.badges.includes(name))return;S.badges.push(name);save();badgeUI();sd("ganjaran",`Tahniah! Kamu menerima lencana <b>${name}</b>.`);toast("🏅 Ganjaran: lencana "+name);}
+document.addEventListener("DOMContentLoaded",badgeUI);setTimeout(badgeUI,0);
+setTimeout(()=>{const b=document.getElementById("badges");if(b)b.onclick=()=>toast(S.badges.length?"Lencana kamu: "+S.badges.join(", "):"Belum ada lencana. Selesaikan misi untuk mendapatkannya.");},0);
+function sdIdle(getMsg){let last=Date.now(),sent=false;["pointerdown","keydown","input"].forEach(ev=>document.addEventListener(ev,()=>{last=Date.now();sent=false;},true));
+  setInterval(()=>{if(sent||document.hidden||Date.now()-last<25000)return;const m=getMsg();if(!m)return;sent=true;sd("peringatan",m);toast("Peringatan: "+m.replace(/<[^>]+>/g,""));},5000);}
+// semak jawapan bertulis atau suara; K = [[idea, regex], ...]
+function sdCheck(text,K,fbEl){const t=(text||"").toLowerCase();
+  if(t.trim().length<8){fbEl.innerHTML='<div class="fb info">Tulis atau cakap satu atau dua ayat dahulu.</div>';sd("cadangan","Cuba terangkan dalam satu atau dua ayat.");return 0;}
+  const got=K.filter(([,re])=>re.test(t)).map(([k])=>k),miss=K.filter(([,re])=>!re.test(t)).map(([k])=>k),good=got.length>=Math.min(2,K.length);
+  fbEl.innerHTML=`<div class="fb ${good?"ok":"info"}">${good?"Bagus! ":""}Jawapan kamu menyentuh: <b>${got.join(", ")||"belum ada idea utama"}</b>.${miss.length?" Cuba kaitkan juga dengan: <b>"+miss.join(", ")+"</b>.":" Lengkap!"}</div>`;
+  if(good)sd("pujian",`Jawapan yang baik! Kamu menyebut ${got.join(", ")}.`);else sd("cadangan","Cuba kaitkan dengan: "+miss.join(", ")+".");
+  return got.length;}
+// label mesej watak yang sedia ada apabila fasa dibuka
+function sdTag(type){const p=document.querySelector('.panel:not([hidden]) .guide p');if(!p)return;let t=p.querySelector('span[id]');
+  if(t){if(!t.querySelector('.sd'))SD_IH.set.call(t,sdChip(type)+SD_IH.get.call(t));return;}
+  const who=p.querySelector('.who');const rest=[...p.childNodes].filter(n=>n!==who);t=document.createElement('span');t.id="sdg"+Math.random().toString(36).slice(2,7);rest.forEach(n=>t.appendChild(n));p.appendChild(t);t.insertAdjacentHTML('afterbegin',sdChip(type));}
+// panel misi: misi semasa + cara (petunjuk) + butang nombor misi
+let MSEL=null;
+function misUI(el,MIS,done,opt){opt=opt||{};const n=MIS.filter(m=>done[m.id]).length;if(el._n!==n){el._n=n;MSEL=null;}
+  const cur=MIS.find(m=>!done[m.id]),f=MIS.find(m=>m.id===MSEL)||cur;let h;
+  if(!f)h=`<div class="mcur all"><span class="mlab">Semua ${MIS.length} misi selesai ✓</span><b>Tahniah! Teruskan ke fasa 2 Renung.</b></div>`;
+  else{const i=MIS.indexOf(f),st=opt.started&&opt.started();
+    h=`<div class="mcur ${done[f.id]?"isdone":""}"><span class="mlab">🎯 Misi ${i+1} daripada ${MIS.length}${done[f.id]?" · selesai ✓":f===cur?" · sekarang":""}</span><b class="mt">${f.t}</b>${f.h?`<p>💡 <b>Cara:</b> ${f.h}</p>`:""}${opt.extra&&f===cur?opt.extra(f):""}${!st&&opt.start?`<button class="btn sm mgo">▶ Mula misi ini</button>`:""}</div>`;}
+  h+=`<div class="mdots" role="group" aria-label="Pilih misi">${MIS.map((m,i)=>`<button class="${done[m.id]?"done":""} ${f&&m.id===f.id?"on":""}" data-m="${m.id}" aria-label="Misi ${i+1}">${i+1}${done[m.id]?" ✓":""}</button>`).join("")}<span>${n}/${MIS.length} selesai</span></div>`;
+  el.innerHTML=h;el.classList.add("mpanel");
+  el.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{MSEL=b.dataset.m;misUI(el,MIS,done,opt);});
+  const g=el.querySelector(".mgo");if(g)g.onclick=()=>{opt.start();misUI(el,MIS,done,opt);};}
+
 $("#stars").textContent="★ "+S.stars;
-function go(p){S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
+function go(p){setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
   $$(".phb").forEach(b=>b.classList.toggle("done",!!S.done[b.dataset.p]));window.scrollTo({top:0,behavior:"smooth"});
   if(p===0){layout();if(G.toks.length&&!G.toks[0].w)build();}if(p===1)renderRO();if(p===2)renderAC();if(p===3)renderAE();}
 $$(".phb").forEach(b=>b.onclick=()=>go(+b.dataset.p));$$("[data-go]").forEach(b=>b.onclick=()=>{S.done[S.phase]=true;go(+b.dataset.go);});
@@ -297,25 +340,26 @@ function moveHeld(x,y){const t=G.held;if(!t)return;t.x=x-t.ox;t.y=y-t.oy;$("#lea
 function release(x,y){const t=G.held;if(!t)return;G.held=null;t.el.classList.remove("held");$("#leafbox").classList.remove("hot");
   if(inLeaf(x,y)){G.leaf.add(t.it.k);t.el.remove();G.toks=G.toks.filter(k=>k!==t);renderLeaf();toast(t.it.n+" dimasukkan ke dalam daun");}}
 const gpos=e=>{const r=garden.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};};
-garden.addEventListener("pointermove",e=>{if(G.held&&!hand.on){const p=gpos(e);moveHeld(p.x,p.y);}});
+garden.addEventListener("pointermove",e=>{if(G.held&&!(hand&&hand.on)){const p=gpos(e);moveHeld(p.x,p.y);}});
 garden.addEventListener("pointerup",e=>{if(G.held&&!hand.on){const p=gpos(e);release(p.x,p.y);}});
 garden.addEventListener("pointercancel",()=>{if(G.held&&!hand.on)release(-1,-1);});
 function renderLeaf(){$("#inleaf").innerHTML=G.leaf.size?"<b style='font-size:14px'>Dalam daun:</b>"+[...G.leaf].map(k=>`<span>${ITEMS.find(i=>i.k===k).e} ${NAME[k]}</span>`).join(""):`<span class="muted" style="border:0;background:none">Dalam daun: kosong</span>`;}
+$("#realBtn").onclick=()=>{const on=!$("#garden").classList.contains("real");$("#garden").classList.toggle("real",on);$("#realBtn").setAttribute("aria-pressed",on);$("#realBtn").textContent=on?"🖼 Guna daun lukisan":"🌱 Guna pokok sebenar";if(on)sd("cadangan","Bagus! Kini daun sebenar menjadi makmal kamu. Pastikan daunnya berada dalam bulatan putus-putus, kemudian masukkan bahan.");};
 $("#emptyBtn").onclick=()=>{G.leaf.clear();renderLeaf();build();$("#leafbox").classList.remove("glow");};
-$("#startBtn").onclick=()=>{started=true;$("#startBtn").hidden=true;$("#g0").textContent="Misi 1: bantu saya membuat makanan. Seret bahan yang kamu rasa saya perlukan, kemudian tekan Uji daun.";toast("Misi 1 dimulakan");};
-const MIS=[{id:"m1",t:"Bantu daun membuat makanan.",ok:r=>r.ok},{id:"m2",t:"Uji tanpa cahaya matahari. Apa yang berlaku?",ok:r=>!r.c&&r.a&&r.g},{id:"m3",t:"Uji tanpa air.",ok:r=>r.c&&!r.a&&r.g},{id:"m4",t:"Adakah garam atau gula diperlukan? Masukkan dan uji.",ok:r=>r.o.some(x=>x==="garam"||x==="gula")}];
-function renderMissions(){const cur=MIS.find(m=>!S.mis[m.id]);$("#missions").innerHTML=MIS.map((m,i)=>`<div class="mis ${S.mis[m.id]?"done":m===cur?"cur":""}"><b>Misi ${i+1}${S.mis[m.id]?" ✓":""}</b>${m.t}</div>`).join("");}
+$("#startBtn").onclick=()=>{started=true;$("#startBtn").hidden=true;sd("pencetus","Misi 1: bantu saya membuat makanan. Seret bahan yang kamu rasa saya perlukan, kemudian tekan Uji daun.");toast("Misi 1 dimulakan");renderMissions();};
+const MIS=[{id:"m1",t:"Bantu daun membuat makanan.",h:"Seret ☀️ Cahaya matahari, 💧 Air dan 💨 Karbon dioksida ke dalam daun, kemudian tekan <b>Uji daun</b>.",ok:r=>r.ok},{id:"m2",t:"Uji tanpa cahaya matahari. Apa yang berlaku?",h:"Tekan <b>Kosongkan daun</b>. Masukkan 💧 Air dan 💨 Karbon dioksida sahaja, tanpa ☀️ cahaya. Tekan <b>Uji daun</b>.",ok:r=>!r.c&&r.a&&r.g},{id:"m3",t:"Uji tanpa air.",h:"Tekan <b>Kosongkan daun</b>. Masukkan ☀️ Cahaya matahari dan 💨 Karbon dioksida sahaja, tanpa 💧 air. Tekan <b>Uji daun</b>.",ok:r=>r.c&&!r.a&&r.g},{id:"m4",t:"Adakah garam atau gula diperlukan? Masukkan dan uji.",h:"Masukkan 🧂 Garam atau 🍬 Gula ke dalam daun (boleh bersama bahan lain), kemudian tekan <b>Uji daun</b>. Adakah ia membantu daun?",ok:r=>r.o.some(x=>x==="garam"||x==="gula")}];
+function renderMissions(){misUI($("#missions"),MIS,S.mis,{started:()=>started,start:()=>{if(!started)$("#startBtn").click();}});}
 renderMissions();
 function photo(set){return set.has("cahaya")&&set.has("air")&&set.has("co2");}
-$("#testBtn").onclick=()=>{if(!started){toast("Tekan Mula Alami dahulu");return;}if(!G.leaf.size){toast("Masukkan sekurang-kurangnya satu bahan ke dalam daun");return;}
+$("#testBtn").onclick=()=>{if(!started){toast("Pilih cara bermula dahulu (butang ✋ atau 📷)");return;}if(!G.leaf.size){toast("Masukkan sekurang-kurangnya satu bahan ke dalam daun");return;}
   const ok=photo(G.leaf),r={c:G.leaf.has("cahaya"),a:G.leaf.has("air"),g:G.leaf.has("co2"),o:[...G.leaf].filter(k=>!["cahaya","air","co2"].includes(k)),ok};
   S.log.push(r);if(S.log.length>40)S.log.shift();star(1);
   let msg;if(ok){G.glow=2.5;spawn();$("#leafbox").classList.add("glow");msg="Daun berjaya membuat makanan! Lihat gelembung yang keluar daripada daun.";if(r.o.length)msg+=` (${r.o.map(k=>NAME[k].toLowerCase()).join(" dan ")} tidak membantu, daun tetap berjaya kerana bahan lain sudah lengkap.)`;}
   else{$("#leafbox").classList.remove("glow");const miss=["cahaya","air","co2"].filter(k=>!G.leaf.has(k));msg=`Daun tidak dapat membuat makanan. Masih ada bahan yang diperlukan tetapi tiada.`;}
-  for(const m of MIS){if(!S.mis[m.id]&&m.ok(r)){S.mis[m.id]=true;star(2);msg=`${pr()} Misi selesai: ${m.t} ${ok?"Daun berjaya membuat makanan.":"Daun tidak dapat membuat makanan."}`;break;}}
+  for(const m of MIS){if(!S.mis[m.id]&&m.ok(r)){S.mis[m.id]=true;star(2);msg=`${sdChip("pujian")}${pr()} Misi selesai: ${m.t} ${ok?"Daun berjaya membuat makanan.":"Daun tidak dapat membuat makanan."}`;break;}}
   const left=MIS.filter(m=>!S.mis[m.id]).length;
   $("#fb0").innerHTML=`<div class="fb ${ok?"ok":"info"}">${msg}</div>`+(left===0?`<div class="fb info" style="margin-top:8px"><b>Semua misi selesai!</b> Mari lihat semula percubaan kamu. <button class="btn sm" style="--c:var(--ro)" id="toRO">Ke Renung</button></div>`:"");
-  if(left===0){S.done[0]=true;const b=$("#toRO");if(b)b.onclick=()=>go(1);}
+  if(left===0){S.done[0]=true;award("Peneroka Daun");const b=$("#toRO");if(b)b.onclick=()=>go(1);}
   const nx=MIS.find(m=>!S.mis[m.id]);$("#g0").textContent=nx?"Misi seterusnya: "+nx.t+" Kosongkan daun dahulu jika perlu.":"Saya perlukan bahan tertentu sahaja. Bahan apakah itu? Mari renung.";
   renderMissions();save();};
 function spawn(){const L=leafRect();for(let i=0;i<18;i++)G.parts.push({x:L.x+L.w*(0.3+Math.random()*0.5),y:L.y+L.h*(0.3+Math.random()*0.5),vy:-30-Math.random()*50,vx:(Math.random()-.5)*20,r:4+Math.random()*6,life:1+Math.random(),k:i<4?"food":"o2"});}
@@ -330,28 +374,55 @@ function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;const W=garden.clie
     if(p.k==="o2"){fctx.strokeStyle="#1C7ED6";fctx.lineWidth=2;fctx.beginPath();fctx.arc(p.x,p.y,p.r,0,Math.PI*2);fctx.stroke();fctx.fillStyle="#1C7ED6";fctx.font="700 10px 'Atkinson Hyperlegible',sans-serif";fctx.textAlign="center";if(p.r>7)fctx.fillText("O₂",p.x,p.y+3);}
     else{fctx.font="22px serif";fctx.textAlign="center";fctx.fillText("🍞",p.x,p.y);}});fctx.globalAlpha=1;
   if(G.parts.length){const L=leafRect();fctx.fillStyle="#1B2430";fctx.font="700 13px 'Atkinson Hyperlegible',sans-serif";fctx.textAlign="center";fctx.fillText("gelembung gas + makanan",L.x+L.w/2,L.y+L.h+18);}
-  if(hand.on&&hand.x!=null){fctx.strokeStyle=hand.pinch?"#D9480F":"#0B7285";fctx.lineWidth=3;fctx.beginPath();fctx.arc(hand.x,hand.y,hand.pinch?12:20,0,Math.PI*2);fctx.stroke();
-    if(G.held){fctx.setLineDash([6,5]);fctx.beginPath();fctx.moveTo(hand.x,hand.y);fctx.lineTo(G.held.x+G.held.w/2,G.held.y+G.held.h/2);fctx.stroke();fctx.setLineDash([]);}}
-  if(!started){fctx.fillStyle="rgba(27,36,48,.5)";fctx.fillRect(0,0,W,H);fctx.fillStyle="#fff";fctx.font="800 22px 'Bricolage Grotesque',sans-serif";fctx.textAlign="center";fctx.fillText("Tekan Mula Alami",W/2,H/2);}
+  if(hand.on&&hand.pts){hand.draw(fctx,t);if(G.held&&hand.x!=null){fctx.save();fctx.strokeStyle="#F59E0B";fctx.lineWidth=2.5;fctx.setLineDash([8,6]);fctx.beginPath();fctx.moveTo(hand.x,hand.y);fctx.lineTo(G.held.x+G.held.w/2,G.held.y+G.held.h/2);fctx.stroke();fctx.restore();}}
+  if(!started){fctx.fillStyle="rgba(27,36,48,.5)";fctx.fillRect(0,0,W,H);fctx.fillStyle="#fff";fctx.font="800 22px 'Bricolage Grotesque',sans-serif";fctx.textAlign="center";fctx.fillText("Pilih cara bermula di atas",W/2,H/2);}
   trackHand();requestAnimationFrame(loop);}
 
-/* AR: kamera + cubit (MediaPipe) */
-const hand={on:false,x:null,y:null,pinch:false,hl:null,v:$("#vid")};let lastVT=-1;
-function trackHand(){const v=hand.v;if(!hand.on||!hand.hl||v.readyState<2||v.currentTime===lastVT)return;lastVT=v.currentTime;
-  const res=hand.hl.detectForVideo(v,performance.now());if(!res.landmarks||!res.landmarks.length){hand.x=null;if(G.held)release(-1,-1);return;}
-  const W=garden.clientWidth,H=garden.clientHeight,vw=v.videoWidth,vh=v.videoHeight,sc=Math.max(W/vw,H/vh),ox=(W-vw*sc)/2,oy=(H-vh*sc)/2;
-  const P=p=>({x:W-(p.x*vw*sc+ox),y:p.y*vh*sc+oy});const a=P(res.landmarks[0][4]),b=P(res.landmarks[0][8]);
-  hand.x=(a.x+b.x)/2;hand.y=(a.y+b.y)/2;const pinch=Math.hypot(a.x-b.x,a.y-b.y)<45;
-  if(pinch&&!hand.pinch&&started){let best=null,bd=1e9;G.toks.forEach(k=>{const d=Math.hypot(k.x+k.w/2-hand.x,k.y+k.h/2-hand.y);if(d<bd&&d<90){bd=d;best=k;}});if(best)grab(best,hand.x,hand.y);}
-  if(pinch&&G.held)moveHeld(hand.x,hand.y);if(!pinch&&hand.pinch&&G.held)release(hand.x,hand.y);hand.pinch=pinch;}
-$("#camBtn").onclick=async()=>{const st=$("#camStat");
-  try{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("Pelayar ini tidak menyokong kamera.");st.textContent="Membuka kamera…";
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});const v=hand.v;v.srcObject=stream;v.hidden=false;await v.play();
-    st.textContent="Memuatkan pengesan tangan…";const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");
+/* ===== Modul tangan AI (MediaPipe Hands): kamera, 21 titik sendi, cubit ===== */
+const HAND_LINKS=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+function makeHand(box,video){
+  const H={on:false,pts:null,x:null,y:null,pinch:false,was:false,hl:null,lastT:-1};
+  H.start=async(stat)=>{
+    if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("kamera memerlukan pautan https dan pelayar yang menyokong kamera");
+    stat("Membuka kamera…");
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});
+    video.srcObject=stream;video.hidden=false;await video.play();
+    stat("Memuatkan AI pengesan tangan…");
+    const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");
     const fs=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
-    hand.hl=await vision.HandLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numHands:1});
-    hand.on=true;if(!started)$("#startBtn").click();st.textContent="Gerak tangan aktif: cubit bahan untuk memegang, bawa ke daun, buka jari untuk melepaskan.";
-  }catch(e){st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
+    H.hl=await vision.HandLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numHands:1});
+    H.on=true;
+  };
+  // kembalikan true apabila ada bingkai baharu
+  H.update=(thr)=>{H.was=H.pinch;
+    if(!H.on||!H.hl||video.readyState<2||video.currentTime===H.lastT)return false;H.lastT=video.currentTime;
+    const res=H.hl.detectForVideo(video,performance.now());
+    if(!res.landmarks||!res.landmarks.length){H.pts=null;H.x=null;H.pinch=false;return true;}
+    const W=box.clientWidth,Hh=box.clientHeight,vw=video.videoWidth||640,vh=video.videoHeight||480,sc=Math.max(W/vw,Hh/vh),ox=(W-vw*sc)/2,oy=(Hh-vh*sc)/2;
+    H.pts=res.landmarks[0].map(p=>({x:W-(p.x*vw*sc+ox),y:p.y*vh*sc+oy}));
+    const a=H.pts[4],b=H.pts[8],w=H.pts[0];H.x=(a.x+b.x)/2;H.y=(a.y+b.y)/2;
+    const span=Math.hypot(w.x-H.pts[9].x,w.y-H.pts[9].y)||1;
+    const tips=[8,12,16,20].map(k=>Math.hypot(H.pts[k].x-w.x,H.pts[k].y-w.y)).reduce((s,v)=>s+v,0)/4;
+    H.pinch=Math.hypot(a.x-b.x,a.y-b.y)<(thr||45)||tips<span*1.05;return true;};
+  // lukis rangka tangan: cyan = jari terbuka, emas = memegang
+  H.draw=(ctx,t)=>{if(!H.on||!H.pts)return;const col=H.pinch?"#F59E0B":"#06B6D4";ctx.save();
+    ctx.strokeStyle=col;ctx.lineWidth=3;ctx.shadowColor=col;ctx.shadowBlur=8;
+    HAND_LINKS.forEach(([i,j])=>{ctx.beginPath();ctx.moveTo(H.pts[i].x,H.pts[i].y);ctx.lineTo(H.pts[j].x,H.pts[j].y);ctx.stroke();});
+    ctx.fillStyle="#fff";H.pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3.5,0,Math.PI*2);ctx.fill();});ctx.shadowBlur=0;
+    const r=H.pinch?13+Math.sin((t||0)/120)*3:22;ctx.lineWidth=3;ctx.beginPath();ctx.arc(H.x,H.y,r,0,Math.PI*2);ctx.stroke();
+    if(H.pinch){ctx.fillStyle="rgba(245,158,11,.25)";ctx.fill();}
+    ctx.font="700 12px 'Atkinson Hyperlegible',sans-serif";ctx.textAlign="center";ctx.fillStyle=col;ctx.fillText(H.pinch?"✊ MEMEGANG":"🖐️ SEDIA",H.x,H.y-r-8);ctx.restore();};
+  return H;
+}
+const hand=makeHand(garden,$("#vid"));
+function trackHand(){if(!hand.update(45))return;
+  if(hand.x==null){if(G.held)release(-1,-1);return;}
+  if(hand.pinch&&!hand.was&&started){let best=null,bd=1e9;G.toks.forEach(k=>{const d=Math.hypot(k.x+k.w/2-hand.x,k.y+k.h/2-hand.y);if(d<bd&&d<90){bd=d;best=k;}});if(best)grab(best,hand.x,hand.y);}
+  if(hand.pinch&&G.held)moveHeld(hand.x,hand.y);
+  if(!hand.pinch&&hand.was&&G.held)release(hand.x,hand.y);}
+$("#camBtn").onclick=async()=>{const st=$("#camStat");
+  try{await hand.start(t=>st.textContent=t);if(!started)$("#startBtn").click();$("#realRow").hidden=false;st.textContent="Gerak tangan aktif: rangka tangan kamu kelihatan di skrin. Cubit bahan untuk memegang, bawa ke daun, buka jari untuk melepaskan.";}
+  catch(e){st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
 
 /* ================= FASA 2 ================= */
 function sample(){if(S.log.length>=3)return S.log;return [{c:1,a:1,g:1,o:[],ok:true},{c:0,a:1,g:1,o:[],ok:false},{c:1,a:0,g:1,o:["garam"],ok:false},{c:1,a:1,g:1,o:["gula"],ok:true}];}
@@ -365,13 +436,15 @@ function renderRO(){const d=sample(),own=S.log.length>=3;
     $$("#roQ .opt").forEach(b=>b.onclick=()=>{if($("#roQ .right"))return;const ok=+b.dataset.k===q.a;b.classList.add(ok?"right":"wrong");if(!ok)$$("#roQ .opt")[q.a].classList.add("right");if(ok)star(1);
       $("#roFb").innerHTML=`<div class="fb ${ok?"ok":"bad"}">${ok?pr():"Lihat semula log percubaan."} ${q.why}</div>`+(i<2?`<div class="row" style="margin-top:8px"><button class="btn sm" id="roNext">Soalan seterusnya</button></div>`:`<div class="fb info" style="margin-top:8px">Kamu sudah menemui corak. Dalam fasa Faham, proses ini ada nama: fotosintesis.</div>`);
       const n=$("#roNext");if(n)n.onclick=()=>{i++;show();};if(i===2)S.done[1]=true;save();});};show();}
-function mic(btn,ta,stat){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function mic(btn,ta,stat,cb){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   btn.onclick=()=>{if(!SR){stat.textContent="Pelayar ini tidak menyokong suara ke teks. Guna Chrome atau Edge, atau taip sahaja.";return;}
     try{const r=new SR();r.lang="ms-MY";r.interimResults=true;const base=ta.value?ta.value+" ":"";btn.classList.add("on");stat.textContent="Mendengar… bercakap sekarang.";
       r.onresult=e=>{let t="";for(const res of e.results)t+=res[0].transcript;ta.value=base+t;ta.dispatchEvent(new Event("input"));};
       r.onerror=e=>{stat.textContent=e.error==="not-allowed"?"Mikrofon tidak dibenarkan. Buka melalui pautan https dan benarkan mikrofon.":"Tidak dapat mendengar ("+e.error+"). Cuba lagi atau taip.";};
-      r.onend=()=>{btn.classList.remove("on");if(stat.textContent.startsWith("Mendengar"))stat.textContent="Selesai. Semak teks di atas.";};r.start();}catch(e){stat.textContent="Suara ke teks tidak dapat dimulakan di sini. Taip sahaja.";}};}
-mic($("#roMic"),$("#roText"),$("#roMicStat"));mic($("#acMic"),$("#acText"),$("#acMicStat"));
+      r.onend=()=>{btn.classList.remove("on");if(stat.textContent.startsWith("Mendengar"))stat.textContent="Selesai. Jawapan kamu sedang disemak.";if(cb)cb();};r.start();}catch(e){stat.textContent="Suara ke teks tidak dapat dimulakan di sini. Taip sahaja.";}};}
+mic($("#roMic"),$("#roText"),$("#roMicStat"),()=>$("#roCheck").click());
+const RO_K=[["cahaya matahari",/cahaya|matahari/],["air",/\bair\b|siram/],["karbon dioksida",/karbon|dioksida|co2|udara/],["perbandingan percubaan",/tanpa|tiada|tidak|apabila|bila|berjaya|gagal/]];
+$("#roCheck").onclick=()=>{const n=sdCheck($("#roText").value,RO_K,$("#roTxtFb"));if(n>=2&&!S.roStar){S.roStar=true;star(1);}};mic($("#acMic"),$("#acText"),$("#acMicStat"),()=>$("#acCheck").click());
 $("#roText").value=S.roText||"";$("#roText").oninput=()=>{S.roText=$("#roText").value;save();};
 
 /* ================= FASA 3 ================= */
@@ -396,15 +469,15 @@ function genQ(){
   if(Q.lvl===2){return pick([{t:"Apakah <b>hasil</b> fotosintesis?",a:"Makanan dan oksigen",o:["Makanan dan oksigen","Air dan garam","Karbon dioksida dan air"],h:"Apa yang keluar daripada daun selepas ia berjaya?"},{t:"Gelembung gas yang keluar daripada daun semasa fotosintesis ialah…",a:"Oksigen",o:["Oksigen","Karbon dioksida","Wap air"],h:"Gas ini kita gunakan untuk bernafas."},{t:"Bahan hijau dalam daun yang menyerap cahaya matahari dipanggil…",a:"Klorofil",o:["Klorofil","Kanji","Akar"],h:"Lihat semula persamaan dalam fasa Faham."}]);}
   return pick([{t:"Sebuah pasu bunga diletakkan di dalam bilik gelap selama seminggu. Apakah yang berlaku?",a:"Tumbuhan tidak dapat membuat makanan",o:["Tumbuhan tidak dapat membuat makanan","Tumbuhan membuat lebih banyak makanan","Tiada kesan"],h:"Bahan apakah yang tiada di dalam bilik gelap?"},{t:"Kenapakah haiwan juga memerlukan fotosintesis?",a:"Haiwan memerlukan oksigen dan makanan daripada tumbuhan",o:["Haiwan memerlukan oksigen dan makanan daripada tumbuhan","Haiwan memerlukan garam daripada tumbuhan","Haiwan tidak memerlukannya"],h:"Fikirkan hasil fotosintesis."}]);}
 function newQ(reset){if(reset&&Q.cur)return;
-  if(Q.n>=6){$("#qText").innerHTML=`<b>Kuiz selesai!</b> Betul ${S.quiz.ok} daripada ${S.quiz.n}.`+(S.quiz.ok>=5?" Lencana Pakar Fotosintesis.":"");$("#qOpts").innerHTML="";$("#qFb").innerHTML="";$("#qNext").hidden=true;S.done[2]=true;save();return;}
+  if(Q.n>=6){$("#qText").innerHTML=`<b>Kuiz selesai!</b> Betul ${S.quiz.ok} daripada ${S.quiz.n}.`+(S.quiz.ok>=5?" Lencana Pakar Fotosintesis.":"");$("#qOpts").innerHTML="";$("#qFb").innerHTML="";$("#qNext").hidden=true;S.done[2]=true;if(S.quiz.ok>=5)award("Pakar Fotosintesis");save();return;}
   Q.cur=genQ();Q.tries=0;const opts=[...new Set(Q.cur.o)].sort(()=>Math.random()-.5);
   $("#qProg").textContent=`Soalan ${Q.n+1} daripada 6`;$("#qText").innerHTML=Q.cur.t;$("#qFb").innerHTML="";$("#qNext").hidden=true;$$("#qLvl i").forEach((e,k)=>e.classList.toggle("on",k<Q.lvl));
   $("#qOpts").innerHTML=opts.map(o=>`<button class="opt">${o}</button>`).join("");
   $$("#qOpts .opt").forEach(b=>b.onclick=()=>{if($("#qOpts .right"))return;const ok=b.textContent===Q.cur.a;
     if(ok){b.classList.add("right");const clean=Q.tries===0;S.quiz.n++;if(clean)S.quiz.ok++;star(clean?2:1);Q.n++;let msg=pr();
       if(clean){Q.streak++;Q.wrong=0;if(Q.streak>=2&&Q.lvl<3){Q.lvl++;Q.streak=0;msg+=" Naik ke tahap "+Q.lvl+".";}}else Q.streak=0;
-      $("#qFb").innerHTML=`<div class="fb ok">${msg}</div>`;$("#qNext").hidden=false;}
-    else{b.classList.add("wrong");Q.tries++;Q.wrong++;if(Q.wrong>=2&&Q.lvl>1){Q.lvl--;Q.wrong=0;}$("#qFb").innerHTML=`<div class="fb bad">Belum tepat. Petunjuk: ${Q.cur.h}</div>`;}save();});}
+      $("#qFb").innerHTML=`<div class="fb ok">${msg}</div>`;sd("pujian",msg);$("#qNext").hidden=false;}
+    else{b.classList.add("wrong");Q.tries++;Q.wrong++;if(Q.wrong>=2&&Q.lvl>1){Q.lvl--;Q.wrong=0;}$("#qFb").innerHTML=`<div class="fb bad">Belum tepat. Petunjuk: ${Q.cur.h}</div>`;sd("cadangan","Belum tepat. Baca petunjuk di bawah soalan, kemudian cuba lagi.");}save();});}
 $("#qNext").onclick=()=>newQ(false);
 
 /* ================= FASA 4 ================= */
@@ -423,13 +496,39 @@ function pickC(c){A.cur=c;$$("#chalList button").forEach(b=>b.setAttribute("aria
 $("#cTest").onclick=()=>{const c=A.cur,a=$("#pA").value,b=$("#pB").value;if(!a||!b){$("#cFb").innerHTML=`<div class="fb info">Pilih kedua-dua ramalan dahulu. Ramalan ialah hipotesis yang akan diuji.</div>`;return;}
   const ok=(a==="Ya")===c.yes&&b===c.miss;S.preds.push(ok?1:0);if(ok&&!S.chal[c.id]){S.chal[c.id]=true;star(3);}
   const why=c.yes?"Semua keperluan ada, jadi fotosintesis berlaku. Gelembung oksigen boleh dilihat keluar daripada daun tumbuhan air.":`${c.miss} tiada, jadi ${c.part||"tumbuhan itu"} tidak dapat membuat makanan melalui fotosintesis.`;
-  const all=CH.every(x=>S.chal[x.id]);if(all)S.done[3]=true;save();
+  const all=CH.every(x=>S.chal[x.id]);if(all){S.done[3]=true;award("Pakar Tumbuhan");}save();
   $("#cFb").innerHTML=`<div class="fb ${ok?"ok":"info"}">${ok?pr()+" Ramalan tepat. ":"Ramalan belum tepat. "}${why}</div>`+(ok?(all?`<div class="fb ok" style="margin-top:8px"><b>Lencana Pakar Tumbuhan!</b> Semua situasi selesai.</div>`:`<div class="row" style="margin-top:8px"><button class="btn sm" id="cNext">Situasi seterusnya</button></div>`):`<div class="fb info" style="margin-top:8px">Petunjuk: semak keempat-empat perkara: cahaya matahari, air, karbon dioksida dan klorofil.</div>`);
+  if(ok){if(!all)sd("pujian","Ramalan kamu tepat! Kamu mengaplikasikan konsep fotosintesis dengan betul.");}else sd("cadangan","Belum tepat. Baca petunjuk, ubah ramalan, kemudian uji semula.");
   const n=$("#cNext");if(n)n.onclick=()=>pickC(CH.find(x=>!S.chal[x.id])||CH[0]);$$("#chalList button").forEach(x=>x.classList.toggle("done",!!S.chal[x.dataset.id]));evidence();};
 function evidence(){$("#evDone").textContent=CH.filter(c=>S.chal[c.id]).length+"/4";const p=S.preds;$("#evAcc").textContent=p.length?Math.round(p.reduce((a,b)=>a+b,0)/p.length*100)+"%":"–";
   $("#evQuiz").textContent=S.quiz.n?S.quiz.ok+"/"+S.quiz.n:"–";$("#evTrials").textContent=S.log.length;}
 
+/* Sokongan Dialog: peringatan lembut apabila murid berhenti */
+sdIdle(()=>{if(S.phase===0){if(!started)return "Tekan salah satu butang Mula untuk memulakan misi.";const nx=MIS.find(m=>!S.mis[m.id]);return nx?"Masih di situ? Cuba misi ini: "+nx.t+" Seret bahan ke dalam daun, kemudian tekan Uji daun.":null;}
+  if(S.phase===1)return "Jangan lupa tulis atau cakap refleksi kamu, kemudian tekan Semak refleksi.";
+  if(S.phase===2)return "Cuba jawab kuiz atau semak penerangan kamu dengan butang Semak.";
+  const c=CH.find(x=>!S.chal[x.id]);return c?"Satu lagi situasi menunggu kamu: "+c.t+".":null;});
 layout();build();renderLeaf();requestAnimationFrame(loop);go(S.phase||0);
+})();
+</script>
+
+<style>
+.home{display:inline-flex;align-items:center;gap:4px;font-weight:800;font-size:14.5px;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.home:hover,.home:focus-visible{border-color:var(--ink)}
+.pnav{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;border-top:1.5px dashed var(--line);margin-top:6px;padding-top:14px}
+.pnav .btn{flex:0 1 auto}
+.pnav .sp{flex:1}
+</style>
+<script>
+(function(){const N=["Alami","Renung","Faham","Cuba"];
+  const ph=n=>document.querySelector('.phb[data-p="'+n+'"]');
+  document.querySelectorAll('.panel[data-p]').forEach(p=>{const i=+p.dataset.p;const d=document.createElement('div');d.className='pnav';
+    d.innerHTML=(i>0?'<button class="btn ghost" data-nav="'+(i-1)+'">← '+(i)+' '+N[i-1]+'</button>':'<a class="btn ghost" href="contoh.html">🏠 Menu contoh</a>')+'<span class="sp"></span>'+
+      (i<3?'<button class="btn" data-nav="'+(i+1)+'">'+(i+2)+' '+N[i+1]+' →</button>':'<a class="btn" href="contoh.html">Selesai: kembali ke menu 🏠</a>');
+    p.appendChild(d);});
+  document.querySelectorAll('[data-nav]').forEach(b=>{const pan=b.closest('.panel'),n=+b.dataset.nav,old=pan&&n>+pan.dataset.p?pan.querySelector('[data-go="'+n+'"]'):null;
+    if(old&&old.parentElement&&old.parentElement.classList.contains('row')&&old.parentElement.children.length===1)old.parentElement.hidden=true;
+    b.addEventListener('click',()=>{if(old)old.click();else{const t=ph(n);if(t)t.click();}});});
 })();
 </script>
 </body></html>

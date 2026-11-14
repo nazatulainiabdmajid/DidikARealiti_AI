@@ -1,58 +1,567 @@
-<!doctype html>
-<html lang="ms">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Bengkel Simulator Kolb</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="color-scheme" content="only light">
-<title>Didik A-Realiti AI</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
 <style>
+/* Dua paparan: "Bengkel" (semua slaid bertindan untuk peserta) dan "Slaid" (satu skrin pada satu masa untuk fasilitator). Warna fasa Kolb sama dengan aplikasi contoh. */
+:root{
+  color-scheme: only light;
+  --paper:#F4F6F1; --card:#FFFFFF; --ink:#1B2430; --muted:#5B6675; --line:#D9DED3; --soft:#ECEFE7;
+  --ce:#D9480F; --ce-soft:#FFE8DC; --ro:#6741D9; --ro-soft:#ECE5FF; --ac:#1864AB; --ac-soft:#E1EEFB; --ae:#2B8A3E; --ae-soft:#E3F4E6;
+  --ar:#0B7285; --ai:#C2255C; --ps:#B35C00; --ok:#2B8A3E; --bad:#C92A2A;
+  --f-d:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --f-b:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+}
 *{box-sizing:border-box}
-body{margin:0;background:#F4F6F1;color:#1B2430;font-family:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;font-size:17px;line-height:1.55}
-main{max-width:900px;margin:0 auto;padding:28px max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:18px}
-h1,h2,h3{font-family:"Bricolage Grotesque","Segoe UI",sans-serif;margin:0;line-height:1.15}
-h1{font-size:clamp(28px,6vw,42px)} h2{font-size:22px} h3{font-size:19px}
-p{margin:0;color:#5B6675}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
-a.card{display:flex;flex-direction:column;gap:6px;background:#fff;border:2px solid #D9DED3;border-radius:16px;padding:16px;text-decoration:none;color:#1B2430}
-a.card:hover,a.card:focus-visible{border-color:#1864AB}
-.tags{display:flex;gap:6px;flex-wrap:wrap}
-.tags span{font-size:12.5px;font-weight:700;border-radius:999px;padding:1px 9px;background:#ECEFE7}
-.tags .k{background:#E1EEFB;color:#1864AB}.tags .g{background:#FFE8DC;color:#D9480F}.tags .a{background:#E0F3F6;color:#0B7285}
-.sec{display:flex;flex-direction:column;gap:10px}
+[hidden]{display:none!important}
+html:not(.L-en) [data-t="en"]{display:none!important}
+html.L-en [data-t="ms"]{display:none!important}
+html,body{background:var(--paper);color:var(--ink)}
+body{margin:0;font-family:var(--f-b);font-size:16.5px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--card)}
+.wrap{max-width:1000px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-d);margin:0;line-height:1.15;text-wrap:balance}
+h1{font-size:clamp(28px,5vw,44px);font-weight:800} h2{font-size:clamp(22px,3.4vw,30px);font-weight:800} h3{font-size:18.5px;font-weight:600}
+p{margin:0} .muted{color:var(--muted)}
+a{color:var(--ac)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+/* bar atas */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--line);margin-inline:calc(-1*max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-right,0px)) 8px max(16px,env(safe-area-inset-left,0px))}
+.top .wrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.brand{font-family:var(--f-d);font-weight:800;margin-right:auto}
+.jump{display:flex;gap:6px;flex-wrap:wrap}
+.jump a{text-decoration:none;font-weight:700;font-size:14px;border:2px solid var(--line);border-radius:999px;padding:3px 11px;color:var(--ink);display:flex;gap:6px;align-items:center}
+.jump a .n{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:12px}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:var(--card);padding:4px 12px;font-weight:700;font-size:14px;color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+@media (max-width:640px){.brand{display:none}.jump a{font-size:13px;padding:2px 8px}}
+/* slaid */
+main{padding-block:24px 60px;display:flex;flex-direction:column;gap:20px}
+.slide{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:14px;border-top:6px solid var(--c,var(--ink));scroll-margin-top:64px}
+.slide[data-p="0"]{--c:var(--ce);--cs:var(--ce-soft)}.slide[data-p="1"]{--c:var(--ro);--cs:var(--ro-soft)}.slide[data-p="2"]{--c:var(--ac);--cs:var(--ac-soft)}.slide[data-p="3"]{--c:var(--ae);--cs:var(--ae-soft)}
+.eyebrow{font-size:12.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--c,var(--muted))}
+.head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.time{font-weight:800;font-variant-numeric:tabular-nums;color:var(--c);background:var(--cs,var(--soft));border-radius:999px;padding:2px 12px;font-size:14.5px}
+.goal{background:var(--cs,var(--soft));border-radius:12px;padding:10px 14px}
+.hp{border-left:4px solid var(--c);background:#fff;border-radius:0 12px 12px 0;padding:8px 14px;font-size:15.5px}
+.hp b{color:var(--c)}
+.lede{font-size:18px;color:var(--muted);max-width:64ch}
+.meta{display:flex;gap:8px;flex-wrap:wrap}
+.meta span{background:var(--soft);border-radius:999px;padding:3px 12px;font-size:14px;font-weight:700}
+.btn{border:0;border-radius:12px;padding:10px 18px;font-weight:700;background:var(--c,var(--ink));color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn.ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn.sm{padding:6px 12px;font-size:14.5px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:820px){.grid4{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0;background:#fff}
+.cyc{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media (max-width:640px){.cyc{grid-template-columns:1fr 1fr}}
+.cyc div{border-radius:12px;padding:10px;color:#fff;font-weight:700;display:flex;flex-direction:column;gap:2px}
+.cyc div small{font-weight:400;opacity:.92;font-size:13.5px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:600px;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{font-family:var(--f-d);font-size:14px;background:var(--soft)}
+td.t{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.checks{display:flex;flex-direction:column;gap:8px}
+.cb{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.cb input{width:20px;height:20px;margin-top:2px;accent-color:var(--c,var(--ac));flex:none}
+.matrix td.match{background:var(--ae-soft)}.matrix td.miss{background:#FFF4DB}.matrix td.extra{background:#FFE3E3}
+.tag{font-size:13px;font-weight:700;border-radius:8px;padding:2px 8px;border:1.5px solid;white-space:nowrap}
+.tag.ar{color:var(--ar);border-color:var(--ar)}.tag.ai{color:var(--ai);border-color:var(--ai)}.tag.ps{color:var(--ps);border-color:var(--ps)}
+.ds{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+@media (max-width:820px){.ds{grid-template-columns:1fr 1fr}}
+.ds div{border:2px solid var(--ps);border-radius:14px;padding:12px;background:#FFF8EE;display:flex;flex-direction:column;gap:4px;font-size:14.5px}
+.ds b{font-family:var(--f-d);font-size:17px;color:var(--ps)}
+.app{display:flex;flex-direction:column;gap:6px;border:2px solid var(--line);border-radius:14px;padding:14px;text-decoration:none;color:var(--ink);background:#fff}
+.app.main{border-color:var(--ae);border-width:3px}
+.app:hover{border-color:var(--ac)}
+.badge{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ae)}
+textarea,input[type=text],select{font:inherit;font-size:15.5px;width:100%;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
+textarea{min-height:64px;resize:vertical}
+label.f{display:flex;flex-direction:column;gap:4px;font-weight:700;font-size:14.5px;min-width:0}
+label.f small{font-weight:400;color:var(--muted)}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.steps{counter-reset:s;display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.steps li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:start}
+.steps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:800}
+.prompt{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff}
+.prompt header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--soft)}
+.prompt header h3{font-size:16.5px;margin-right:auto}
+.prompt pre{margin:0;padding:14px;white-space:pre-wrap;word-break:break-word;font-family:var(--f-b);font-size:14.5px;line-height:1.5;max-height:320px;overflow:auto}
+.fix{display:flex;gap:8px;flex-wrap:wrap}
+.fix button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:14.5px;color:var(--ink)}
+.fix button[aria-pressed="true"]{border-color:var(--ae);background:var(--ae-soft)}
+ul.tight{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px}
+.facil{border-style:dashed}
+.ref{font-size:13.5px;color:var(--muted)}
+/* paparan slaid */
+html.pres body{padding:0}
+html.pres .top{position:fixed;inset:0 0 auto;margin:0}
+html.pres main{max-width:none;padding:0;gap:0}
+html.pres .slide{display:none}
+html.pres .slide.cur{display:flex;position:fixed;inset:calc(var(--toph,54px) + env(safe-area-inset-top,0px)) 0 calc(64px + env(safe-area-inset-bottom,0px)) 0;border-radius:0;border:0;border-top:8px solid var(--c,var(--ink));padding:clamp(18px,4vw,48px) max(20px,6vw);overflow:auto;font-size:clamp(17px,1.6vw,22px)}
+html.pres .slide.cur h1{font-size:clamp(34px,5vw,64px)}
+html.pres .slide.cur h2{font-size:clamp(28px,3.6vw,48px)}
+html.pres .slide.cur h3{font-size:clamp(19px,1.8vw,26px)}
+html.pres .slide.cur table{font-size:clamp(15px,1.4vw,19px)}
+html.pres .facil-only,html.pres .no-pres{display:none!important}
+.presbar{display:none}
+html.pres .presbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--card);border-top:1px solid var(--line);padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));gap:10px;align-items:center;justify-content:center}
+.presbar .ct{font-variant-numeric:tabular-nums;font-weight:700;min-width:80px;text-align:center}
+.presbar .bar{flex:1;max-width:420px;height:6px;border-radius:999px;background:var(--soft);overflow:hidden}
+.presbar .bar span{display:block;height:100%;background:var(--ink);width:0}
+.toast{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 18px;border-radius:12px;font-weight:700;opacity:0;transition:all .3s;z-index:50;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
-</head>
-<body>
-<main>
-  <h1>Didik A-Realiti AI</h1>
-  <p>Contoh aplikasi pembelajaran STEM dan bahasa yang menggabungkan kitaran Kolb, AR, AI dan elemen persuasif. Buka di telefon atau komputer melalui Chrome.</p>
 
-  <section class="sec">
-    <h2>Simulator kitaran Kolb penuh</h2>
-    <p>Empat fasa: Alami, Renung, Faham, Cuba. Gerak tangan melalui kamera, suara ke teks, kuiz adaptif.</p>
-    <div class="grid">
-      <a class="card" href="tuas.html"><h3>Makmal Tuas</h3><span>Sains Tingkatan 2 · Tuas dan momen daya</span><div class="tags"><span class="k">Kolb penuh</span><span class="g">Tolak dengan jari</span></div></a>
-      <a class="card" href="apung.html"><h3>Makmal Apung</h3><span>Sains Tingkatan 1 · Ketumpatan, terapung dan tenggelam</span><div class="tags"><span class="k">Kolb penuh</span><span class="g">Cubit dan seret</span></div></a>
-      <a class="card" href="daun.html"><h3>Makmal Daun</h3><span>Sains Tahun 4 · Fotosintesis</span><div class="tags"><span class="k">Kolb penuh</span><span class="g">Cubit dan seret</span></div></a>
-    </div>
-  </section>
+<div class="top"><div class="wrap">
+  <span class="brand" data-t="ms">Bengkel Simulator Kolb</span><span class="brand" data-t="en">Kolb Simulator Workshop</span>
+  <nav class="jump no-pres-hide" aria-label="Fasa">
+    <a href="#s-alami" data-go="s-alami"><span class="n" style="background:var(--ce)">1</span><span data-t="ms">Alami</span><span data-t="en">Experience</span></a>
+    <a href="#s-renung" data-go="s-renung"><span class="n" style="background:var(--ro)">2</span><span data-t="ms">Renung</span><span data-t="en">Reflect</span></a>
+    <a href="#s-faham" data-go="s-faham"><span class="n" style="background:var(--ac)">3</span><span data-t="ms">Faham</span><span data-t="en">Conceptualise</span></a>
+    <a href="#s-cuba" data-go="s-cuba"><span class="n" style="background:var(--ae)">4</span><span data-t="ms">Cuba</span><span data-t="en">Experiment</span></a>
+  </nav>
+  <div class="seg" role="group" aria-label="Paparan"><button id="vWork" aria-pressed="true"><span data-t="ms">Bengkel</span><span data-t="en">Workshop</span></button><button id="vSlide" aria-pressed="false"><span data-t="ms">Slaid</span><span data-t="en">Slides</span></button></div>
+  <div class="seg" role="group" aria-label="Bahasa"><button id="lMs" aria-pressed="true">BM</button><button id="lEn" aria-pressed="false">BI</button></div>
+</div></div>
 
-  <section class="sec">
-    <h2>Permainan gerak tangan</h2>
-    <p>Latihan pantas dengan kamera: cubit untuk memegang, buka jari untuk melepaskan.</p>
-    <div class="grid">
-      <a class="card" href="arab.html"><h3>Padan Nombor Arab ١–١٠</h3><span>Bahasa Arab · Padankan perkataan dengan nombor</span><div class="tags"><span class="g">Cubit dan seret</span><span>Carta Top 10</span><span>Mod guru</span></div></a>
-    </div>
-  </section>
+<main class="wrap" id="deck">
 
-  <section class="sec">
-    <h2>AR objek dan kad</h2>
-    <div class="grid">
-      <a class="card" href="jawi.html"><h3>Jawi di Sekelilingku</h3><span>Sekolah rendah · Kad bercetak dikesan kamera</span><div class="tags"><span class="a">AR kad (MindAR)</span><span class="k">Kolb</span></div></a>
-      <a class="card" href="matematik.html"><h3>Pelan dan Dongakan</h3><span>Matematik Tingkatan 3 · Pepejal 3D di atas meja</span><div class="tags"><span class="a">AR meja (model-viewer)</span><span class="k">Kolb</span></div></a>
-    </div>
-  </section>
-  <p style="font-size:14.5px">Kamera dan mikrofon memerlukan pautan https dan kebenaran pengguna. Imej kamera diproses dalam peranti sahaja dan tidak direkod atau dihantar. Suara ke teks dalam Chrome diproses oleh perkhidmatan Google.</p>
+<!-- 0 TAJUK -->
+<section class="slide" id="s-tajuk">
+  <span class="eyebrow"><span data-t="ms">Bengkel guru · Vibe coding</span><span data-t="en">Teacher workshop · Vibe coding</span></span>
+  <h1><span data-t="ms">Bina simulator AR untuk topik anda, tanpa menulis kod</span><span data-t="en">Build an AR simulator for your topic, without writing code</span></h1>
+  <p class="lede"><span data-t="ms">Bengkel ini sendiri mengikut kitaran pembelajaran Kolb. Anda mencuba contoh simulator seperti murid, merenung apa yang ada di dalamnya, memahami teori dan cara ia dibina, kemudian membina simulator untuk topik anda menggunakan prompt AI.</span><span data-t="en">This workshop itself follows Kolb's learning cycle. You try a sample simulator as a student, reflect on what it contains, understand the theory and how it was built, then build a simulator for your own topic using AI prompts.</span></p>
+  <div class="cyc">
+    <div style="background:var(--ce)">1 · <span data-t="ms">Alami</span><span data-t="en">Experience</span><small data-t="ms">Cuba Makmal Daun sebagai murid</small><small data-t="en">Try Makmal Daun as a student</small></div>
+    <div style="background:var(--ro)">2 · <span data-t="ms">Renung</span><span data-t="en">Reflect</span><small data-t="ms">Apa yang ada dalam aplikasi itu?</small><small data-t="en">What was in the app?</small></div>
+    <div style="background:var(--ac)">3 · <span data-t="ms">Faham</span><span data-t="en">Conceptualise</span><small data-t="ms">Teori dan cara ia dibina</small><small data-t="en">Theory and how it was built</small></div>
+    <div style="background:var(--ae)">4 · <span data-t="ms">Cuba</span><span data-t="en">Experiment</span><small data-t="ms">Bina simulator sendiri</small><small data-t="en">Build your own simulator</small></div>
+  </div>
+  <div class="meta"><span data-t="ms">2 jam</span><span data-t="en">2 hours</span><span data-t="ms">Laptop + telefon</span><span data-t="en">Laptop + phone</span><span data-t="ms">Akaun Google</span><span data-t="en">Google account</span><span>Chrome</span></div>
+</section>
+
+<!-- 1 HASIL PEMBELAJARAN -->
+<section class="slide" id="s-hp">
+  <span class="eyebrow"><span data-t="ms">Hasil pembelajaran guru</span><span data-t="en">Teacher learning outcomes</span></span>
+  <h2><span data-t="ms">Pada akhir bengkel, guru dapat…</span><span data-t="en">By the end of the workshop, teachers can…</span></h2>
+  <div class="grid2">
+    <div class="hp" style="--c:var(--ce)"><b>HP1 · <span data-t="ms">Alami</span><span data-t="en">Experience</span></b><br><span data-t="ms">mengalami dan menerangkan ciri AR dan AI dalam aplikasi contoh.</span><span data-t="en">experience and explain the AR and AI features in a sample app.</span></div>
+    <div class="hp" style="--c:var(--ro)"><b>HP2 · <span data-t="ms">Renung</span><span data-t="en">Reflect</span></b><br><span data-t="ms">menganalisis data penggunaan murid, menilai keberkesanan pencetus dan menyenaraikan tiga isu untuk diperbaiki.</span><span data-t="en">analyse student usage data, evaluate how well the triggers work and list three issues to improve.</span></div>
+    <div class="hp" style="--c:var(--ac)"><b>HP3 · <span data-t="ms">Faham</span><span data-t="en">Conceptualise</span></b><br><span data-t="ms">mengaitkan kitaran Kolb, AR, AI dan Sokongan Dialog, merumus prinsip reka bentuk dan memilih pencetus yang sesuai.</span><span data-t="en">connect Kolb's cycle, AR, AI and Dialogue Support, derive design principles and choose suitable triggers.</span></div>
+    <div class="hp" style="--c:var(--ae)"><b>HP4 · <span data-t="ms">Cuba</span><span data-t="en">Experiment</span></b><br><span data-t="ms">membangunkan simulator untuk topik sendiri melalui vibe coding, mengujinya dan memperbaikinya dengan senarai semak.</span><span data-t="en">develop a simulator for their own topic through vibe coding, test it and improve it with a checklist.</span></div>
+  </div>
+</section>
+
+<!-- 2 JADUAL -->
+<section class="slide" id="s-jadual">
+  <span class="eyebrow"><span data-t="ms">Jadual</span><span data-t="en">Schedule</span></span>
+  <h2><span data-t="ms">Aliran bengkel 2 jam</span><span data-t="en">2-hour workshop flow</span></h2>
+  <div class="tbl"><table>
+    <thead><tr><th><span data-t="ms">Masa</span><span data-t="en">Time</span></th><th><span data-t="ms">Fasa</span><span data-t="en">Phase</span></th><th><span data-t="ms">Apa yang guru buat</span><span data-t="en">What teachers do</span></th></tr></thead>
+    <tbody>
+      <tr><td class="t">0:00–0:05</td><td><span data-t="ms">Pembukaan</span><span data-t="en">Opening</span></td><td><span data-t="ms">Matlamat, hasil pembelajaran, log masuk akaun Google.</span><span data-t="en">Goals, learning outcomes, sign in to Google.</span></td></tr>
+      <tr><td class="t">0:05–0:20</td><td><span class="dot" style="background:var(--ce)"></span>1 <span data-t="ms">Alami</span><span data-t="en">Experience</span></td><td><span data-t="ms">Main Makmal Daun sebagai murid, keempat-empat fasa.</span><span data-t="en">Play Makmal Daun as a student, all four phases.</span></td></tr>
+      <tr><td class="t">0:20–0:35</td><td><span class="dot" style="background:var(--ro)"></span>2 <span data-t="ms">Renung</span><span data-t="en">Reflect</span></td><td><span data-t="ms">Kenal pasti AR, AI dan Sokongan Dialog; analisis data dan pencetus.</span><span data-t="en">Identify AR, AI and Dialogue Support; analyse data and triggers.</span></td></tr>
+      <tr><td class="t">0:35–0:55</td><td><span class="dot" style="background:var(--ac)"></span>3 <span data-t="ms">Faham</span><span data-t="en">Conceptualise</span></td><td><span data-t="ms">Teori, prinsip reka bentuk, vibe coding dan demo adaptasi.</span><span data-t="en">Theory, design principles, vibe coding and an adaptation demo.</span></td></tr>
+      <tr><td class="t">0:55–1:40</td><td><span class="dot" style="background:var(--ae)"></span>4 <span data-t="ms">Cuba</span><span data-t="en">Experiment</span></td><td><span data-t="ms">Bina simulator untuk topik sendiri, uji di telefon, baiki.</span><span data-t="en">Build a simulator for your topic, test on a phone, improve.</span></td></tr>
+      <tr><td class="t">1:40–1:45</td><td><span data-t="ms">Penutup</span><span data-t="en">Closing</span></td><td><span data-t="ms">Galeri ringkas dan rancangan guna di sekolah.</span><span data-t="en">Quick gallery and classroom plan.</span></td></tr>
+      <tr><td class="t">1:45–2:00</td><td><span data-t="ms">Soal selidik</span><span data-t="en">Survey</span></td><td><span data-t="ms">Jawab borang soal selidik bengkel.</span><span data-t="en">Answer the workshop survey.</span></td></tr>
+    </tbody></table></div>
+</section>
+
+<!-- 3 FASA 1 -->
+<section class="slide" data-p="0" id="s-alami">
+  <div class="head"><span class="eyebrow"><span data-t="ms">Fasa 1 · Alami (pengalaman konkrit)</span><span data-t="en">Phase 1 · Concrete experience</span></span><span class="time"><span data-t="ms">15 minit</span><span data-t="en">15 min</span></span></div>
+  <h2><span data-t="ms">Jadi murid dahulu</span><span data-t="en">Be the student first</span></h2>
+  <p class="goal"><span data-t="ms">Buka <b>Makmal Daun</b> dan main seperti murid Tahun 4. Jangan fikir tentang reka bentuk lagi. Rasakan pengalamannya.</span><span data-t="en">Open <b>Makmal Daun</b> and play as a Year 4 student. Don't think about the design yet. Just experience it.</span></p>
+  <div class="row"><a class="btn" href="https://nazatulainiabdmajid.github.io/DidikARealiti_AI/daun.html" target="_blank" rel="noopener"><span data-t="ms">Buka Makmal Daun</span><span data-t="en">Open Makmal Daun</span></a><span class="muted" style="font-size:14.5px"><span data-t="ms">Gunakan Chrome. Tekan butang kamera untuk melihat rangka tangan anda.</span><span data-t="en">Use Chrome. Press the camera button to see your hand skeleton.</span></span></div>
+  <div class="checks" id="ck1"></div>
+  <div class="hp" style="--c:var(--ce)"><b>HP1</b> · <span data-t="ms">Mengalami dan menerangkan ciri AR dan AI dalam aplikasi contoh.</span><span data-t="en">Experience and explain the AR and AI features in a sample app.</span></div>
+</section>
+
+<section class="slide" data-p="0" id="s-galeri">
+  <span class="eyebrow"><span data-t="ms">Fasa 1 · Contoh lain (pilihan)</span><span data-t="en">Phase 1 · Other examples (optional)</span></span>
+  <h2><span data-t="ms">Lima contoh, satu kitaran</span><span data-t="en">Five examples, one cycle</span></h2>
+  <p class="muted"><span data-t="ms">Setiap contoh mempunyai empat fasa yang jelas dan boleh dijadikan template.</span><span data-t="en">Every example has four clear phases and can be used as a template.</span></p>
+  <div class="grid3" id="apps"></div>
+  <div class="row"><a class="btn ghost" href="https://nazatulainiabdmajid.github.io/DidikARealiti_AI/contoh.html" target="_blank" rel="noopener"><span data-t="ms">🏠 Buka menu semua contoh</span><span data-t="en">🏠 Open the examples menu</span></a></div>
+</section>
+
+<!-- 4 FASA 2 -->
+<section class="slide" data-p="1" id="s-renung">
+  <div class="head"><span class="eyebrow"><span data-t="ms">Fasa 2 · Renung (pemerhatian reflektif)</span><span data-t="en">Phase 2 · Reflective observation</span></span><span class="time"><span data-t="ms">8 minit</span><span data-t="en">8 min</span></span></div>
+  <h2><span data-t="ms">Apa yang ada dalam aplikasi tadi?</span><span data-t="en">What was in the app?</span></h2>
+  <p class="goal"><span data-t="ms">Imbas kembali pengalaman anda. Tandakan fasa yang menggunakan setiap elemen, kemudian bandingkan.</span><span data-t="en">Look back on your experience. Tick the phases that used each element, then compare.</span></p>
+  <div class="tbl matrix"><table><thead><tr><th><span data-t="ms">Fasa Makmal Daun</span><span data-t="en">Makmal Daun phase</span></th><th><span class="tag ar">AR</span></th><th><span class="tag ai">AI</span></th><th><span class="tag ps"><span data-t="ms">Sokongan Dialog</span><span data-t="en">Dialogue Support</span></span></th></tr></thead><tbody id="mx"></tbody></table></div>
+  <div class="row"><button class="btn" id="mxCheck"><span data-t="ms">Bandingkan</span><span data-t="en">Compare</span></button><button class="btn ghost" id="mxClear"><span data-t="ms">Kosongkan</span><span data-t="en">Clear</span></button><span class="muted" id="mxScore"></span></div>
+  <div class="card" id="mxKey" hidden>
+    <ul class="tight">
+      <li><b data-t="ms">Alami:</b><b data-t="en">Experience:</b> <span class="tag ar">AR</span> <span data-t="ms">bahan maya di atas imej kamera</span><span data-t="en">virtual items over the camera image</span> · <span class="tag ai">AI</span> <span data-t="ms">pengecaman gerak tangan</span><span data-t="en">hand-gesture recognition</span> · <span class="tag ps">SD</span> <span data-t="ms">pencetus butang Mula (✋ sentuhan atau 📷 kamera), cadangan misi seterusnya, peringatan apabila murid berhenti, ganjaran bintang</span><span data-t="en">"Start" trigger, next-mission suggestion, reminder when the student stops, star rewards</span></li>
+      <li><b data-t="ms">Renung:</b><b data-t="en">Reflect:</b> <span class="tag ai">AI</span> <span data-t="ms">suara ke teks, refleksi disemak secara automatik</span><span data-t="en">speech to text, reflection checked automatically</span> · <span class="tag ps">SD</span> <span data-t="ms">peringatan untuk merenung, pujian atau cadangan selepas semakan</span><span data-t="en">reminder to reflect, praise or suggestion after checking</span></li>
+      <li><b data-t="ms">Faham:</b><b data-t="en">Conceptualise:</b> <span class="tag ai">AI</span> <span data-t="ms">suara ke teks dengan maklum balas konsep, kuiz adaptif</span><span data-t="en">speech to text with concept feedback, adaptive quiz</span> · <span class="tag ps">SD</span> <span data-t="ms">cadangan petunjuk tanpa jawapan terus, pujian, lencana</span><span data-t="en">hints without giving the answer, praise, badge</span></li>
+      <li><b data-t="ms">Cuba:</b><b data-t="en">Experiment:</b> <span class="tag ps">SD</span> <span data-t="ms">situasi berperingkat, ganjaran, lencana, bukti ketepatan ramalan</span><span data-t="en">staged scenarios, rewards, badge, prediction-accuracy evidence</span></li>
+    </ul>
+    <p class="muted" style="font-size:14.5px"><span data-t="ms">Hijau: sepadan. Kuning: ada tetapi tidak ditanda. Merah: ditanda tetapi tidak ada.</span><span data-t="en">Green: match. Yellow: present but not ticked. Red: ticked but not present.</span></p>
+  </div>
+</section>
+
+<section class="slide" data-p="1" id="s-renung2">
+  <div class="head"><span class="eyebrow"><span data-t="ms">Fasa 2 · Analisis data dan pencetus</span><span data-t="en">Phase 2 · Data and trigger analysis</span></span><span class="time"><span data-t="ms">7 minit</span><span data-t="en">7 min</span></span></div>
+  <h2><span data-t="ms">Apa kata data anda sendiri?</span><span data-t="en">What does your own data say?</span></h2>
+  <p class="goal"><span data-t="ms">Buka semula fasa Renung dalam Makmal Daun. Log percubaan itu ialah data penggunaan murid. Gunakannya untuk menilai aplikasi.</span><span data-t="en">Reopen the Reflect phase in Makmal Daun. The trial log is student usage data. Use it to evaluate the app.</span></p>
+  <div class="grid3">
+    <label class="f"><span data-t="ms">Berapa percubaan sebelum anda berjaya? Apa yang mendorong anda mencuba lagi?</span><span data-t="en">How many trials before you succeeded? What made you try again?</span><textarea id="r1"></textarea></label>
+    <label class="f"><span data-t="ms">Pencetus mana yang paling berkesan? Mana yang anda abaikan?</span><span data-t="en">Which trigger worked best? Which did you ignore?</span><textarea id="r2"></textarea></label>
+    <label class="f"><span data-t="ms">Senaraikan tiga isu untuk diperbaiki.</span><span data-t="en">List three issues to improve.</span><textarea id="r3"></textarea></label>
+  </div>
+  <p class="muted" style="font-size:14px"><span data-t="ms">Jawapan disimpan dalam pelayar anda sahaja.</span><span data-t="en">Answers are stored in your browser only.</span></p>
+  <div class="hp" style="--c:var(--ro)"><b>HP2</b> · <span data-t="ms">Menganalisis data penggunaan murid, menilai keberkesanan pencetus dan menyenaraikan tiga isu untuk diperbaiki.</span><span data-t="en">Analyse student usage data, evaluate triggers and list three issues to improve.</span></div>
+</section>
+
+<!-- 5 FASA 3 -->
+<section class="slide" data-p="2" id="s-faham">
+  <div class="head"><span class="eyebrow"><span data-t="ms">Fasa 3 · Faham (konsep abstrak)</span><span data-t="en">Phase 3 · Abstract conceptualisation</span></span><span class="time"><span data-t="ms">20 minit</span><span data-t="en">20 min</span></span></div>
+  <h2><span data-t="ms">Teori 1: Kitaran pembelajaran Kolb</span><span data-t="en">Theory 1: Kolb's learning cycle</span></h2>
+  <p><span data-t="ms">Pengetahuan terbina apabila pengalaman diubah melalui empat fasa (Kolb, 1984). Setiap fasa dalam Makmal Daun mempunyai tugas yang jelas:</span><span data-t="en">Knowledge is created when experience is transformed through four phases (Kolb, 1984). Each phase in Makmal Daun has a clear job:</span></p>
+  <div class="tbl"><table>
+    <thead><tr><th><span data-t="ms">Fasa</span><span data-t="en">Phase</span></th><th><span data-t="ms">Tugas fasa</span><span data-t="en">Purpose</span></th><th><span data-t="ms">Dalam Makmal Daun</span><span data-t="en">In Makmal Daun</span></th></tr></thead>
+    <tbody>
+      <tr><td><b style="color:var(--ce)">1 <span data-t="ms">Alami</span><span data-t="en">Experience</span></b></td><td><span data-t="ms">Murid mencuba sesuatu yang konkrit sebelum diterangkan</span><span data-t="en">Students try something concrete before any explanation</span></td><td><span data-t="ms">Cubit bahan ke dalam daun, uji</span><span data-t="en">Pinch items into the leaf, test</span></td></tr>
+      <tr><td><b style="color:var(--ro)">2 <span data-t="ms">Renung</span><span data-t="en">Reflect</span></b></td><td><span data-t="ms">Murid melihat semula data dan corak pengalaman sendiri</span><span data-t="en">Students review their own data and patterns</span></td><td><span data-t="ms">Log percubaan: apa yang sentiasa ada?</span><span data-t="en">Trial log: what is always present?</span></td></tr>
+      <tr><td><b style="color:var(--ac)">3 <span data-t="ms">Faham</span><span data-t="en">Conceptualise</span></b></td><td><span data-t="ms">Corak diberi nama dan dipadankan dengan konsep</span><span data-t="en">Patterns are named and matched to concepts</span></td><td><span data-t="ms">Persamaan perkataan fotosintesis</span><span data-t="en">Photosynthesis word equation</span></td></tr>
+      <tr><td><b style="color:var(--ae)">4 <span data-t="ms">Cuba</span><span data-t="en">Experiment</span></b></td><td><span data-t="ms">Konsep diuji dalam situasi baharu dengan ramalan</span><span data-t="en">Concepts are tested in new situations with predictions</span></td><td><span data-t="ms">Almari gelap, pasu tidak disiram</span><span data-t="en">Dark cupboard, unwatered pot</span></td></tr>
+    </tbody></table></div>
+</section>
+
+<section class="slide" data-p="2" id="s-sd">
+  <span class="eyebrow"><span data-t="ms">Fasa 3 · Teori 2</span><span data-t="en">Phase 3 · Theory 2</span></span>
+  <h2><span data-t="ms">Sokongan Dialog: elemen persuasif</span><span data-t="en">Dialogue Support: persuasive elements</span></h2>
+  <p><span data-t="ms">Elemen persuasif dipilih daripada dimensi Sokongan Dialog dalam Persuasive Systems Design (Oinas-Kukkonen &amp; Harjumaa, 2009). Sasaran pujukan ialah <b>murid</b>.</span><span data-t="en">Persuasive elements come from the Dialogue Support dimension of Persuasive Systems Design (Oinas-Kukkonen &amp; Harjumaa, 2009). The target of persuasion is the <b>student</b>.</span></p>
+  <div class="ds">
+    <div><b data-t="ms">Pencetus</b><b data-t="en">Trigger</b><span data-t="ms">Isyarat yang mendorong murid bertindak.</span><span data-t="en">A cue that prompts the student to act.</span><span class="muted" data-t="ms">"Mula Alami", "Imbas kad ini sekarang"</span><span class="muted" data-t="en">"Start", "Scan this card now"</span></div>
+    <div><b data-t="ms">Peringatan</b><b data-t="en">Reminder</b><span data-t="ms">Notifikasi lembut apabila murid berhenti.</span><span data-t="en">A gentle notice when the student stops.</span><span class="muted" data-t="ms">"Masih di situ? Cuba misi seterusnya."</span><span class="muted" data-t="en">"Still there? Try the next mission."</span></div>
+    <div><b data-t="ms">Cadangan</b><b data-t="en">Suggestion</b><span data-t="ms">Petunjuk apabila tersilap, tanpa jawapan terus.</span><span data-t="en">A hint after a mistake, without the answer.</span><span class="muted" data-t="ms">"Semak keempat-empat keperluan."</span><span class="muted" data-t="en">"Check all four requirements."</span></div>
+    <div><b data-t="ms">Pujian</b><b data-t="en">Praise</b><span data-t="ms">Mesej positif apabila murid berjaya atau memperbaiki jawapan.</span><span data-t="en">Positive words when the student succeeds or improves.</span><span class="muted">"Tepat sekali!"</span></div>
+    <div><b data-t="ms">Ganjaran</b><b data-t="en">Reward</b><span data-t="ms">Bintang, lencana, latihan seterusnya.</span><span data-t="en">Stars, badges, the next challenge.</span><span class="muted" data-t="ms">Lencana Pakar Tumbuhan</span><span class="muted" data-t="en">Plant Expert badge</span></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th><span data-t="ms">Fasa</span><span data-t="en">Phase</span></th><th><span data-t="ms">Sokongan Dialog yang sesuai</span><span data-t="en">Suitable Dialogue Support</span></th></tr></thead>
+    <tbody>
+      <tr><td><b style="color:var(--ce)">1</b></td><td><span data-t="ms">Pencetus permulaan yang jelas; cadangan langkah seterusnya</span><span data-t="en">Clear starting trigger; suggestion for the next step</span></td></tr>
+      <tr><td><b style="color:var(--ro)">2</b></td><td><span data-t="ms">Peringatan: soalan refleksi muncul selepas latihan; pujian apabila jawapan diperbaiki</span><span data-t="en">Reminder: reflection questions after an activity; praise when an answer improves</span></td></tr>
+      <tr><td><b style="color:var(--ac)">3</b></td><td><span data-t="ms">Cadangan petunjuk apabila tersilap; peringatan lembut supaya mencuba semula</span><span data-t="en">Hint after a mistake; gentle reminder to try again</span></td></tr>
+      <tr><td><b style="color:var(--ae)">4</b></td><td><span data-t="ms">Peringatan apabila murid berhenti; pujian, ganjaran dan cadangan latihan seterusnya</span><span data-t="en">Reminder when the student stops; praise, rewards and the next challenge</span></td></tr>
+    </tbody></table></div>
+  <p class="ref">Oinas-Kukkonen, H., &amp; Harjumaa, M. (2009). Persuasive systems design: Key issues, process model, and system features. <i>Communications of the Association for Information Systems, 24</i>, 485–500.</p>
+</section>
+
+<section class="slide" data-p="2" id="s-arai">
+  <span class="eyebrow"><span data-t="ms">Fasa 3 · Teori 3</span><span data-t="en">Phase 3 · Theory 3</span></span>
+  <h2><span data-t="ms">AR dan AI: di mana dan bagaimana</span><span data-t="en">AR and AI: where and how</span></h2>
+  <div class="tbl"><table>
+    <thead><tr><th><span data-t="ms">Elemen</span><span data-t="en">Element</span></th><th><span data-t="ms">Fungsi pembelajaran</span><span data-t="en">Learning role</span></th><th><span data-t="ms">Teknologi</span><span data-t="en">Technology</span></th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag ar">AR</span> <span data-t="ms">Objek maya di atas dunia sebenar</span><span data-t="en">Virtual objects over the real world</span></td><td><span data-t="ms">Pengalaman konkrit (fasa 1)</span><span data-t="en">Concrete experience (phase 1)</span></td><td><span data-t="ms">Kamera pelayar, model-viewer (meja), MindAR (kad)</span><span data-t="en">Browser camera, model-viewer (table), MindAR (cards)</span></td></tr>
+      <tr><td><span class="tag ai">AI</span> <span data-t="ms">Gerak tangan</span><span data-t="en">Hand gestures</span></td><td><span data-t="ms">Interaksi fizikal tanpa sentuh skrin</span><span data-t="en">Physical, touch-free interaction</span></td><td>MediaPipe Hands</td></tr>
+      <tr><td><span class="tag ai">AI</span> <span data-t="ms">Suara ke teks</span><span data-t="en">Speech to text</span></td><td><span data-t="ms">Refleksi dan penerangan dengan suara sendiri</span><span data-t="en">Reflection and explanation in the student's own voice</span></td><td>Web Speech API</td></tr>
+      <tr><td><span class="tag ai">AI</span> <span data-t="ms">Pembelajaran adaptif</span><span data-t="en">Adaptive learning</span></td><td><span data-t="ms">Aras dan soalan menyesuaikan prestasi murid</span><span data-t="en">Level and questions adapt to performance</span></td><td><span data-t="ms">Peraturan dalam JavaScript</span><span data-t="en">Rules in JavaScript</span></td></tr>
+    </tbody></table></div>
+  <p class="muted" style="font-size:14.5px"><span data-t="ms">Privasi: imej kamera tidak dihantar ke mana-mana. Suara ke teks dalam Chrome diproses oleh Google, jadi jadikan ia pilihan dan maklumkan kepada murid.</span><span data-t="en">Privacy: camera images are not sent anywhere. Speech to text in Chrome is processed by Google, so keep it optional and tell students.</span></p>
+</section>
+
+<section class="slide" data-p="2" id="s-prinsip">
+  <span class="eyebrow"><span data-t="ms">Fasa 3 · Prinsip reka bentuk</span><span data-t="en">Phase 3 · Design principles</span></span>
+  <h2><span data-t="ms">Enam prinsip untuk simulator anda</span><span data-t="en">Six principles for your simulator</span></h2>
+  <ol class="tight" style="font-size:1.05em">
+    <li><b data-t="ms">Alami sebelum terangkan.</b><b data-t="en">Experience before explanation.</b> <span data-t="ms">Murid bermain dahulu; konsep datang kemudian.</span><span data-t="en">Students play first; the concept comes later.</span></li>
+    <li><b data-t="ms">Renung data sendiri.</b><b data-t="en">Reflect on their own data.</b> <span data-t="ms">Rekod setiap percubaan dan tunjukkan semula.</span><span data-t="en">Log every trial and show it back.</span></li>
+    <li><b data-t="ms">Padankan pengalaman dengan konsep.</b><b data-t="en">Map experience to concept.</b> <span data-t="ms">Tunjukkan percubaan murid dalam bentuk rumus atau persamaan.</span><span data-t="en">Show the student's trial as a formula or equation.</span></li>
+    <li><b data-t="ms">Uji dalam situasi baharu dengan ramalan.</b><b data-t="en">Test new situations with predictions.</b> <span data-t="ms">Ketepatan ramalan ialah bukti pengetahuan.</span><span data-t="en">Prediction accuracy is evidence of knowledge.</span></li>
+    <li><b data-t="ms">Satu pencetus jelas setiap fasa.</b><b data-t="en">One clear trigger per phase.</b> <span data-t="ms">Cadangan, bukan jawapan; pujian yang tulen.</span><span data-t="en">Hints, not answers; genuine praise.</span></li>
+    <li><b data-t="ms">AR dan AI mesti ada tujuan.</b><b data-t="en">AR and AI must have a purpose.</b> <span data-t="ms">Gunakan untuk pengalaman konkrit dan penyesuaian, bukan hiasan. Sentiasa sediakan pilihan tanpa kamera.</span><span data-t="en">Use them for concrete experience and adaptation, not decoration. Always offer a no-camera option.</span></li>
+  </ol>
+  <div class="hp" style="--c:var(--ac)"><b>HP3</b> · <span data-t="ms">Merumus prinsip reka bentuk dan memilih pencetus yang sesuai.</span><span data-t="en">Derive design principles and choose suitable triggers.</span></div>
+</section>
+
+<section class="slide" data-p="2" id="s-vibe">
+  <span class="eyebrow"><span data-t="ms">Fasa 3 · Cara membina</span><span data-t="en">Phase 3 · How it is built</span></span>
+  <h2><span data-t="ms">Vibe coding: template + adaptasi</span><span data-t="en">Vibe coding: template + adaptation</span></h2>
+  <p><span data-t="ms">Anda menerangkan apa yang anda mahu dalam bahasa biasa, AI menulis kodnya, anda menguji dan meminta pembaikan. Kita tidak bermula dari kosong: berikan AI satu fail contoh, dan minta ia menukar kandungannya kepada topik anda sambil mengekalkan empat fasa dan semua ciri.</span><span data-t="en">You describe what you want in plain language, AI writes the code, you test and ask for fixes. We don't start from scratch: give AI a sample file and ask it to change the content to your topic while keeping the four phases and all features.</span></p>
+  <div class="tbl"><table>
+    <thead><tr><th>Template</th><th><span data-t="ms">Gaya interaksi</span><span data-t="en">Interaction style</span></th><th><span data-t="ms">Sesuai untuk topik yang…</span><span data-t="en">Suits topics that…</span></th></tr></thead>
+    <tbody id="tplRows"></tbody></table></div>
+</section>
+
+<section class="slide" data-p="2" id="s-demo">
+  <span class="eyebrow"><span data-t="ms">Fasa 3 · Demo langsung</span><span data-t="en">Phase 3 · Live demo</span></span>
+  <h2><span data-t="ms">Daun (Sains Tahun 4) → Litar elektrik (Sains Tahun 5)</span><span data-t="en">Leaf (Year 4 Science) → Electric circuit (Year 5 Science)</span></h2>
+  <p><span data-t="ms">Satu prompt, template yang sama. Struktur empat fasa kekal; kandungan berubah.</span><span data-t="en">One prompt, same template. The four-phase structure stays; the content changes.</span></p>
+  <div class="tbl"><table>
+    <thead><tr><th><span data-t="ms">Fasa</span><span data-t="en">Phase</span></th><th><span data-t="ms">Makmal Daun · Fotosintesis</span><span data-t="en">Makmal Daun · Photosynthesis</span></th><th><span data-t="ms">Makmal Litar · Elektrik</span><span data-t="en">Circuit Lab · Electricity</span></th></tr></thead>
+    <tbody>
+      <tr><td><b>1</b></td><td><span data-t="ms">Cubit bahan ke dalam daun, uji</span><span data-t="en">Pinch items into the leaf, test</span></td><td><span data-t="ms">Cubit komponen (bateri, wayar, mentol, suis, getah) ke dalam litar, uji sama ada mentol menyala</span><span data-t="en">Pinch components (battery, wire, bulb, switch, rubber) into the circuit, test whether the bulb lights</span></td></tr>
+      <tr><td><b>2</b></td><td><span data-t="ms">Apa yang sentiasa ada apabila berjaya?</span><span data-t="en">What is always present when it works?</span></td><td><span data-t="ms">Komponen apa yang sentiasa ada apabila mentol menyala?</span><span data-t="en">Which components are always present when the bulb lights?</span></td></tr>
+      <tr><td><b>3</b></td><td><span data-t="ms">Persamaan perkataan fotosintesis</span><span data-t="en">Photosynthesis word equation</span></td><td><span data-t="ms">Litar lengkap: arus mengalir apabila litar tidak terputus</span><span data-t="en">Complete circuit: current flows when the circuit is unbroken</span></td></tr>
+      <tr><td><b>4</b></td><td><span data-t="ms">Almari gelap, pasu tidak disiram</span><span data-t="en">Dark cupboard, unwatered pot</span></td><td><span data-t="ms">Suis dibuka, bateri habis, wayar putus</span><span data-t="en">Open switch, flat battery, broken wire</span></td></tr>
+    </tbody></table></div>
+  <div class="row no-pres"><button class="btn ghost sm" id="demoFill"><span data-t="ms">Isi penjana dengan contoh ini</span><span data-t="en">Fill the generator with this example</span></button></div>
+</section>
+
+<!-- 6 FASA 4 -->
+<section class="slide" data-p="3" id="s-cuba">
+  <div class="head"><span class="eyebrow"><span data-t="ms">Fasa 4 · Cuba (uji kaji aktif)</span><span data-t="en">Phase 4 · Active experimentation</span></span><span class="time"><span data-t="ms">45 minit</span><span data-t="en">45 min</span></span></div>
+  <h2><span data-t="ms">Bina simulator untuk topik anda</span><span data-t="en">Build a simulator for your topic</span></h2>
+  <ol class="steps">
+    <li><div><b data-t="ms">Muat turun template.</b><b data-t="en">Download the template.</b> <span data-t="ms">Pilih template dalam penjana prompt, kemudian tekan</span><span data-t="en">Choose a template in the prompt generator, then press</span> <a class="btn sm" style="--c:var(--ae);padding:3px 10px" id="rawLink" href="https://github.com/nazatulainiabdmajid/DidikARealiti_AI/blob/main/daun.html" target="_blank" rel="noopener"><span data-t="ms">Buka</span><span data-t="en">Open</span>&nbsp;<span id="rawName">daun.html</span>&nbsp;<span data-t="ms">di GitHub</span><span data-t="en">on GitHub</span></a>. <span data-t="ms">Di halaman GitHub, tekan ikon <b>⬇ Download raw file</b> di kanan atas kod. Fail tersimpan dalam folder Downloads.</span><span data-t="en">On the GitHub page, press the <b>⬇ Download raw file</b> icon at the top right of the code. The file is saved to your Downloads folder.</span></div></li>
+    <li><div><b data-t="ms">Isi penjana prompt</b><b data-t="en">Fill in the prompt generator</b> <span data-t="ms">dengan topik anda.</span><span data-t="en">with your topic.</span></div></li>
+    <li><div><b data-t="ms">Buka Gemini Canvas</b><b data-t="en">Open Gemini Canvas</b> <span data-t="ms">(gemini.google.com), lampirkan fail template, tampal Prompt 1.</span><span data-t="en">(gemini.google.com), attach the template file, paste Prompt 1.</span></div></li>
+    <li><div><b data-t="ms">Uji dan baiki</b><b data-t="en">Test and fix</b> <span data-t="ms">setiap fasa. Guna Prompt 2 dan butang pembaikan.</span><span data-t="en">each phase. Use Prompt 2 and the fix buttons.</span></div></li>
+    <li><div><b data-t="ms">Terbitkan dan kongsi</b><b data-t="en">Publish and share</b> <span data-t="ms">di GitHub Pages supaya murid boleh membuka pautan dan menggunakan kamera (lihat slaid Terbit).</span><span data-t="en">on GitHub Pages so students can open the link and use the camera (see the Publish slide).</span></div></li>
+  </ol>
+</section>
+
+<section class="slide" data-p="3" id="s-penjana">
+  <span class="eyebrow"><span data-t="ms">Fasa 4 · Penjana prompt</span><span data-t="en">Phase 4 · Prompt generator</span></span>
+  <h2><span data-t="ms">Isi, salin, tampal</span><span data-t="en">Fill, copy, paste</span></h2>
+  <div class="row"><button class="btn ghost sm" id="pK"><span data-t="ms">Contoh: Litar elektrik Tahun 5</span><span data-t="en">Example: Year 5 circuits</span></button><button class="btn ghost sm" id="pT"><span data-t="ms">Contoh: Ketumpatan Tingkatan 1</span><span data-t="en">Example: Form 1 density</span></button><button class="btn ghost sm" id="pClear"><span data-t="ms">Kosongkan</span><span data-t="en">Clear</span></button></div>
+  <div class="form">
+    <label class="f">Template<select id="fTpl"></select></label>
+    <label class="f"><span data-t="ms">Tahap murid</span><span data-t="en">Student level</span><select id="fLvl"></select></label>
+    <label class="f"><span data-t="ms">Subjek</span><span data-t="en">Subject</span><input id="fSub" type="text"></label>
+    <label class="f"><span data-t="ms">Topik</span><span data-t="en">Topic</span><input id="fTop" type="text"></label>
+    <label class="f"><span data-t="ms">Nama aplikasi</span><span data-t="en">App name</span><input id="fName" type="text"></label>
+    <label class="f"><span data-t="ms">Alami: apa yang murid main?</span><span data-t="en">Experience: what do students play with?</span><input id="fPlay" type="text"></label>
+    <label class="f"><span data-t="ms">Apa yang murid boleh ubah?</span><span data-t="en">What can students change?</span><input id="fVar" type="text"></label>
+    <label class="f"><span data-t="ms">Faham: konsep atau rumus</span><span data-t="en">Conceptualise: concept or rule</span><input id="fCon" type="text"></label>
+    <label class="f"><span data-t="ms">Cuba: situasi baharu</span><span data-t="en">Experiment: new situations</span><input id="fNew" type="text"></label>
+    <label class="f"><span data-t="ms">Watak pemandu</span><span data-t="en">Guide character</span><input id="fGuide" type="text"></label>
+  </div>
+  <div class="card"><h3><span data-t="ms">Elemen yang dikekalkan</span><span data-t="en">Elements to keep</span></h3><div class="checks" id="els"></div></div>
+  <div id="prompts" style="display:flex;flex-direction:column;gap:12px"></div>
+</section>
+
+<section class="slide" data-p="3" id="s-semak">
+  <span class="eyebrow"><span data-t="ms">Fasa 4 · Uji dan baiki</span><span data-t="en">Phase 4 · Test and improve</span></span>
+  <h2><span data-t="ms">Uji, baiki, uji lagi</span><span data-t="en">Test, fix, test again</span></h2>
+  <div class="card"><h3><span data-t="ms">Butang pembaikan</span><span data-t="en">Fix buttons</span></h3><div class="fix" id="fix"></div>
+    <div class="prompt" id="fixBox" hidden><header><h3><span data-t="ms">Prompt pembaikan</span><span data-t="en">Fix prompt</span></h3><button class="btn sm" style="--c:var(--ae)" id="fixCopy">Salin</button></header><pre id="fixText"></pre></div></div>
+  <div class="card"><h3><span data-t="ms">Senarai semak kualiti</span><span data-t="en">Quality checklist</span></h3><div class="checks" id="ck4"></div></div>
+  <div class="hp" style="--c:var(--ae)"><b>HP4</b> · <span data-t="ms">Membangunkan versi baharu, mengujinya bersama murid, dan memperbaikinya berdasarkan data dan senarai semak.</span><span data-t="en">Develop a new version, test it with students, and improve it using data and the checklist.</span></div>
+</section>
+
+<section class="slide" data-p="3" id="s-terbit">
+  <span class="eyebrow"><span data-t="ms">Fasa 4 · Terbit dan kongsi</span><span data-t="en">Phase 4 · Publish and share</span></span>
+  <h2><span data-t="ms">Dari Gemini ke telefon murid</span><span data-t="en">From Gemini to students' phones</span></h2>
+  <p class="goal"><span data-t="ms">Pautan GitHub Pages bermula dengan <b>https</b>, jadi kamera, gerak tangan, AR dan mikrofon boleh berfungsi. Murid hanya perlu membuka pautan dalam Chrome. Tiada aplikasi perlu dipasang.</span><span data-t="en">GitHub Pages links start with <b>https</b>, so the camera, hand gestures, AR and microphone can work. Students just open the link in Chrome. Nothing to install.</span></p>
+  <ol class="steps">
+    <li><div><b data-t="ms">Salin kod.</b><b data-t="en">Copy the code.</b> <span data-t="ms">Dalam Gemini Canvas, buka paparan kod dan salin semua kod HTML.</span><span data-t="en">In Gemini Canvas, open the code view and copy all the HTML code.</span></div></li>
+    <li><div><b data-t="ms">Daftar atau log masuk</b><b data-t="en">Sign up or sign in</b> <span data-t="ms">di github.com (percuma).</span><span data-t="en">at github.com (free).</span></div></li>
+    <li><div><b data-t="ms">Cipta repositori:</b><b data-t="en">Create a repository:</b> <span data-t="ms">butang <b>+</b> → <b>New repository</b>. Beri nama ringkas, contohnya <code>simulator-saya</code>. Pilih <b>Public</b> dan tandakan <b>Add a README file</b>, kemudian <b>Create repository</b>.</span><span data-t="en"><b>+</b> button → <b>New repository</b>. Give it a short name, e.g. <code>my-simulator</code>. Choose <b>Public</b>, tick <b>Add a README file</b>, then <b>Create repository</b>.</span></div></li>
+    <li><div><b data-t="ms">Tambah fail:</b><b data-t="en">Add the file:</b> <span data-t="ms"><b>Add file</b> → <b>Create new file</b>. Namakan fail tanpa jarak, contohnya <code>litar.html</code>, tampal kod, kemudian <b>Commit changes</b>.</span><span data-t="en"><b>Add file</b> → <b>Create new file</b>. Name it without spaces, e.g. <code>circuit.html</code>, paste the code, then <b>Commit changes</b>.</span></div></li>
+    <li><div><b data-t="ms">Hidupkan Pages:</b><b data-t="en">Turn on Pages:</b> <span data-t="ms"><b>Settings</b> → <b>Pages</b> → Branch: <b>main</b>, folder <b>/ (root)</b> → <b>Save</b>. Tunggu 1–2 minit.</span><span data-t="en"><b>Settings</b> → <b>Pages</b> → Branch: <b>main</b>, folder <b>/ (root)</b> → <b>Save</b>. Wait 1–2 minutes.</span></div></li>
+    <li><div><b data-t="ms">Pautan anda:</b><b data-t="en">Your link:</b> <code>https://<i>nama-pengguna</i>.github.io/<i>simulator-saya</i>/<i>litar</i>.html</code></div></li>
+  </ol>
+  <div class="card"><h3><span data-t="ms">Jana kod QR untuk murid</span><span data-t="en">Make a QR code for students</span></h3>
+    <div class="row"><input id="qrIn" type="url" placeholder="https://nama-pengguna.github.io/simulator-saya/litar.html" style="flex:1 1 260px;font:inherit;padding:10px;border-radius:10px;border:1.5px solid var(--line)"><button class="btn" id="qrBtn"><span data-t="ms">Jana QR</span><span data-t="en">Make QR</span></button></div>
+    <div id="qrOut" style="display:flex;justify-content:center;padding:8px"></div></div>
+  <div class="card"><h3><span data-t="ms">Di dalam kelas</span><span data-t="en">In class</span></h3>
+    <ul class="tight">
+      <li><span data-t="ms"><b>Telefon murid:</b> imbas QR, buka dalam Chrome, benarkan kamera apabila diminta.</span><span data-t="en"><b>Students' phones:</b> scan the QR, open in Chrome, allow the camera when asked.</span></li>
+      <li><span data-t="ms"><b>Komputer kelas dengan webcam:</b> buka pautan yang sama, tekan butang 📷, dan murid bergilir menggunakan gerak tangan. Paparkan pada projektor supaya seluruh kelas nampak.</span><span data-t="en"><b>Classroom computer with a webcam:</b> open the same link, press 📷, and students take turns with hand gestures. Project it so the whole class can see.</span></li>
+      <li><span data-t="ms"><b>Tiada kamera atau internet perlahan:</b> guna butang ✋ (sentuhan). Semua misi tetap boleh diselesaikan.</span><span data-t="en"><b>No camera or slow internet:</b> use the ✋ (touch) button. Every mission can still be completed.</span></li>
+      <li><span data-t="ms">Pautan kongsi Gemini Canvas sesuai untuk pratonton pantas, tetapi kamera dan mikrofon mungkin disekat di situ. Untuk kelas, gunakan pautan GitHub Pages.</span><span data-t="en">A Gemini Canvas share link is fine for a quick preview, but the camera and microphone may be blocked there. For class, use the GitHub Pages link.</span></li>
+    </ul></div>
+</section>
+
+<!-- 7 PENUTUP -->
+<section class="slide" id="s-penutup">
+  <div class="head"><span class="eyebrow"><span data-t="ms">Penutup</span><span data-t="en">Closing</span></span><span class="time" style="color:var(--ink);background:var(--soft)"><span data-t="ms">5 minit</span><span data-t="en">5 min</span></span></div>
+  <h2><span data-t="ms">Galeri dan langkah seterusnya</span><span data-t="en">Gallery and next steps</span></h2>
+  <ul class="tight">
+    <li><span data-t="ms">Dua guru menunjukkan simulator mereka (2 minit setiap seorang).</span><span data-t="en">Two teachers show their simulators (2 minutes each).</span></li>
+    <li><span data-t="ms">Refleksi: apa yang berubah dalam cara anda melihat pengajaran topik ini?</span><span data-t="en">Reflection: what has changed in how you see teaching this topic?</span></li>
+    <li><span data-t="ms">Rancang: kelas mana dan bila anda akan mencubanya bersama murid?</span><span data-t="en">Plan: which class, and when will you try it with students?</span></li>
+  </ul>
+  <div class="card" style="border-color:var(--ae)"><h3><span data-t="ms">Aktiviti 5 (lanjutan, 90 minit): kitaran penuh</span><span data-t="en">Activity 5 (extension, 90 min): full cycle</span></h3>
+    <p><span data-t="ms">Guru mengulang Fasa 1 hingga 4 bagi topik kedua secara kendiri, memasukkan sekurang-kurangnya tiga elemen Sokongan Dialog termasuk satu pencetus, dan melengkapkan senarai semak kualiti aplikasi.</span><span data-t="en">Teachers repeat Phases 1 to 4 for a second topic independently, include at least three Dialogue Support elements including one trigger, and complete the app quality checklist.</span></p></div>
+</section>
+
+<!-- 8 SOAL SELIDIK -->
+<section class="slide" id="s-survey">
+  <div class="head"><span class="eyebrow"><span data-t="ms">Soal selidik</span><span data-t="en">Survey</span></span><span class="time" style="color:var(--ink);background:var(--soft)"><span data-t="ms">15 minit</span><span data-t="en">15 min</span></span></div>
+  <h2><span data-t="ms">Kongsi pandangan anda</span><span data-t="en">Share your views</span></h2>
+  <p class="goal"><span data-t="ms">Luangkan 15 minit terakhir untuk menjawab soal selidik bengkel. Jawapan anda membantu kami menambah baik modul ini.</span><span data-t="en">Use the last 15 minutes to answer the workshop survey. Your answers help us improve this module.</span></p>
+  <div class="row"><a class="btn" id="surveyBtn" href="#" target="_blank" rel="noopener"><span data-t="ms">Buka borang soal selidik</span><span data-t="en">Open the survey form</span></a><span class="muted" id="surveyNote" style="font-size:14.5px"><span data-t="ms">Pautan borang akan dikongsi oleh penganjur.</span><span data-t="en">The form link will be shared by the organisers.</span></span></div>
+</section>
+
+
 </main>
-</body>
-</html>
+
+<div class="presbar" id="presbar">
+  <button class="btn ghost sm" id="pPrev">←</button>
+  <div class="bar"><span id="pBar"></span></div>
+  <span class="ct" id="pCt">1 / 1</span>
+  <button class="btn ghost sm" id="pNext">→</button>
+  <button class="btn ghost sm" id="pExit"><span data-t="ms">Keluar slaid</span><span data-t="en">Exit slides</span></button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const KEY="bengkel-kolb-v2";let S={};try{S=JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){S={};}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}};
+let LANG=S.lang||"ms";const tr=(m,e)=>LANG==="en"?e:m;
+let tT;function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>e.classList.remove("show"),2200);}
+const G="https://nazatulainiabdmajid.github.io/DidikARealiti_AI/";
+const TPL=[
+  {k:"daun",main:true,n:["Makmal Daun","Leaf Lab"],sub:["Sains Tahun 4 · Fotosintesis","Year 4 Science · Photosynthesis"],style:["Cubit dan seret bahan ke sasaran","Pinch and drag items to a target"],fit:["ada keperluan, bahan atau komponen sesuatu proses","involve requirements, ingredients or parts of a process"],what:["Dalam fasa Alami, murid mencubit atau menyeret bahan ke dalam satu sasaran menggunakan gerak tangan, kemudian menguji hasilnya.","In the Experience phase, students pinch or drag items into a target using hand gestures, then test the result."]},
+  {k:"matematik",n:["Pelan dan Dongakan","Plans and Elevations"],sub:["Matematik Tingkatan 3","Form 3 Mathematics"],style:["Objek 3D di atas meja, bina sendiri","3D object on the table, build your own"],fit:["melibatkan bentuk, ruang atau struktur","involve shape, space or structure"],what:["Dalam fasa Alami, objek 3D diletakkan di atas meja dengan AR dan diputar dengan gerak tangan; dalam fasa Cuba, murid membina objek sendiri.","In the Experience phase, a 3D object is placed on the table with AR and rotated with hand gestures; in the Experiment phase, students build their own object."]},
+  {k:"jawi",n:["Jawi di Sekelilingku","Jawi Around Me"],sub:["Pendidikan Islam (Jawi)","Islamic Education (Jawi)"],style:["Kad bercetak dikesan kamera","Printed cards tracked by the camera"],fit:["perlu dikenal pasti pada benda sebenar (huruf, label, istilah)","need recognising on real things (letters, labels, terms)"],what:["Dalam fasa Alami, kamera mengesan kad bercetak (AR) dan memaparkan perkataan di atas kad; dalam fasa Cuba, murid mencipta perkataan baharu.","In the Experience phase, the camera tracks printed cards (AR) and shows words above them; in the Experiment phase, students create new words."]},
+  {k:"arab",n:["Nombor Arab \u2066١ – ١٠\u2069","Arabic Numbers \u2066١ – ١٠\u2069"],sub:["Bahasa Arab","Arabic"],style:["Dengar, sebut, permainan padan","Listen, speak, matching game"],fit:["melibatkan bahasa, sebutan atau hafalan","involve language, pronunciation or memorisation"],what:["Dalam fasa Alami, murid mencubit kad ke Kotak Dengar untuk mendengar sebutan; dalam fasa Faham, murid menyebut sendiri dan AI menyemak; dalam fasa Cuba, murid bermain padan bermasa.","In the Experience phase, students pinch cards into a Listening Box to hear them; in the Conceptualise phase, students speak and AI checks; in the Experiment phase, students play a timed matching game."]},
+  {k:"apung",n:["Makmal Apung","Float Lab"],sub:["Sains Tingkatan 1 · Ketumpatan","Form 1 Science · Density"],style:["Ubah nilai, lihat kesannya","Change values, see the effect"],fit:["ada hubungan sebab-akibat atau rumus","have cause and effect or a formula"],what:["Dalam fasa Alami, murid mengubah nilai dan melihat kesannya dalam simulasi.","In the Experience phase, students change values and see the effect in the simulation."]}];
+
+/* ---------- bahasa ---------- */
+function applyLang(){document.documentElement.classList.toggle("L-en",LANG==="en");if(typeof topH==="function")requestAnimationFrame(topH);document.documentElement.lang=LANG;$("#lMs").setAttribute("aria-pressed",LANG==="ms");$("#lEn").setAttribute("aria-pressed",LANG==="en");
+  renderApps();renderTplRows();renderChecks();renderMx();fillSelects();render();renderFix();}
+$("#lMs").onclick=()=>{LANG="ms";S.lang=LANG;save();applyLang();};$("#lEn").onclick=()=>{LANG="en";S.lang=LANG;save();applyLang();};
+
+/* ---------- paparan slaid ---------- */
+let idx=0;const slides=()=>$$(".slide").filter(s=>!s.classList.contains("facil-only"));
+function show(i){const sl=slides();idx=Math.max(0,Math.min(sl.length-1,i));sl.forEach((s,k)=>s.classList.toggle("cur",k===idx));$("#pCt").textContent=(idx+1)+" / "+sl.length;$("#pBar").style.width=((idx+1)/sl.length*100)+"%";sl[idx].scrollTop=0;}
+function topH(){document.documentElement.style.setProperty("--toph",$(".top").offsetHeight+"px");}
+window.addEventListener("resize",topH);
+function setView(pres){topH();document.documentElement.classList.toggle("pres",pres);$("#vWork").setAttribute("aria-pressed",!pres);$("#vSlide").setAttribute("aria-pressed",pres);if(pres)show(idx);else{$$(".slide").forEach(s=>s.classList.remove("cur"));}S.pres=pres;save();}
+$("#vWork").onclick=()=>setView(false);$("#vSlide").onclick=()=>{const sl=slides();const y=window.scrollY;let best=0;sl.forEach((s,k)=>{if(s.offsetTop-80<=y)best=k;});idx=best;setView(true);};
+$("#pPrev").onclick=()=>show(idx-1);$("#pNext").onclick=()=>show(idx+1);$("#pExit").onclick=()=>{const t=slides()[idx];setView(false);t.scrollIntoView();};
+document.addEventListener("keydown",e=>{if(!document.documentElement.classList.contains("pres"))return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+  if(e.key==="ArrowRight"||e.key==="PageDown"||e.key===" "){e.preventDefault();show(idx+1);}if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();show(idx-1);}if(e.key==="Escape")$("#pExit").click();});
+$$(".jump a").forEach(a=>a.addEventListener("click",e=>{if(!document.documentElement.classList.contains("pres"))return;e.preventDefault();const id=a.dataset.go;const k=slides().findIndex(s=>s.id===id);if(k>=0)show(k);}));
+
+/* ---------- galeri dan template ---------- */
+function renderApps(){$("#apps").innerHTML=TPL.map(t=>`<a class="app ${t.main?"main":""}" href="${G}${t.k}.html" target="_blank" rel="noopener">${t.main?`<span class="badge">${tr("Contoh utama","Main example")}</span>`:""}<b style="font-family:var(--f-d);font-size:18px">${tr(t.n[0],t.n[1])}</b><span class="muted" style="font-size:14px">${tr(t.sub[0],t.sub[1])}</span><span style="font-size:14px">${tr(t.style[0],t.style[1])}</span></a>`).join("");}
+function renderTplRows(){$("#tplRows").innerHTML=TPL.map(t=>`<tr><td><b>${tr(t.n[0],t.n[1])}</b>${t.main?` <span class="badge">${tr("utama","main")}</span>`:""}<br><span class="muted">${t.k}.html</span></td><td>${tr(t.style[0],t.style[1])}</td><td>${tr(t.fit[0],t.fit[1])}</td></tr>`).join("");}
+
+/* ---------- kod QR ---------- */
+(function(){const b=$("#qrBtn");if(!b)return;b.onclick=()=>{const u=$("#qrIn").value.trim(),o=$("#qrOut");o.innerHTML="";if(!/^https?:\/\//.test(u)){toast(tr("Tampal pautan yang bermula dengan https://","Paste a link that starts with https://"));return;}
+  if(window.QRCode){new QRCode(o,{text:u,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});}else o.innerHTML=`<a href="${u.replace(/"/g,"")}" target="_blank" rel="noopener">${u.replace(/</g,"&lt;")}</a>`;};})();
+/* ---------- soal selidik ---------- */
+const SURVEY_URL=""; // tampal pautan borang soal selidik di sini
+(function(){const b=$("#surveyBtn");if(!b)return;if(SURVEY_URL){b.href=SURVEY_URL;$("#surveyNote").hidden=true;}else{b.hidden=true;}})();
+/* ---------- senarai semak ---------- */
+function checks(el,key,items){S[key]=S[key]||{};el.innerHTML=items.map((t,i)=>`<label class="cb"><input type="checkbox" id="${key}${i}" ${S[key][i]?"checked":""}><span>${t}</span></label>`).join("");items.forEach((_,i)=>$("#"+key+i).onchange=e=>{S[key][i]=e.target.checked;save();});}
+function renderChecks(){
+  checks($("#ck1"),"a",[tr("Pilih <b>✋ Mula: seret dengan jari</b>, seret bahan ke dalam daun dan selesaikan keempat-empat misi.","Choose <b>✋ Start: drag with finger</b>, drag items into the leaf and finish all four missions."),tr("Cuba juga <b>📷 kamera + gerak tangan</b>: lihat rangka tangan anda dan cubit bahan.","Also try <b>📷 camera + hand gestures</b>: see your hand skeleton and pinch items."),tr("Perhatikan label berwarna pada mesej watak: Pencetus, Peringatan, Cadangan, Pujian dan Ganjaran (🏅 di atas).","Notice the coloured labels on the guide's messages: Trigger, Reminder, Suggestion, Praise and Reward (🏅 at the top)."),tr("Fasa Renung: lihat log percubaan, cakap atau tulis refleksi, dan lihat aplikasi menyemaknya.","Reflect phase: view the trial log, speak or write a reflection, and see the app check it."),tr("Fasa Faham: lihat persamaan, cuba suara ke teks, jawab kuiz.","Conceptualise phase: view the equation, try speech to text, take the quiz."),tr("Fasa Cuba: ramal dahulu, kemudian uji satu situasi.","Experiment phase: predict first, then test one situation.")]);
+  checks($("#ck4"),"z",[tr("Keempat-empat fasa ada dan mengikut urutan.","All four phases are present and in order."),tr("Alami boleh dimain tanpa membaca arahan panjang.","Experience can be played without long instructions."),tr("Renung menggunakan data percubaan murid sendiri.","Reflect uses the student's own trial data."),tr("Faham memadankan pengalaman dengan konsep, dan fakta telah disemak.","Conceptualise maps experience to concept, and facts are checked."),tr("Cuba memberi situasi baharu dengan ramalan sebelum ujian.","Experiment gives new situations with a prediction before testing."),tr("Kelima-lima elemen Sokongan Dialog kelihatan dengan label: Pencetus, Peringatan, Cadangan, Pujian, Ganjaran.","All five Dialogue Support elements are visible and labelled: Trigger, Reminder, Suggestion, Praise, Reward."),tr("Setiap jawapan suara atau bertulis disemak, dan murid mendapat maklum balas (bukan sekadar teks dipaparkan).","Every spoken or written answer is checked and students get feedback (not just the text shown back)."),tr("Ada dua pilihan mula yang jelas: ✋ sentuhan (tanpa kamera) dan 📷 kamera + gerak tangan.","There are two clear start options: ✋ touch (no camera) and 📷 camera + hand gestures."),tr("Berfungsi di telefon; boleh menaip jika mikrofon tiada.","Works on phones; typing works if there is no microphone.")]);}
+
+/* ---------- matriks renung ---------- */
+const REF={0:["ar","ai","ps"],1:["ai","ps"],2:["ai","ps"],3:["ps"]};S.mx=S.mx||{};
+function renderMx(){const PH=[tr("1 Alami","1 Experience"),tr("2 Renung","2 Reflect"),tr("3 Faham","3 Conceptualise"),tr("4 Cuba","4 Experiment")];
+  $("#mx").innerHTML=PH.map((p,i)=>`<tr><th>${p}</th>${["ar","ai","ps"].map(e=>`<td data-k="${i}-${e}"><label class="cb"><input type="checkbox" id="m-${i}-${e}" ${S.mx[i+"-"+e]?"checked":""}> ${tr("Ada","Yes")}</label></td>`).join("")}</tr>`).join("");
+  $$("#mx input").forEach(c=>c.onchange=()=>{S.mx[c.id.slice(2)]=c.checked;save();});}
+$("#mxCheck").onclick=()=>{let m=0;$$("#mx td").forEach(td=>{const [i,e]=td.dataset.k.split("-"),u=REF[i].includes(e),g=td.querySelector("input").checked;td.classList.remove("match","miss","extra");td.classList.add(u&&g?"match":u?"miss":g?"extra":"match");if(u===g)m++;});$("#mxScore").textContent=m+"/12 "+tr("sepadan","match");$("#mxKey").hidden=false;};
+$("#mxClear").onclick=()=>{S.mx={};save();renderMx();$("#mxScore").textContent="";$("#mxKey").hidden=true;};
+["r1","r2","r3"].forEach(id=>{const t=$("#"+id);t.value=S[id]||"";t.oninput=()=>{S[id]=t.value;save();};});
+
+/* ---------- penjana prompt ---------- */
+const F=["fLvl","fSub","fTop","fName","fPlay","fVar","fCon","fNew","fGuide"];
+const PRE={K:{ms:["Tahun 5","Sains","Elektrik: litar lengkap","Makmal Litar","mencubit komponen (bateri, wayar, mentol, suis, getah, klip kertas) ke dalam litar dan menguji sama ada mentol menyala","komponen yang dimasukkan ke dalam litar","mentol menyala apabila litar lengkap: ada sumber tenaga, wayar penyambung dan litar tidak terputus","suis dibuka, bateri habis, wayar putus, klip kertas menggantikan wayar","Cik Mentol"],en:["Year 5","Science","Electricity: complete circuits","Circuit Lab","pinching components (battery, wire, bulb, switch, rubber band, paper clip) into a circuit and testing whether the bulb lights","the components placed in the circuit","the bulb lights when the circuit is complete: an energy source, connecting wires and no break","open switch, flat battery, broken wire, paper clip replacing a wire","Miss Bulb"],tpl:"daun"},
+  T:{ms:["Tingkatan 1","Sains","Ketumpatan (Standard Kandungan 1.5)","Makmal Apung","memasukkan objek ke dalam bekas air","jisim dan isi padu objek","ketumpatan = jisim ÷ isi padu; objek terapung jika ketumpatannya kurang daripada ketumpatan cecair","minyak, madu, air garam; telur dalam air garam","Cikgu Apung"],en:["Form 1","Science","Density (Content Standard 1.5)","Float Lab","dropping objects into a tank of water","the object's mass and volume","density = mass ÷ volume; an object floats if its density is less than the liquid's","oil, honey, salt water; an egg in salt water","Teacher Float"],tpl:"apung"}};
+const LV={ms:["Tahun 1","Tahun 2","Tahun 3","Tahun 4","Tahun 5","Tahun 6","Tingkatan 1","Tingkatan 2","Tingkatan 3","Tingkatan 4","Tingkatan 5"],en:["Year 1","Year 2","Year 3","Year 4","Year 5","Year 6","Form 1","Form 2","Form 3","Form 4","Form 5"]};
+S.f=S.f||null;S.els=S.els||{cam:true,mic:true,quiz:true,ps:true};S.tpl=S.tpl&&TPL.some(t=>t.k===S.tpl)?S.tpl:"daun";
+function fillSelects(){const lv=S.f?S.f[0]:null;$("#fLvl").innerHTML=LV.ms.map((l,i)=>`<option value="${i}">${tr(l,LV.en[i])}</option>`).join("");$("#fLvl").value=lv!=null&&lv!==""?lv:"4";
+  $("#fTpl").innerHTML=TPL.map(t=>`<option value="${t.k}">${tr(t.n[0],t.n[1]).replace(/\u2066.*\u2069/,"1–10")} (${t.k}.html)</option>`).join("");$("#fTpl").value=S.tpl;
+  const E=[["cam",tr("<span class='tag ar'>AR</span> Kamera dan gerak tangan, dengan rangka tangan kelihatan","<span class='tag ar'>AR</span> Camera and hand gestures, with the hand skeleton visible")],["mic",tr("<span class='tag ai'>AI</span> Suara ke teks dalam Renung dan Faham","<span class='tag ai'>AI</span> Speech to text in Reflect and Conceptualise")],["quiz",tr("<span class='tag ai'>AI</span> Kuiz adaptif dan cabaran ikut prestasi","<span class='tag ai'>AI</span> Adaptive quiz and challenges by performance")],["ps",tr("<span class='tag ps'>SD</span> Pencetus, peringatan, cadangan, pujian dan ganjaran","<span class='tag ps'>SD</span> Trigger, reminder, suggestion, praise and reward")]];
+  $("#els").innerHTML=E.map(([k,t])=>`<label class="cb"><input type="checkbox" id="el-${k}" ${S.els[k]?"checked":""}><span>${t}</span></label>`).join("");E.forEach(([k])=>$("#el-"+k).onchange=e=>{S.els[k]=e.target.checked;save();render();});
+  if(S.f)F.slice(1).forEach((id,i)=>{$("#"+id).value=S.f[i+1]||"";});}
+function snap(){S.f=F.map(x=>$("#"+x).value);save();}
+function fill(p){S.tpl=p.tpl;const a=p[LANG];$("#fTpl").value=p.tpl;F.slice(1).forEach((id,i)=>$("#"+id).value=a[i+1]);$("#fLvl").value=String(LV.ms.indexOf(p.ms[0]));snap();tplChange();}
+$("#pK").onclick=()=>fill(PRE.K);$("#pT").onclick=()=>fill(PRE.T);$("#pClear").onclick=()=>{F.slice(1).forEach(id=>$("#"+id).value="");snap();render();};
+$("#demoFill").onclick=()=>{fill(PRE.K);if(!document.documentElement.classList.contains("pres"))$("#s-penjana").scrollIntoView({behavior:"smooth"});toast(tr("Penjana diisi dengan contoh Litar elektrik","Generator filled with the circuit example"));};
+F.forEach(id=>$("#"+id).addEventListener("input",()=>{snap();render();}));$("#fLvl").addEventListener("change",()=>{snap();render();});
+function tplChange(){S.tpl=$("#fTpl").value;save();$("#rawLink").href="https://github.com/nazatulainiabdmajid/DidikARealiti_AI/blob/main/"+S.tpl+".html";$("#rawName").textContent=S.tpl+".html";render();}
+$("#fTpl").addEventListener("change",tplChange);
+const v=id=>{const x=$("#"+id).value.trim();return x||"["+tr("isi","fill in")+": "+({fSub:tr("subjek","subject"),fTop:tr("topik","topic"),fName:tr("nama aplikasi","app name"),fPlay:tr("apa yang murid main","what students play with"),fVar:tr("apa yang murid ubah","what students change"),fCon:tr("konsep","concept"),fNew:tr("situasi baharu","new situations"),fGuide:tr("watak pemandu","guide character")}[id])+"]";};
+function prompts(){const t=TPL.find(x=>x.k===S.tpl)||TPL[0],file=t.k+".html",i=$("#fLvl").value,lvl=tr(LV.ms[i],LV.en[i]),e=S.els,keep=[],drop=[];
+  (e.cam?keep:drop).push(tr("kamera dan gerak tangan (MediaPipe Hands) dengan rangka tangan 21 titik kelihatan, serta pilihan sentuhan jika kamera tiada","camera and hand gestures (MediaPipe Hands) with the 21-point hand skeleton visible, plus a touch option without a camera"));
+  (e.mic?keep:drop).push(tr("suara ke teks (Web Speech API) dalam fasa Renung dan Faham, dengan pilihan menaip","speech to text (Web Speech API) in Reflect and Conceptualise, with a typing option"));
+  (e.quiz?keep:drop).push(tr("kuiz adaptif 3 tahap dan cabaran yang dipilih ikut prestasi","a 3-level adaptive quiz and challenges chosen by performance"));
+  (e.ps?keep:drop).push(tr("Sokongan Dialog: pencetus Mula, peringatan apabila murid berhenti, cadangan petunjuk tanpa jawapan terus, pujian, ganjaran bintang dan lencana","Dialogue Support: a Start trigger, reminders when students stop, hints without direct answers, praise, star and badge rewards"));
+  const must=[tr("Empat fasa jelas (Alami, Renung, Faham, Cuba) dengan butang fasa 1–4 di bahagian atas.","Four clear phases (Experience, Reflect, Conceptualise, Experiment) with phase buttons 1–4 at the top.")];
+  if(e.cam)must.push(tr("Dua butang mula yang jelas dalam fasa Alami: (a) \"✋ Mula: seret dengan jari / tetikus\" tanpa kamera, dan (b) \"📷 Mula: kamera + gerak tangan\". Kedua-dua cara boleh menyelesaikan semua misi.","Two clear start buttons in Experience: (a) \"✋ Start: drag with finger / mouse\" without a camera, and (b) \"📷 Start: camera + hand gestures\". Both ways can complete every mission."));
+  if(e.mic)must.push(tr("Setiap jawapan suara atau bertulis MESTI disemak. Selepas murid habis bercakap, aplikasi menukar suara kepada teks dan terus menyemaknya dengan kata kunci atau idea utama jawapan yang betul (senaraikan kata kunci bagi setiap soalan). Beri maklum balas segera: puji idea yang betul dan nyatakan idea yang tertinggal. Jangan hanya memaparkan teks yang didengar. Sediakan juga butang Semak untuk jawapan yang ditaip. Jika ada sebutan perkataan, bandingkan dengan perkataan sasaran dan beritahu sama ada sebutan tepat.","Every spoken or written answer MUST be checked. When the student finishes speaking, convert speech to text and immediately check it against the keywords or main ideas of a correct answer (list the keywords for each question). Give instant feedback: praise correct ideas and name the missing ones. Never just display the recognised text. Also provide a Check button for typed answers. If students pronounce a word, compare it with the target word and say whether it was correct."));
+  if(e.ps)must.push(tr("Kelima-lima elemen Sokongan Dialog (Oinas-Kukkonen & Harjumaa, 2009) MESTI kelihatan, setiap satu dengan label berwarna pada mesej watak pemandu: PENCETUS (apabila misi atau fasa bermula), PERINGATAN (selepas 25 saat tiada tindakan), CADANGAN (petunjuk apabila jawapan salah, tanpa memberi jawapan terus), PUJIAN (apabila betul), GANJARAN (bintang dan lencana, dengan kaunter ★ dan 🏅 di bahagian atas). Pastikan elemen ini ada dalam keempat-empat fasa.","All five Dialogue Support elements (Oinas-Kukkonen & Harjumaa, 2009) MUST be visible, each with a coloured label on the guide character's message: TRIGGER (when a mission or phase starts), REMINDER (after 25 seconds of no action), SUGGESTION (a hint when wrong, without giving the answer), PRAISE (when correct), REWARD (stars and badges, with ★ and 🏅 counters at the top). Make sure these appear in all four phases."));
+  if(t.k==="jawi")must.push(tr("Kad gambar dilukis sendiri oleh aplikasi dalam fungsi drawCard() (bingkai bercorak + gambar + perkataan). Untuk SETIAP perkataan baharu, tambah lukisan ringkas menggunakan bentuk canvas (bukan emoji) yang menggambarkan maksud perkataan itu. Kad yang sama digunakan untuk mod ketik, kad cetak dan pengesanan AR.","Picture cards are drawn by the app in drawCard() (patterned frame + picture + word). For EVERY new word, add a simple drawing made of canvas shapes (not emoji) that shows the word's meaning. The same card is used for tap mode, printed cards and AR tracking."));
+  const mustTxt=must.map((x,i)=>(i+1)+". "+x).join("\n");
+  const p1=LANG==="en"?`I have attached ${file}. It is a learning app that follows Kolb's cycle in four phases: Experience, Reflect, Conceptualise and Experiment. ${t.what[1]} Use this file as a template.
+
+Keep: the four-phase structure, layout, phase colours, guide character, and these features: ${keep.join("; ")||"(none)"}.${drop.length?`\nRemove: ${drop.join("; ")}.`:""}
+
+Change the content to:
+- App name: ${v("fName")}. Students: ${lvl}. Subject: ${v("fSub")}. Topic: ${v("fTop")}.
+- Phase 1 Experience: students play with ${v("fPlay")} and can change ${v("fVar")}. Provide 3–4 curiosity missions. Log every trial.
+- Phase 2 Reflect: show the log from the student's own data and 3 "what changed when…" questions.
+- Phase 3 Conceptualise: map the student's trials to the concept: ${v("fCon")}. Include a 6-question quiz.
+- Phase 4 Experiment: new situations: ${v("fNew")}. Students predict first, then test. Show prediction accuracy as evidence that experience has become knowledge.
+- Guide character: ${v("fGuide")}, speaking in a friendly way suitable for ${lvl} students.
+
+MUST HAVE (do not skip any):
+${mustTxt}
+
+Produce one complete HTML file that works on a phone.`
+  :`Saya lampirkan fail ${file}. Ia aplikasi pembelajaran yang mengikut kitaran Kolb dalam empat fasa: Alami, Renung, Faham dan Cuba. ${t.what[0]} Gunakan fail ini sebagai template.
+
+Kekalkan: struktur empat fasa, reka letak, warna setiap fasa, watak pemandu, dan ciri berikut: ${keep.join("; ")||"(tiada)"}.${drop.length?`\nBuang: ${drop.join("; ")}.`:""}
+
+Tukar kandungan kepada:
+- Nama aplikasi: ${v("fName")}. Murid: ${lvl}. Subjek: ${v("fSub")}. Topik: ${v("fTop")}.
+- Fasa 1 Alami: murid bermain dengan ${v("fPlay")}, dan boleh mengubah ${v("fVar")}. Sediakan 3–4 misi yang membangkitkan rasa ingin tahu. Catat setiap percubaan murid dalam log.
+- Fasa 2 Renung: paparkan log daripada data murid sendiri, dan 3 soalan "apa yang berubah apabila…".
+- Fasa 3 Faham: padankan percubaan murid dengan konsep: ${v("fCon")}. Sertakan kuiz 6 soalan.
+- Fasa 4 Cuba: situasi baharu: ${v("fNew")}. Murid meramal dahulu, kemudian menguji. Paparkan ketepatan ramalan sebagai bukti pengalaman telah menjadi pengetahuan.
+- Watak pemandu: ${v("fGuide")}, bercakap mesra dalam Bahasa Melayu standard yang sesuai untuk murid ${lvl}.
+
+WAJIB ADA (jangan tinggalkan satu pun):
+${mustTxt}
+
+Hasilkan satu fail HTML lengkap yang boleh dibuka di telefon.`;
+  const p2=tr(`Semak semua fakta, nilai, unit dan istilah dalam aplikasi ini untuk topik ${v("fTop")} bagi murid ${lvl}, mengikut DSKP. Senaraikan apa yang anda betulkan, kemudian hasilkan semula fail penuh.`,`Check every fact, value, unit and term in this app for the topic ${v("fTop")} for ${lvl} students, following the national curriculum. List what you corrected, then regenerate the full file.`);
+  const p3=tr(`Uji aplikasi ini sebagai murid ${lvl}:\n1. Bolehkah fasa Alami dimain tanpa membaca arahan panjang?\n2. Adakah fasa Renung menggunakan data murid sendiri?\n3. Adakah fasa Faham memadankan percubaan murid dengan konsep?\n4. Adakah fasa Cuba memberi situasi baharu dengan ramalan sebelum ujian?\n5. Adakah kelima-lima elemen Sokongan Dialog kelihatan dengan label (Pencetus, Peringatan, Cadangan, Pujian, Ganjaran)?\n6. Apabila murid bercakap atau menaip jawapan, adakah aplikasi menyemaknya dan memberi maklum balas? Uji dengan satu jawapan betul dan satu jawapan salah.\n7. Adakah ada dua pilihan mula: ✋ sentuhan tanpa kamera dan 📷 kamera + gerak tangan?\n8. Adakah semua butang berfungsi di telefon?\nBetulkan apa-apa yang gagal dan hasilkan semula fail penuh.`,`Test this app as a ${lvl} student:\n1. Can the Experience phase be played without long instructions?\n2. Does Reflect use the student's own data?\n3. Does Conceptualise map the student's trials to the concept?\n4. Does Experiment give new situations with a prediction before testing?\n5. Are all five Dialogue Support elements visible and labelled (Trigger, Reminder, Suggestion, Praise, Reward)?\n6. When a student speaks or types an answer, does the app check it and give feedback? Test with one correct and one wrong answer.\n7. Are there two start options: ✋ touch without a camera and 📷 camera + hand gestures?\n8. Do all buttons work on a phone?\nFix anything that fails and regenerate the full file.`);
+  return [[tr("Prompt 1 · Adaptasi template","Prompt 1 · Adapt the template"),tr("Tampal bersama fail ","Paste with the file ")+file,p1],[tr("Prompt 2 · Semak ketepatan kandungan","Prompt 2 · Check content accuracy"),tr("Selepas Prompt 1","After Prompt 1"),p2],[tr("Prompt 3 · Semak empat fasa dan Sokongan Dialog","Prompt 3 · Check the four phases and Dialogue Support"),tr("Sebelum kongsi","Before sharing"),p3]];}
+function render(){if(!$("#fTpl").value)return;$("#prompts").innerHTML=prompts().map(([t,h,b],i)=>`<div class="prompt"><header><h3>${t}</h3><span class="muted" style="font-size:14px">${h}</span><button class="btn sm" style="--c:var(--ae)" data-i="${i}">${tr("Salin","Copy")}</button></header><pre id="pp${i}">${b.replace(/</g,"&lt;")}</pre></div>`).join("");
+  $$("#prompts button").forEach(b=>b.onclick=()=>copy($("#pp"+b.dataset.i).textContent,b));}
+const FIX=()=>[[tr("Gambar kad tidak sesuai","Card pictures don't fit"),tr("Gambar pada kad tidak menggambarkan perkataan baharu. Dalam fungsi drawCard(), tambah lukisan ringkas menggunakan bentuk canvas (bukan emoji) untuk setiap perkataan dalam WORDS: [senaraikan perkataan]. Kekalkan bingkai bercorak dan perkataan di bawah. Hasilkan semula fail penuh.","The card pictures don't show the new words. In drawCard(), add a simple drawing made of canvas shapes (not emoji) for every word in WORDS: [list the words]. Keep the patterned frame and the word underneath. Regenerate the full file.")],
+  [tr("Suara tidak disemak","Speech is not checked"),tr("Apabila murid bercakap, aplikasi hanya memaparkan teks tetapi tidak menyemak jawapan. Selepas pengecaman suara tamat, semak teks itu dengan kata kunci jawapan yang betul bagi setiap soalan, kemudian beri maklum balas: PUJIAN untuk idea yang betul dan CADANGAN untuk idea yang tertinggal. Lakukan perkara sama untuk jawapan bertaip melalui butang Semak. Hasilkan semula fail penuh.","When students speak, the app only shows the text and does not check the answer. After recognition ends, check the text against the keywords of a correct answer for each question, then give feedback: PRAISE for correct ideas and a SUGGESTION for missing ones. Do the same for typed answers with a Check button. Regenerate the full file.")],
+  [tr("Tiada pilihan tanpa kamera","No option without a camera"),tr("Tambah dua butang mula yang jelas: \"✋ Mula: seret dengan jari / tetikus\" (tanpa kamera) dan \"📷 Mula: kamera + gerak tangan\". Pastikan semua misi dan permainan boleh diselesaikan dengan sentuhan sahaja. Hasilkan semula fail penuh.","Add two clear start buttons: \"✋ Start: drag with finger / mouse\" (no camera) and \"📷 Start: camera + hand gestures\". Make sure every mission and game can be completed by touch alone. Regenerate the full file.")],
+  [tr("Sokongan Dialog tidak kelihatan","Dialogue Support not visible"),tr("Elemen persuasif tidak jelas. Tambah label berwarna pada setiap mesej watak pemandu: Pencetus, Peringatan, Cadangan, Pujian dan Ganjaran, dan pastikan kelima-limanya muncul dalam aplikasi, termasuk kaunter bintang dan lencana di bahagian atas. Hasilkan semula fail penuh.","The persuasive elements are not clear. Add a coloured label to every guide message: Trigger, Reminder, Suggestion, Praise and Reward, and make sure all five appear, including star and badge counters at the top. Regenerate the full file.")],
+  [tr("Butang tidak berfungsi","A button doesn't work"),tr("Butang [nama] dalam fasa [nama fasa] tidak berbuat apa-apa. Cari puncanya, betulkan, dan pastikan butang lain tidak terjejas. Hasilkan semula fail penuh.","The [name] button in the [phase] phase does nothing. Find the cause, fix it, and make sure other buttons still work. Regenerate the full file.")],
+  [tr("Terlalu sukar untuk murid","Too hard for students"),tr("Bahasa dan tugasan terlalu sukar untuk murid. Ringkaskan ayat dan kurangkan teks pada setiap skrin. Kekalkan empat fasa. Hasilkan semula fail penuh.","The language and tasks are too hard. Simplify sentences and reduce text on each screen. Keep the four phases. Regenerate the full file.")],
+  [tr("Rangka tangan tidak kelihatan","Hand skeleton not visible"),tr("Selepas kamera dibuka, lukis rangka tangan 21 titik (MediaPipe Hands) di atas kanvas: garisan cyan apabila jari terbuka dan emas apabila mencubit. Hasilkan semula fail penuh.","After the camera opens, draw the 21-point hand skeleton (MediaPipe Hands) on a canvas: cyan lines when the fingers are open and gold when pinching. Regenerate the full file.")],
+  [tr("Tiada peringatan","No reminder"),tr("Tambah peringatan lembut: jika murid tidak berbuat apa-apa selama 25 saat, watak pemandu memaparkan mesej mesra yang mencadangkan langkah seterusnya. Hasilkan semula fail penuh.","Add a gentle reminder: if the student does nothing for 25 seconds, the guide character shows a friendly message suggesting the next step. Regenerate the full file.")],
+  [tr("Kandungan tidak tepat","Content is inaccurate"),tr("Kandungan simulasi tidak sepadan dengan konsep dalam fasa Faham. Semak dan pastikan apa yang murid lihat dalam fasa Alami sama dengan konsep. Hasilkan semula fail penuh.","The simulation does not match the concept in Conceptualise. Check that what students see in Experience matches the concept. Regenerate the full file.")],
+  [tr("Tidak muat di telefon","Doesn't fit on a phone"),tr("Paparan terpotong di telefon. Susun semula supaya muat pada lebar 390 piksel tanpa tatal mendatar. Hasilkan semula fail penuh.","The layout is cut off on phones. Rearrange it to fit 390 pixels wide with no sideways scrolling. Regenerate the full file.")]];
+function renderFix(){const f=FIX();$("#fix").innerHTML=f.map(([t],i)=>`<button data-i="${i}" aria-pressed="false">${t}</button>`).join("");$("#fixBox").hidden=true;
+  $$("#fix button").forEach(b=>b.onclick=()=>{$$("#fix button").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#fixText").textContent=FIX()[+b.dataset.i][1];$("#fixBox").hidden=false;});}
+$("#fixCopy").onclick=()=>copy($("#fixText").textContent,$("#fixCopy"));
+function copy(text,btn){const lab=btn.textContent;const done=()=>{btn.textContent=tr("Disalin","Copied");setTimeout(()=>btn.textContent=lab,1500);};
+  const legacy=()=>{const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy");}catch(e){}ta.remove();
+    if(ok)done();else{const pre=btn.closest(".prompt").querySelector("pre");const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent=tr("Dipilih: tekan Ctrl+C","Selected: press Ctrl+C");}};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,legacy);else legacy();}
+
+applyLang();tplChange();if(S.pres)setView(true);
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
