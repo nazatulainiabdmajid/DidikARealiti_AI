@@ -551,6 +551,15 @@ go(S.phase||0);
 </script>
 
 <style>
+.credit{max-width:1100px;margin:28px auto 0;padding:18px 16px 26px;border-top:1.5px solid var(--line,#D9DED3);text-align:center;font-size:13.5px;line-height:1.55;color:var(--muted,#5C6670)}
+.credit p{margin:2px 0}.credit b{color:var(--ink,#1B2430)}
+.credit a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.credit .logos{display:flex;gap:18px;justify-content:center;align-items:center;margin-bottom:8px}
+.credit .logos img{height:46px;width:auto;object-fit:contain}
+.credit .lic{font-size:12.5px}
+.bAR{color:#D9480F}.bAI{color:#1864AB}
+
+
 .home{display:inline-flex;align-items:center;gap:4px;font-weight:800;font-size:14.5px;text-decoration:none;color:var(--ink);border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;white-space:nowrap}
 .home{cursor:pointer;font-family:inherit}.home.warn{border-color:#C92A2A;color:#C92A2A;background:#FFF5F5}
 .home:hover,.home:focus-visible{border-color:var(--ink)}
@@ -574,4 +583,11 @@ go(S.phase||0);
     b.addEventListener('click',()=>{if(old)old.click();else{const t=ph(n);if(t)t.click();}});});
 })();
 </script>
+
+<footer class="credit" role="contentinfo">
+  <div class="logos"><img src="logo-ukm.png" alt="Universiti Kebangsaan Malaysia" onerror="this.remove()"><img src="logo-ftsm.png" alt="Fakulti Teknologi dan Sains Maklumat" onerror="this.remove()"></div>
+  <p><b>Didik<span class="bAR">AR</span>ealiti <span class="bAI">AI</span></b>: Simulator AR dan AI menerusi kitaran pembelajaran berasaskan pengalaman</p>
+  <p>© 2026 <a href="https://ftsm.ukm.my" target="_blank" rel="noopener">Fakulti Teknologi dan Sains Maklumat (FTSM)</a>, <a href="https://www.ukm.my" target="_blank" rel="noopener">Universiti Kebangsaan Malaysia</a></p>
+  <p class="lic">Boleh dikongsi dan diadaptasi untuk pendidikan dengan mengekalkan kredit ini · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ms" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></p>
+</footer>
 </body></html>

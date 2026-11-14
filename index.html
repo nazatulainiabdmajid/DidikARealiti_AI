@@ -1,4 +1,4 @@
-<title>Bengkel Simulator Kolb</title>
+<title>DidikARealiti AI · Bengkel</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="color-scheme" content="only light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -140,6 +140,9 @@ html.pres .presbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:2
 
 <!-- 0 TAJUK -->
 <section class="slide" id="s-tajuk">
+  <div class="brandrow"><img src="logo-ukm.png" alt="Universiti Kebangsaan Malaysia" onerror="this.remove()"><img src="logo-ftsm.png" alt="FTSM" onerror="this.remove()"><span><span data-t="ms">Fakulti Teknologi dan Sains Maklumat, Universiti Kebangsaan Malaysia</span><span data-t="en">Faculty of Information Science and Technology, Universiti Kebangsaan Malaysia</span></span></div>
+  <p class="brandname" style="font-size:clamp(26px,4vw,40px);font-weight:800;margin:4px 0 0;letter-spacing:-.01em">Didik<span class="bAR">AR</span>ealiti <span class="bAI">AI</span></p>
+  <p style="font-weight:700;margin:0 0 10px;color:var(--muted)"><span data-t="ms">Simulator AR dan AI menerusi kitaran pembelajaran berasaskan pengalaman</span><span data-t="en">AR and AI simulators through the experiential learning cycle</span></p>
   <span class="eyebrow"><span data-t="ms">Bengkel guru · Vibe coding</span><span data-t="en">Teacher workshop · Vibe coding</span></span>
   <h1><span data-t="ms">Bina simulator AR untuk topik anda, tanpa menulis kod</span><span data-t="en">Build an AR simulator for your topic, without writing code</span></h1>
   <p class="lede"><span data-t="ms">Bengkel ini sendiri mengikut kitaran pembelajaran Kolb. Anda mencuba contoh simulator seperti murid, merenung apa yang ada di dalamnya, memahami teori dan cara ia dibina, kemudian membina simulator untuk topik anda menggunakan prompt AI.</span><span data-t="en">This workshop itself follows Kolb's learning cycle. You try a sample simulator as a student, reflect on what it contains, understand the theory and how it was built, then build a simulator for your own topic using AI prompts.</span></p>
@@ -395,7 +398,11 @@ html.pres .presbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:2
     <li><span data-t="ms">Rancang: kelas mana dan bila anda akan mencubanya bersama murid?</span><span data-t="en">Plan: which class, and when will you try it with students?</span></li>
   </ul>
   <div class="card" style="border-color:var(--ae)"><h3><span data-t="ms">Aktiviti 5 (lanjutan, 90 minit): kitaran penuh</span><span data-t="en">Activity 5 (extension, 90 min): full cycle</span></h3>
-    <p><span data-t="ms">Guru mengulang Fasa 1 hingga 4 bagi topik kedua secara kendiri, memasukkan sekurang-kurangnya tiga elemen Sokongan Dialog termasuk satu pencetus, dan melengkapkan senarai semak kualiti aplikasi.</span><span data-t="en">Teachers repeat Phases 1 to 4 for a second topic independently, include at least three Dialogue Support elements including one trigger, and complete the app quality checklist.</span></p></div>
+    <p><span data-t="ms">Guru mengulang Fasa 1 hingga 4 bagi topik kedua secara kendiri, memasukkan kelima-lima elemen Sokongan Dialog, dan melengkapkan senarai semak kualiti aplikasi.</span><span data-t="en">Teachers repeat Phases 1 to 4 for a second topic independently, include all five Dialogue Support elements, and complete the app quality checklist.</span></p></div>
+  <div class="card" style="border-color:var(--ac)"><h3><span data-t="ms">Kongsi dan sebarkan</span><span data-t="en">Share and spread</span></h3>
+    <p><span data-t="ms">Kongsikan simulator anda dan kit ini dengan rakan guru di sekolah dan dalam PLC. Templat boleh digunakan dan diadaptasi untuk pendidikan, dengan mengekalkan kredit FTSM UKM.</span><span data-t="en">Share your simulator and this kit with fellow teachers at school and in your PLC. The templates may be used and adapted for education, keeping the FTSM UKM credit.</span></p>
+    <div class="row"><code id="kitLink" style="font-size:14px;word-break:break-all">https://nazatulainiabdmajid.github.io/DidikARealiti_AI/</code><button class="btn sm ghost" id="kitCopy"><span data-t="ms">Salin pautan kit</span><span data-t="en">Copy kit link</span></button></div>
+    <p class="muted" style="font-size:14px"><span data-t="ms">Cara memberi kredit:</span><span data-t="en">How to credit:</span> <i>DidikARealiti AI, © 2026 FTSM, Universiti Kebangsaan Malaysia (CC BY-NC-SA 4.0)</i></p></div>
 </section>
 
 <!-- 8 SOAL SELIDIK -->
@@ -408,6 +415,22 @@ html.pres .presbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:2
 
 
 </main>
+<style>.credit{max-width:1100px;margin:28px auto 0;padding:18px 16px 26px;border-top:1.5px solid var(--line,#D9DED3);text-align:center;font-size:13.5px;line-height:1.55;color:var(--muted,#5C6670)}
+.credit p{margin:2px 0}.credit b{color:var(--ink,#1B2430)}
+.credit a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.credit .logos{display:flex;gap:18px;justify-content:center;align-items:center;margin-bottom:8px}
+.credit .logos img{height:46px;width:auto;object-fit:contain}
+.credit .lic{font-size:12.5px}
+.bAR{color:#D9480F}.bAI{color:#1864AB}
+
+html.pres .credit{display:none}.brandrow{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.brandrow img{height:52px;width:auto}.brandrow span{font-size:14px;font-weight:700;color:var(--muted)}</style>
+<footer class="credit" role="contentinfo">
+  <div class="logos"><img src="logo-ukm.png" alt="Universiti Kebangsaan Malaysia" onerror="this.remove()"><img src="logo-ftsm.png" alt="Fakulti Teknologi dan Sains Maklumat" onerror="this.remove()"></div>
+  <p><b>Didik<span class="bAR">AR</span>ealiti <span class="bAI">AI</span></b>: Simulator AR dan AI menerusi kitaran pembelajaran berasaskan pengalaman</p>
+  <p>© 2026 <a href="https://ftsm.ukm.my" target="_blank" rel="noopener">Fakulti Teknologi dan Sains Maklumat (FTSM)</a>, <a href="https://www.ukm.my" target="_blank" rel="noopener">Universiti Kebangsaan Malaysia</a></p>
+  <p class="lic">Boleh dikongsi dan diadaptasi untuk pendidikan dengan mengekalkan kredit ini · <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ms" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a></p>
+</footer>
+
 
 <div class="presbar" id="presbar">
   <button class="btn ghost sm" id="pPrev">←</button>
@@ -455,6 +478,7 @@ $$(".jump a").forEach(a=>a.addEventListener("click",e=>{if(!document.documentEle
 function renderApps(){$("#apps").innerHTML=TPL.map(t=>`<a class="app ${t.main?"main":""}" href="${G}${t.k}.html" target="_blank" rel="noopener">${t.main?`<span class="badge">${tr("Contoh utama","Main example")}</span>`:""}<b style="font-family:var(--f-d);font-size:18px">${tr(t.n[0],t.n[1])}</b><span class="muted" style="font-size:14px">${tr(t.sub[0],t.sub[1])}</span><span style="font-size:14px">${tr(t.style[0],t.style[1])}</span></a>`).join("");}
 function renderTplRows(){$("#tplRows").innerHTML=TPL.map(t=>`<tr><td><b>${tr(t.n[0],t.n[1])}</b>${t.main?` <span class="badge">${tr("utama","main")}</span>`:""}<br><span class="muted">${t.k}.html</span></td><td>${tr(t.style[0],t.style[1])}</td><td>${tr(t.fit[0],t.fit[1])}</td></tr>`).join("");}
 
+$("#kitCopy").onclick=()=>{const t=$("#kitLink").textContent;try{navigator.clipboard.writeText(t).then(()=>toast(tr("Pautan disalin","Link copied")),()=>toast(t));}catch(e){toast(t);}};
 /* ---------- kod QR ---------- */
 (function(){const b=$("#qrBtn");if(!b)return;b.onclick=()=>{const u=$("#qrIn").value.trim(),o=$("#qrOut");o.innerHTML="";if(!/^https?:\/\//.test(u)){toast(tr("Tampal pautan yang bermula dengan https://","Paste a link that starts with https://"));return;}
   if(window.QRCode){new QRCode(o,{text:u,width:220,height:220,correctLevel:QRCode.CorrectLevel.M});}else o.innerHTML=`<a href="${u.replace(/"/g,"")}" target="_blank" rel="noopener">${u.replace(/</g,"&lt;")}</a>`;};})();
@@ -505,6 +529,7 @@ function prompts(){const t=TPL.find(x=>x.k===S.tpl)||TPL[0],file=t.k+".html",i=$
   if(e.mic)must.push(tr("Setiap jawapan suara atau bertulis MESTI disemak. Selepas murid habis bercakap, aplikasi menukar suara kepada teks dan terus menyemaknya dengan kata kunci atau idea utama jawapan yang betul (senaraikan kata kunci bagi setiap soalan). Beri maklum balas segera: puji idea yang betul dan nyatakan idea yang tertinggal. Jangan hanya memaparkan teks yang didengar. Sediakan juga butang Semak untuk jawapan yang ditaip. Jika ada sebutan perkataan, bandingkan dengan perkataan sasaran dan beritahu sama ada sebutan tepat.","Every spoken or written answer MUST be checked. When the student finishes speaking, convert speech to text and immediately check it against the keywords or main ideas of a correct answer (list the keywords for each question). Give instant feedback: praise correct ideas and name the missing ones. Never just display the recognised text. Also provide a Check button for typed answers. If students pronounce a word, compare it with the target word and say whether it was correct."));
   if(e.ps)must.push(tr("Kelima-lima elemen Sokongan Dialog (Oinas-Kukkonen & Harjumaa, 2009) MESTI kelihatan, setiap satu dengan label berwarna pada mesej watak pemandu: PENCETUS (apabila misi atau fasa bermula), PERINGATAN (selepas 25 saat tiada tindakan), CADANGAN (petunjuk apabila jawapan salah, tanpa memberi jawapan terus), PUJIAN (apabila betul), GANJARAN (bintang dan lencana, dengan kaunter ★ dan 🏅 di bahagian atas). Pastikan elemen ini ada dalam keempat-empat fasa.","All five Dialogue Support elements (Oinas-Kukkonen & Harjumaa, 2009) MUST be visible, each with a coloured label on the guide character's message: TRIGGER (when a mission or phase starts), REMINDER (after 25 seconds of no action), SUGGESTION (a hint when wrong, without giving the answer), PRAISE (when correct), REWARD (stars and badges, with ★ and 🏅 counters at the top). Make sure these appear in all four phases."));
   if(t.k==="jawi")must.push(tr("Kad gambar dilukis sendiri oleh aplikasi dalam fungsi drawCard() (bingkai bercorak + gambar + perkataan). Untuk SETIAP perkataan baharu, tambah lukisan ringkas menggunakan bentuk canvas (bukan emoji) yang menggambarkan maksud perkataan itu. Kad yang sama digunakan untuk mod ketik, kad cetak dan pengesanan AR.","Picture cards are drawn by the app in drawCard() (patterned frame + picture + word). For EVERY new word, add a simple drawing made of canvas shapes (not emoji) that shows the word's meaning. The same card is used for tap mode, printed cards and AR tracking."));
+  must.push(tr("Kekalkan footer kredit di bahagian bawah setiap halaman: \"Berdasarkan template DidikARealiti AI © 2026 FTSM, Universiti Kebangsaan Malaysia (CC BY-NC-SA 4.0)\", dan tambah satu baris \"Diadaptasi oleh [nama guru, sekolah]\".","Keep the credit footer at the bottom of every page: \"Based on the DidikARealiti AI template © 2026 FTSM, Universiti Kebangsaan Malaysia (CC BY-NC-SA 4.0)\", and add a line \"Adapted by [teacher name, school]\"."));
   const mustTxt=must.map((x,i)=>(i+1)+". "+x).join("\n");
   const p1=LANG==="en"?`I have attached ${file}. It is a learning app that follows Kolb's cycle in four phases: Experience, Reflect, Conceptualise and Experiment. ${t.what[1]} Use this file as a template.
 
