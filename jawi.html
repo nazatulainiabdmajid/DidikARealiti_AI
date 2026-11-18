@@ -188,7 +188,7 @@ input[type=range]{width:100%;accent-color:var(--ae)}
   <section class="panel" data-p="0" id="p0">
     <span class="eyebrow">Fasa 1 · Alami (pengalaman konkrit)</span>
     <div class="guide"><span class="av">UJ</span><p><b class="who">Ustazah Jawi</b><span id="g0">Halakan telefon ke kad gambar. Perkataan Jawi akan muncul di atas kad, dan huruf-hurufnya di bawah kad. Berapa banyak kad yang boleh kamu kumpul?</span></p></div>
-    <div class="mode2"><button class="btn big" id="tapBtn">✋ Tanpa kamera: ketik gambar kad</button><button class="btn big" style="--c:var(--ar)" id="startBtn">📷 Dengan kamera: imbas kad (AR)</button></div><span class="muted" id="status" style="font-size:14.5px"></span>
+    <div class="mode2"><button class="btn big" id="tapBtn">✋ Tanpa kamera: klik gambar kad</button><button class="btn big" style="--c:var(--ar)" id="startBtn">📷 Dengan kamera: imbas kad (AR)</button></div><span class="muted" id="status" style="font-size:14.5px"></span>
     <div class="missions" id="missions"></div>
     <div class="card" id="tapWrap" hidden><h3>Mod tanpa kamera</h3><p id="tapMission" style="font-weight:700"></p>
       <div id="tapGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px"></div>
@@ -442,7 +442,7 @@ function adaptiveQuiz(cfg){const total=cfg.total||8,exp=cfg.exp||25,cls=cfg.optC
 
 $("#stars").textContent="★ "+S.stars;
 function speak(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="ms-MY";const v=speechSynthesis.getVoices().find(v=>/^(ms|id)/i.test(v.lang));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
-function go(p){setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
+function go(p){try{if(mindar)stopAR();}catch(e){}setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
   $$(".phb").forEach(b=>b.classList.toggle("done",!!S.done[b.dataset.p]));window.scrollTo({top:0,behavior:"smooth"});
   if(p===0)renderFound();if(p===1)renderRO();if(p===2)renderAC();if(p===3)renderAE();}
 $$(".phb").forEach(b=>b.onclick=()=>go(+b.dataset.p));$$("[data-go]").forEach(b=>b.onclick=()=>{S.done[S.phase]=true;go(+b.dataset.go);});
@@ -482,7 +482,7 @@ const cardsReady=(async()=>{await document.fonts.load('700 64px "Atkinson Hyperl
   const ok=await Promise.all(WORDS.map(o=>new Promise(res=>{const i=new Image();i.onload=()=>res(true);i.onerror=()=>res(false);i.src=`${o.w}.png`;})));
   if(ok.every(Boolean)){CARDSRC="png";WORDS.forEach(o=>CARD[o.w]=`${o.w}.png`);}else WORDS.forEach((o,i)=>CARD[o.w]=drawCard(o,i));
   $("#cards").innerHTML=WORDS.map(o=>`<figure><img src="${CARD[o.w]}" alt="Kad ${o.w}"><figcaption>${o.w}</figcaption></figure>`).join("");})();
-const MIS=[{id:"m1",t:"Imbas kad pertama kamu.",h:"Tekan <b>✋ Tanpa kamera</b> dan ketik mana-mana gambar kad, atau tekan <b>📷 Dengan kamera</b> dan halakan kamera ke kad bercetak.",ok:()=>S.found.length>=1},{id:"m2",t:"Kumpul 3 kad.",h:"Teruskan dengan kad lain sehingga ada 3 kad dalam <b>Koleksi kad kamu</b>.",ok:()=>S.found.length>=3},{id:"m3",t:"Selesaikan 2 misi huruf (cari kad yang ada huruf tertentu).",h:"Baca misi huruf (contoh: cari kad yang ada huruf م). Pilih kad yang perkataannya ada huruf itu. Lakukan 2 kali.",ok:()=>S.lm.length>=2},{id:"m4",t:"Kumpul kesemua 6 kad.",h:"Lihat <b>Koleksi kad kamu</b>: kad bertanda ؟ belum dijumpai. Cari kad itu.",ok:()=>S.found.length>=6}];
+const MIS=[{id:"m1",t:"Imbas kad pertama kamu.",h:"Tekan <b>✋ Tanpa kamera</b> dan klik mana-mana gambar kad, atau tekan <b>📷 Dengan kamera</b> dan halakan kamera ke kad bercetak.",ok:()=>S.found.length>=1},{id:"m2",t:"Kumpul 3 kad.",h:"Teruskan dengan kad lain sehingga ada 3 kad dalam <b>Koleksi kad kamu</b>.",ok:()=>S.found.length>=3},{id:"m3",t:"Selesaikan 2 misi huruf (cari kad yang ada huruf tertentu).",h:"Baca misi huruf (contoh: cari kad yang ada huruf م). Pilih kad yang perkataannya ada huruf itu. Lakukan 2 kali.",ok:()=>S.lm.length>=2},{id:"m4",t:"Kumpul kesemua 6 kad.",h:"Lihat <b>Koleksi kad kamu</b>: kad bertanda ؟ belum dijumpai. Cari kad itu.",ok:()=>S.found.length>=6}];
 function renderFound(){
   $("#found").innerHTML=WORDS.map(o=>`<span class="${S.found.includes(o.w)?"got":""}"><span class="j">${S.found.includes(o.w)?o.l.join(""):"؟"}</span> ${o.w}</span>`).join("");
   $("#summary").textContent=`${S.found.length}/6 kad dijumpai · ${S.lm.length} misi huruf selesai`;
@@ -523,7 +523,7 @@ $("#tapBtn").onclick=async()=>{await cardsReady;$("#tapWrap").hidden=false;$("#t
   $("#tapGrid").innerHTML=WORDS.map((o,i)=>`<button class="btn ghost" data-i="${i}" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px"><img src="${CARD[o.w]}" alt="${o.w}" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px" onerror="this.replaceWith(Object.assign(document.createElement('span'),{textContent:'🖼',style:'font-size:48px'}))"><span>${o.w}</span></button>`).join("");
   $$("#tapGrid button").forEach(b=>b.onclick=()=>{const o=WORDS[+b.dataset.i];delete lastFound[o.w];onFound(o);
     $("#tapShow").innerHTML=`<div class="fb ok" style="text-align:center"><div class="j" style="font-size:56px;line-height:1.4">${o.l.join("")}</div><div style="font-weight:700">${o.w}</div><div class="j" style="font-size:30px;direction:rtl">${o.l.map(L=>`<span title="${NAMES[L]}" style="display:inline-block;border:2px solid var(--line);border-radius:10px;padding:2px 10px;margin:3px">${L}<small style="display:block;font-size:13px;font-family:inherit">${NAMES[L]}</small></span>`).join("")}</div></div>`;});
-  nextMission();hud();renderFound();sd("pencetus","Ketik gambar kad. Perkataan Jawi dan huruf-hurufnya akan muncul. Cuba selesaikan misi huruf!");};
+  nextMission();hud();renderFound();sd("pencetus","Klik gambar kad. Perkataan Jawi dan huruf-hurufnya akan muncul. Cuba selesaikan misi huruf!");};
 $("#startBtn").onclick=async()=>{$("#err").hidden=true;$("#startBtn").disabled=true;sd("pencetus","Halakan kamera ke kad gambar. Cuba selesaikan misi huruf!");setTimeout(renderFound,0);
   try{if(!window.isSecureContext)throw new Error("Kamera hanya berfungsi melalui pautan https (contohnya GitHub Pages).");
     await Promise.all([document.fonts.load('700 120px "Noto Naskh Arabic"'),document.fonts.load('700 40px "Atkinson Hyperlegible"')]).catch(()=>{});
@@ -539,7 +539,8 @@ $("#startBtn").onclick=async()=>{$("#err").hidden=true;$("#startBtn").disabled=t
     renderer.setAnimationLoop(()=>{const t=clock.getElapsedTime();mindar.anchors.forEach(a=>{if(a.lab)a.lab.position.z=.04+Math.sin(t*2)*.03;});renderer.render(scene,camera);});$("#status").textContent="";
   }catch(e){console.error(e);$("#arWrap").hidden=true;$("#prog").hidden=true;$("#err").hidden=false;$("#err").textContent="AR tidak dapat dimulakan: "+(e&&e.message?e.message:e)+" Pastikan kamera dibenarkan dan halaman dibuka melalui https. Atau guna mod tanpa kamera.";$("#tapBtn").hidden=false;$("#status").textContent="";}
   $("#startBtn").disabled=false;};
-$("#closeAR").onclick=async()=>{try{mindar&&mindar.renderer.setAnimationLoop(null);mindar&&await mindar.stop();}catch(e){}$("#arBox").innerHTML="";mindar=null;$("#arWrap").hidden=true;renderFound();};
+async function stopAR(){try{mindar&&mindar.renderer.setAnimationLoop(null);mindar&&await mindar.stop();}catch(e){}try{const v=$("#arBox video");if(v&&v.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());}catch(e){}document.querySelectorAll(".mindar-ui-overlay,.mindar-ui-scanning,.mindar-ui-loading,.mindar-ui-compatibility").forEach(e=>e.remove());$("#arBox").innerHTML="";mindar=null;$("#arWrap").hidden=true;$("#startBtn").disabled=false;}
+$("#closeAR").onclick=async()=>{await stopAR();renderFound();};
 
 /* ================= FASA 2 ================= */
 const coll=()=>S.found.length?WORDS.filter(o=>S.found.includes(o.w)):WORDS.slice(0,3);
@@ -580,7 +581,7 @@ const QBJ=[
  {id:"h2",lvl:3,c:"sambung",t:`Dalam perkataan ${JQ("چاون")} (cawan), berapakah huruf yang tidak bersambung dengan huruf selepasnya?`,a:"2 huruf (ا dan و)",o:["2 huruf (ا dan و)","1 huruf (ا)","3 huruf (چ, ا dan و)"],h:"Huruf alif dan wau tidak bersambung ke kiri."},
  {id:"h3",lvl:3,c:"ejaan",t:"Perkataan manakah dibaca <b>lampu</b>?",a:"لمڤو",o:["لمڤو","لامبو","لمڤا"],ocls:"j",h:"Bunyi 'pu' ditulis dengan pa dan wau."}];
 const AQ=adaptiveQuiz({gen:bankGen(QBJ),badge:"Pakar Huruf Jawi",remedial:{
-  huruf:{t:"Mengenal huruf Jawi",d:"Setiap huruf ada nama dan bunyi, contohnya <b>ج jim</b> (j), <b>م mim</b> (m), <b>ڤ pa</b> (p). Lihat pecahan perkataan di atas.",b:"Imbas atau ketik kad di Alami",go:()=>go(0)},
+  huruf:{t:"Mengenal huruf Jawi",d:"Setiap huruf ada nama dan bunyi, contohnya <b>ج jim</b> (j), <b>م mim</b> (m), <b>ڤ pa</b> (p). Lihat pecahan perkataan di atas.",b:"Imbas atau klik kad di Alami",go:()=>go(0)},
   bacaan:{t:"Membaca perkataan",d:"Baca huruf satu per satu <b>dari kanan ke kiri</b>, kemudian gabungkan bunyinya.",b:"Lihat pecahan perkataan",go:()=>$("#flet").scrollIntoView({behavior:"smooth",block:"center"})},
   arah:{t:"Arah tulisan",d:"Jawi ditulis dan dibaca <b>dari kanan ke kiri</b>.",b:"Lihat pecahan perkataan",go:()=>$("#flet").scrollIntoView({behavior:"smooth",block:"center"})},
   sambung:{t:"Huruf tidak bersambung",d:"Enam huruf <b>ا د ذ ر ز و</b> tidak bersambung dengan huruf selepasnya. Ia berbingkai biru dalam pecahan perkataan.",b:"Lihat pecahan perkataan",go:()=>$("#flet").scrollIntoView({behavior:"smooth",block:"center"})},
@@ -625,7 +626,7 @@ $("#cCheck").onclick=()=>{const w=built.join("");if(!w)return;const rumi=BYJ[w];
   built=[];drawBuilt();save();renderMine();evidence();};
 function renderMine(){$("#mine").innerHTML=(S.mine.map(r=>`<span><span class="j">${EXTRA[r]}</span> ${r}</span>`).join("")+S.check.map(w=>`<span class="q"><span class="j">${w}</span> ?</span>`).join(""))||'<span class="muted" style="border:0;background:none">Belum ada.</span>';}
 function evidence(){$("#evCards").textContent=S.found.length+"/6";$("#evNC").textContent=S.nc.length;$("#evRead").textContent=S.read;$("#evMine").textContent=S.mine.length;}
-sdIdle(()=>{if(S.phase===0){const c=MIS.find(m=>!S.mis[m.id]);return c?"Masih di situ? Cuba misi ini: "+c.t+" (dengan kamera atau ketik gambar kad).":null;}
+sdIdle(()=>{if(S.phase===0){const c=MIS.find(m=>!S.mis[m.id]);return c?"Masih di situ? Cuba misi ini: "+c.t+" (dengan kamera atau klik gambar kad).":null;}
   if(S.phase===1)return "Jangan lupa tulis atau cakap refleksi kamu, kemudian tekan Semak refleksi.";
   if(S.phase===2)return "Cuba baca satu perkataan dengan butang mikrofon. AI akan menyemak bacaan kamu.";
   return "Pilih huruf dalam dulang untuk membina perkataan, kemudian tekan Semak perkataan.";});

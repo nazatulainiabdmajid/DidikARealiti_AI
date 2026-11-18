@@ -447,7 +447,7 @@ function adaptiveQuiz(cfg){const total=cfg.total||8,exp=cfg.exp||25,cls=cfg.optC
   return {Q,start(){if(!Q.cur&&Q.n===0)next();aiaUI();},next};}
 
 $("#stars").textContent="★ "+S.stars;
-function go(p){setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
+function go(p){try{if(p!==0&&window.__handOff)window.__handOff();}catch(e){}setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
   $$(".phb").forEach(b=>b.classList.toggle("done",!!S.done[b.dataset.p]));window.scrollTo({top:0,behavior:"smooth"});
   if(p===0){layout();if(G.toks.length&&!G.toks[0].w)build();}if(p===1)renderRO();if(p===2)renderAC();if(p===3)renderAE();}
 $$(".phb").forEach(b=>b.onclick=()=>go(+b.dataset.p));$$("[data-go]").forEach(b=>b.onclick=()=>{S.done[S.phase]=true;go(+b.dataset.go);});
@@ -525,6 +525,7 @@ function makeHand(box,video){
     H.hl=await vision.HandLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numHands:1});
     H.on=true;
   };
+  H.stop=()=>{H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
   // kembalikan true apabila ada bingkai baharu
   H.update=(thr)=>{H.was=H.pinch;
     if(!H.on||!H.hl||video.readyState<2||video.currentTime===H.lastT)return false;H.lastT=video.currentTime;
@@ -555,6 +556,7 @@ function trackHand(){if(!hand.update(45))return;
 $("#camBtn").onclick=async()=>{const st=$("#camStat");
   try{await hand.start(t=>st.textContent=t);if(!started)$("#startBtn").click();$("#realRow").hidden=false;st.textContent="Gerak tangan aktif: rangka tangan kamu kelihatan di skrin. Cubit bahan untuk memegang, bawa ke daun, buka jari untuk melepaskan.";}
   catch(e){st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
+(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;$("#realRow").hidden=true;$("#garden").classList.remove("real");$("#realBtn").setAttribute("aria-pressed","false");$("#realBtn").textContent="🌱 Guna pokok sebenar";};cb.onclick=async(e)=>{if(hand.on){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}await orig(e);if(hand.on)cb.innerHTML="⏹ Tutup kamera";};window.__handOff=()=>{if(hand.on)off();};})();
 
 /* ================= FASA 2 ================= */
 function sample(){if(S.log.length>=3)return S.log;return [{c:1,a:1,g:1,o:[],ok:true},{c:0,a:1,g:1,o:[],ok:false},{c:1,a:0,g:1,o:["garam"],ok:false},{c:1,a:1,g:1,o:["gula"],ok:true}];}

@@ -229,7 +229,7 @@ model-viewer{display:block;width:100%;height:340px;background:linear-gradient(#F
   <!-- FASA 4 -->
   <section class="panel" data-p="3" id="p3" hidden>
     <span class="eyebrow">Fasa 4 · Cuba (uji kaji aktif)</span>
-    <div class="guide"><span class="av">CK</span><p><b class="who">Cikgu Kubus</b>Kini kamu menjadi arkitek. Bina pepejal yang sepadan dengan pelan dan dongakan sasaran. Ketik petak untuk menambah tinggi lajur kubus. Mungkin ada lebih daripada satu jawapan!</p></div>
+    <div class="guide"><span class="av">CK</span><p><b class="who">Cikgu Kubus</b>Kini kamu menjadi arkitek. Bina pepejal yang sepadan dengan pelan dan dongakan sasaran. Klik petak untuk menambah tinggi lajur kubus. Mungkin ada lebih daripada satu jawapan!</p></div>
     <div class="row"><button class="btn ghost sm" id="bNew">Sasaran baharu</button><button class="btn ghost sm" id="bClear">Kosongkan</button><button class="btn ghost sm" id="bMode" aria-pressed="false">Mod bina bebas</button><span class="level" id="bLvl">Aras <i class="on"></i><i></i><i></i></span></div>
     <div class="aiaBox"></div>
     <div class="grid2">
@@ -439,7 +439,7 @@ function adaptiveQuiz(cfg){const total=cfg.total||8,exp=cfg.exp||25,cls=cfg.optC
 
 $("#stars").textContent="★ "+S.stars;
 const rnd=n=>Math.floor(Math.random()*n),shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;};
-function go(p){setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
+function go(p){try{if(p!==0&&window.__handOff)window.__handOff();}catch(e){}setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
   $$(".phb").forEach(b=>b.classList.toggle("done",!!S.done[b.dataset.p]));window.scrollTo({top:0,behavior:"smooth"});
   if(p===1)renderRO();if(p===2)renderAC();if(p===3)renderAE();}
 $$(".phb").forEach(b=>b.onclick=()=>go(+b.dataset.p));$$("[data-go]").forEach(b=>b.onclick=()=>{S.done[S.phase]=true;go(+b.dataset.go);});
@@ -503,6 +503,7 @@ function makeHand(box,video){
     H.hl=await vision.HandLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numHands:1});
     H.on=true;
   };
+  H.stop=()=>{H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
   // kembalikan true apabila ada bingkai baharu
   H.update=(thr)=>{H.was=H.pinch;
     if(!H.on||!H.hl||video.readyState<2||video.currentTime===H.lastT)return false;H.lastT=video.currentTime;
@@ -535,6 +536,7 @@ function hloop(t){if(!hand.on)return;const box=$("#camBox"),d=window.devicePixel
 $("#camBtn").onclick=async()=>{const st=$("#camStat");$("#camBox").hidden=false;
   try{await hand.start(t=>st.textContent=t);if(!started)$("#startBtn").click();st.textContent="Gerak tangan aktif: cubit (ibu jari + telunjuk) dan gerakkan tangan untuk memutar pepejal. Rangka tangan kelihatan di sudut kanan.";requestAnimationFrame(hloop);}
   catch(e){$("#camBox").hidden=true;st.textContent="Kamera tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Putar pepejal dengan jari atau tetikus. Untuk gerak tangan, buka melalui pautan https di Chrome.";}};
+(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;$("#camBox").hidden=true;};cb.onclick=async(e)=>{if(hand.on){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}await orig(e);if(hand.on)cb.innerHTML="⏹ Tutup kamera";};window.__handOff=()=>{if(hand.on)off();};})();
 
 /* ================= FASA 2: ramal dan semak ================= */
 let R=null;const mvR=$("#mvR");
@@ -619,7 +621,7 @@ function genTarget(level){const n=level===1?3+rnd(2):level===2?5+rnd(2):7+rnd(3)
     while(c<n&&guard++<400){const d=rnd(3),x=rnd(3);if(g[d][x]>0){if(g[d][x]<maxH&&Math.random()<.45){g[d][x]++;c++;}}else if([[1,0],[-1,0],[0,1],[0,-1]].some(([a,b])=>g[d+a]&&g[d+a][x+b]>0)){g[d][x]=1;c++;}}
     if(c===n)return g;}return [[1,1,0],[1,0,0],[0,0,0]];}
 const has=r=>r.flat().some(v=>v>0);
-function bViews(rows,el,cmp){if(!has(rows)){el.innerHTML='<p class="muted" style="grid-column:1/-1">Belum ada kubus. Ketik petak untuk mula membina.</p>';return [];}
+function bViews(rows,el,cmp){if(!has(rows)){el.innerHTML='<p class="muted" style="grid-column:1/-1">Belum ada kubus. Klik petak untuk mula membina.</p>';return [];}
   const vs=views(rows),res=[];el.innerHTML=["top","front","side"].map(t=>{const ok=cmp?sig(vs[t])===sig(cmp[t]):false;res.push(ok);return `<div class="vc ${ok?"ok":""}">${svg(vs[t])}<b>${VT[t]}</b>${cmp?(ok?'<span style="color:var(--ok);font-weight:700">✓ sepadan</span>':'<span class="muted">belum sepadan</span>'):""}</div>`;}).join("");return res;}
 function bRender(){
   $("#hgrid").innerHTML=[2,1,0].map(d=>[0,1,2].map(x=>`<button class="hcell" data-d="${d}" data-x="${x}" data-h="${B.rows[d][x]}" aria-label="Lajur ${x+1}, baris ${d+1}, tinggi ${B.rows[d][x]}">${B.rows[d][x]||""}</button>`).join("")).join("");
@@ -635,7 +637,7 @@ function bRender(){
 sdIdle(()=>{if(S.phase===0){if(!started)return "Tekan salah satu butang Mula untuk memulakan misi.";const nx=MIS.find(m=>!S.mis[m.id]);return nx?"Masih di situ? Cuba misi ini: "+nx.t:null;}
   if(S.phase===1)return "Jangan lupa tulis atau cakap refleksi kamu, kemudian tekan Semak refleksi.";
   if(S.phase===2)return "Cuba jawab kuiz atau semak penerangan kamu dengan butang Semak.";
-  return B.solved?"Tekan Sasaran baharu untuk cabaran seterusnya.":"Ketik petak grid untuk menambah kubus dan padankan dengan sasaran.";});
+  return B.solved?"Tekan Sasaran baharu untuk cabaran seterusnya.":"Klik petak grid untuk menambah kubus dan padankan dengan sasaran.";});
 function bNew(){B.lvl=aiaState().lvl;B.t0=Date.now();B.target=genTarget(B.lvl);B.rows=[[0,0,0],[0,0,0],[0,0,0]];B.solved=false;$("#bFb").innerHTML="";bRender();}
 $("#bNew").onclick=()=>{B.free=false;$("#bMode").setAttribute("aria-pressed","false");bNew();};
 $("#bClear").onclick=()=>{B.rows=[[0,0,0],[0,0,0],[0,0,0]];B.solved=false;bRender();};
