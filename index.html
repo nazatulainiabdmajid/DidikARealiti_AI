@@ -806,6 +806,16 @@ F.forEach(id=>$("#"+id).addEventListener("input",()=>{snap();render();}));
 S.own=!!S.own;$("#fOwn").checked=S.own;$("#ownTips").hidden=!S.own;$("#fTable").value=S.table||"";$("#fTable").addEventListener("input",e=>{S.table=e.target.value;save();render();});$("#fOwn").addEventListener("change",e=>{S.own=e.target.checked;$("#ownTips").hidden=!S.own;save();render();});S.mark=S.mark||"auto";$("#fMark").value=S.mark;$("#fCards").value=S.cards||"";$("#fMark").addEventListener("change",e=>{S.mark=e.target.value;save();render();});$("#fCards").addEventListener("input",e=>{S.cards=e.target.value;save();render();});$("#fLvl").addEventListener("change",()=>{snap();render();});
 function tplChange(){S.tpl=$("#fTpl").value;save();$("#rawLink").href="https://github.com/nazatulainiabdmajid/DidikARealiti_AI/blob/main/"+S.tpl+".html";$("#rawName").textContent=S.tpl+".html";$("#dlTpl").href=S.tpl+".html";$("#dlTpl").setAttribute("download",S.tpl+".html");$("#dlName").textContent=S.tpl+".html";render();}
 $("#fTpl").addEventListener("change",tplChange);
+/* Muat turun terus dari laman GitHub Pages kit, walaupun kit dibuka dari fail atau tempat lain. */
+const KIT_BASE=/^https?:$/.test(location.protocol)&&/github\.io$/.test(location.hostname)?location.href:"https://nazatulainiabdmajid.github.io/DidikARealiti_AI/";
+async function dlFromKit(e){const a=e.currentTarget,name=a.getAttribute("download");if(!name)return;e.preventDefault();
+  const url=new URL(name,KIT_BASE).href;
+  try{const r=await fetch(url,{cache:"no-store"});if(!r.ok)throw new Error(r.status);const blob=await r.blob();
+    const u=URL.createObjectURL(blob),t=document.createElement("a");t.href=u;t.download=name;document.body.appendChild(t);t.click();t.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+    toast(tr("Dimuat turun: "+name+" (folder Downloads)","Downloaded: "+name+" (Downloads folder)"));}
+  catch(err){window.open(url,"_blank","noopener");toast(tr("Fail dibuka dalam tab baharu. Klik kanan → Simpan sebagai untuk menyimpannya.","Opened in a new tab. Right-click → Save as to keep it."));}}
+["#dlTpl"].forEach(s=>{const el=$(s);if(el)el.addEventListener("click",dlFromKit);});
+$$('a[download]').forEach(el=>{if(el.id!=="dlTpl")el.addEventListener("click",dlFromKit);});
 const v=id=>{const x=$("#"+id).value.trim();return x||"["+tr("isi","fill in")+": "+({fSub:tr("subjek","subject"),fTop:tr("topik","topic"),fName:tr("nama aplikasi","app name"),fPlay:tr("apa yang murid main","what students play with"),fVar:tr("apa yang murid ubah","what students change"),fCon:tr("konsep","concept"),fNew:tr("situasi baharu","new situations"),fGuide:tr("watak pemandu","guide character")}[id])+"]";};
 const CAMK={
  jawi:{label:["<span class='tag ar'>AR</span> Kamera mengimbas kad bercetak (penanda), dengan mod klik tanpa kamera","<span class='tag ar'>AR</span> Camera scans printed cards (markers), with a tap mode without a camera"],

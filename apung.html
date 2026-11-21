@@ -505,20 +505,31 @@ T.size();upd();requestAnimationFrame(loop);
 
 /* ===== Modul tangan AI (MediaPipe Hands): kamera, 21 titik sendi, cubit ===== */
 const HAND_LINKS=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
+function camErr(e){const n=e&&e.name||"",m=e&&e.message||String(e);
+  if(n==="NotAllowedError"||n==="SecurityError")return "kebenaran kamera disekat. Klik ikon 🔒 atau ⚙ di sebelah kiri bar alamat → Kamera → Benarkan, kemudian muat semula halaman";
+  if(n==="NotReadableError"||n==="TrackStartError"||/could not start|in use/i.test(m))return "kamera sedang digunakan aplikasi lain (contohnya Google Meet, Zoom atau tab lain). Tutup aplikasi itu atau matikan kamera di sana, kemudian cuba lagi";
+  if(n==="NotFoundError"||n==="OverconstrainedError")return "tiada kamera dijumpai pada peranti ini";
+  if(/import|fetch|network|Failed to load/i.test(m))return "AI pengesan tangan gagal dimuat. Semak sambungan internet";
+  return m;}
+async function makeLandmarker(vision,fs){const opt=d=>({baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:d},runningMode:"VIDEO",numHands:1});
+  try{return await vision.HandLandmarker.createFromOptions(fs,opt("GPU"));}catch(e){return await vision.HandLandmarker.createFromOptions(fs,opt("CPU"));}}
 function makeHand(box,video){
   const H={on:false,pts:null,x:null,y:null,pinch:false,was:false,hl:null,lastT:-1};
-  H.start=async(stat)=>{
+  H.start=async(stat)=>{H.cancel=false;H.starting=true;try{await H._start(stat);}finally{H.starting=false;}};
+  const CX=()=>{if(H.cancel)throw new Error("dibatalkan");};
+  H._start=async(stat)=>{
     if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("kamera memerlukan pautan https dan pelayar yang menyokong kamera");
     stat("Membuka kamera…");
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});
-    video.srcObject=stream;video.hidden=false;await video.play();
+    let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});}catch(e){throw new Error(camErr(e));}
+    if(H.cancel){stream.getTracks().forEach(t=>t.stop());CX();}video.srcObject=stream;video.hidden=false;await video.play();CX();
     stat("Memuatkan AI pengesan tangan…");
-    const vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");
+    let vision;try{vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");}catch(e){throw new Error(camErr(new Error("import "+(e&&e.message))));}
     const fs=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
-    H.hl=await vision.HandLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",delegate:"GPU"},runningMode:"VIDEO",numHands:1});
+    H.hl=await makeLandmarker(vision,fs);
+    if(H.cancel){H.stop();CX();}
     H.on=true;
   };
-  H.stop=()=>{H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
+  H.stop=()=>{H.cancel=true;H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
   // kembalikan true apabila ada bingkai baharu
   H.update=(thr)=>{H.was=H.pinch;
     if(!H.on||!H.hl||video.readyState<2||video.currentTime===H.lastT)return false;H.lastT=video.currentTime;
@@ -548,8 +559,8 @@ function trackHand(){if(!hand.update(45))return;const g=tankGeom(T.cv);
   if(!hand.pinch&&hand.was&&T.state==="drag"){if(T.x>g.tx&&T.x<g.tx+g.tw)drop();else holdPos();}}
 $("#camBtn").onclick=async()=>{const st=$("#camStat");
   try{await hand.start(t=>st.textContent=t);if(!started)$("#startBtn").click();st.textContent="Gerak tangan aktif: rangka tangan kamu kelihatan di skrin. Cubit objek untuk memegang, bawa ke atas tangki, buka jari untuk melepaskan.";}
-  catch(e){st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
-(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;};cb.onclick=async(e)=>{if(hand.on){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}await orig(e);if(hand.on)cb.innerHTML="⏹ Tutup kamera";};window.__handOff=()=>{if(hand.on)off();};})();
+  catch(e){if(e&&e.message==="dibatalkan")return;st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
+(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;};cb.onclick=async(e)=>{if(hand.on||hand.starting){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}cb.innerHTML="⏹ Tutup kamera";await orig(e);if(!hand.on&&!hand.starting)cb.innerHTML=lab;};window.__handOff=()=>{if(hand.on||hand.starting)off();};})();
 
 /* ================= FASA 2 ================= */
 function sample(){if(S.log.length>=3)return S.log;return [{m:800,v:1000,res:"terapung"},{m:50,v:20,res:"tenggelam"},{m:300,v:500,res:"terapung"},{m:600,v:400,res:"tenggelam"}];}
