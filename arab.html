@@ -451,21 +451,18 @@ async function makeLandmarker(vision,fs){const opt=d=>({baseOptions:{modelAssetP
   try{return await vision.HandLandmarker.createFromOptions(fs,opt("GPU"));}catch(e){return await vision.HandLandmarker.createFromOptions(fs,opt("CPU"));}}
 function makeHand(box,video){
   const H={on:false,pts:null,x:null,y:null,pinch:false,was:false,hl:null,lastT:-1};
-  H.start=async(stat)=>{H.cancel=false;H.starting=true;try{await H._start(stat);}finally{H.starting=false;}};
-  const CX=()=>{if(H.cancel)throw new Error("dibatalkan");};
-  H._start=async(stat)=>{
+  H.start=async(stat)=>{
     if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("kamera memerlukan pautan https dan pelayar yang menyokong kamera");
     stat("Membuka kamera…");
     let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});}catch(e){throw new Error(camErr(e));}
-    if(H.cancel){stream.getTracks().forEach(t=>t.stop());CX();}video.srcObject=stream;video.hidden=false;await video.play();CX();
+    video.srcObject=stream;video.hidden=false;await video.play();
     stat("Memuatkan AI pengesan tangan…");
     let vision;try{vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");}catch(e){throw new Error(camErr(new Error("import "+(e&&e.message))));}
     const fs=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
     H.hl=await makeLandmarker(vision,fs);
-    if(H.cancel){H.stop();CX();}
     H.on=true;
   };
-  H.stop=()=>{H.cancel=true;H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
+  H.stop=()=>{H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
   // kembalikan true apabila ada bingkai baharu
   H.update=(thr)=>{H.was=H.pinch;
     if(!H.on||!H.hl||video.readyState<2||video.currentTime===H.lastT)return false;H.lastT=video.currentTime;
@@ -493,8 +490,8 @@ function trackHand(){if(!hand.update(45))return;if(hand.x==null){if(L.held)relea
   if(hand.pinch&&!hand.was&&started){let best=null,bd=1e9;L.toks.forEach(k=>{const d=Math.hypot(k.x+k.w/2-hand.x,k.y+k.h/2-hand.y);if(d<bd&&d<90){bd=d;best=k;}});if(best)grab(best,hand.x,hand.y);}
   if(hand.pinch&&L.held)moveHeld(hand.x,hand.y);if(!hand.pinch&&hand.was&&L.held)release(hand.x,hand.y);}
 $("#camBtn").onclick=async()=>{const st=$("#camStat");try{await hand.start(t=>st.textContent=t);if(!started)$("#startBtn").click();st.textContent="Gerak tangan aktif: rangka tangan kamu kelihatan di skrin. Cubit kad untuk memegang, bawa ke Kotak Dengar, buka jari untuk melepaskan.";}
-  catch(e){if(e&&e.message==="dibatalkan")return;st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
-(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;};cb.onclick=async(e)=>{if(hand.on||hand.starting){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}cb.innerHTML="⏹ Tutup kamera";await orig(e);if(!hand.on&&!hand.starting)cb.innerHTML=lab;};window.__handOff=()=>{if(hand.on||hand.starting)off();};})();
+  catch(e){st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
+(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;};cb.onclick=async(e)=>{if(hand.on){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}await orig(e);if(hand.on)cb.innerHTML="⏹ Tutup kamera";};window.__handOff=()=>{if(hand.on)off();};})();
 
 /* ================= FASA 2 ================= */
 function renderRO(){const hs=S.heard.length?NUM.filter(d=>S.heard.includes(d.id)):NUM.slice(0,4);
