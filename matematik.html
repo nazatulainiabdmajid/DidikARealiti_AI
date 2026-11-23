@@ -692,7 +692,7 @@ go(S.phase||0);
 <script>
 (function(){const R=document.getElementById('resetAll');let armT=null;
   window.resetApp=function(){if(!R)return;if(!R.classList.contains('warn')){R.classList.add('warn');R.textContent='Tekan lagi untuk padam semua';clearTimeout(armT);armT=setTimeout(()=>{R.classList.remove('warn');R.textContent='🔄 Mula semula';},4000);R.scrollIntoView({block:'nearest'});return;}
-    try{localStorage.removeItem(R.dataset.key);}catch(e){}location.reload();};
+    try{(R.dataset.key||"").split(",").forEach(k=>{k=k.trim();if(k)localStorage.removeItem(k);});}catch(e){}location.reload();};
   if(R)R.addEventListener('click',window.resetApp);})();
 (function(){const N=["Alami","Renung","Faham","Cuba"];
   const ph=n=>document.querySelector('.phb[data-p="'+n+'"]');

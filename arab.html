@@ -141,7 +141,7 @@ input[type=range]{width:100%;accent-color:var(--ae)}
 .opt.ar{font-family:"Amiri",serif;font-size:26px}
 </style>
 <div class="top"><div class="wrap">
-  <a class="home" href="contoh.html" title="Kembali ke menu contoh">🏠 Menu</a><button class="home" id="resetAll" type="button" data-key="nombor-arab-v1" title="Padam kemajuan dan mula semula">🔄 Mula semula</button><span class="brand">Nombor Arab <span dir="ltr" style="unicode-bidi:isolate">١ – ١٠</span></span>
+  <a class="home" href="contoh.html" title="Kembali ke menu contoh">🏠 Menu</a><button class="home" id="resetAll" type="button" data-key="nombor-arab-v1,padan-arab-v1" title="Padam kemajuan dan mula semula">🔄 Mula semula</button><span class="brand">Nombor Arab <span dir="ltr" style="unicode-bidi:isolate">١ – ١٠</span></span>
   <nav class="ph" aria-label="Fasa Kolb">
     <button class="phb" data-p="0" aria-current="true"><span class="n">1</span>Alami</button>
     <button class="phb" data-p="1"><span class="n">2</span>Renung</button>
@@ -395,7 +395,19 @@ function adaptiveQuiz(cfg){const total=cfg.total||8,exp=cfg.exp||25,cls=cfg.optC
 
 $("#stars").textContent="★ "+S.stars;
 const strip=t=>t.replace(/[ً-ْٰـ]/g,"").replace(/[إأآا]/g,"ا").replace(/ى/g,"ي").trim();
-function sayAr(t){try{const u=new SpeechSynthesisUtterance(t);u.lang="ar-SA";const v=speechSynthesis.getVoices().find(v=>/^ar/i.test(v.lang));if(v)u.voice=v;u.rate=0.85;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}}
+/* Sebutan: guna suara bahasa Arab peranti jika ada. Jika tiada (biasa pada Windows), sebut ejaan rumi
+   dengan suara Melayu/Indonesia supaya murid tetap mendengar sebutan, dan beri tahu guru cara memasang suara Arab. */
+let VOICES=[];const loadV=()=>{try{VOICES=speechSynthesis.getVoices()||[];}catch(e){}};loadV();try{speechSynthesis.addEventListener("voiceschanged",loadV);}catch(e){}
+let arWarned=false;
+function sayAr(t){try{if(!VOICES.length)loadV();speechSynthesis.cancel();
+  const ar=VOICES.find(v=>/^ar/i.test(v.lang));let u;
+  if(ar){u=new SpeechSynthesisUtterance(t);u.lang=ar.lang;u.voice=ar;u.rate=0.85;}
+  else{const st=strip(t),e=NUM.find(o=>strip(o.w)===st)||NUM.find(o=>st.includes(strip(o.w)));
+    const rumi=e?e.r.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[ʿʾ]/g,"'"):t;
+    const v=VOICES.find(v=>/^id/i.test(v.lang))||VOICES.find(v=>/^ms/i.test(v.lang));
+    u=new SpeechSynthesisUtterance(rumi);u.lang=v?v.lang:"id-ID";if(v)u.voice=v;u.rate=0.8;
+    if(!arWarned){arWarned=true;toast("Suara bahasa Arab tiada pada peranti ini, jadi sebutan rumi digunakan. Untuk sebutan Arab: Tetapan Windows → Masa & bahasa → Pertuturan → Tambah suara → Arab.");}}
+  speechSynthesis.speak(u);}catch(e){}}
 function go(p){try{if(p!==0&&window.__handOff)window.__handOff();}catch(e){}setTimeout(()=>sdTag(["pencetus","peringatan","cadangan","pencetus"][p]),0);S.phase=p;save();$$(".panel").forEach(x=>x.hidden=+x.dataset.p!==p);$$(".phb").forEach(b=>b.setAttribute("aria-current",+b.dataset.p===p));
   $$(".phb").forEach(b=>b.classList.toggle("done",!!S.done[b.dataset.p]));window.scrollTo({top:0,behavior:"smooth"});
   if(p===0){layout();if(L.toks.length&&!L.toks[0].w)build();}if(p===1)renderRO();if(p===2)renderAC();if(p===3)evidence();}
@@ -451,18 +463,21 @@ async function makeLandmarker(vision,fs){const opt=d=>({baseOptions:{modelAssetP
   try{return await vision.HandLandmarker.createFromOptions(fs,opt("GPU"));}catch(e){return await vision.HandLandmarker.createFromOptions(fs,opt("CPU"));}}
 function makeHand(box,video){
   const H={on:false,pts:null,x:null,y:null,pinch:false,was:false,hl:null,lastT:-1};
-  H.start=async(stat)=>{
+  H.start=async(stat)=>{H.cancel=false;H.starting=true;try{await H._start(stat);}finally{H.starting=false;}};
+  const CX=()=>{if(H.cancel)throw new Error("dibatalkan");};
+  H._start=async(stat)=>{
     if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error("kamera memerlukan pautan https dan pelayar yang menyokong kamera");
     stat("Membuka kamera…");
     let stream;try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});}catch(e){throw new Error(camErr(e));}
-    video.srcObject=stream;video.hidden=false;await video.play();
+    if(H.cancel){stream.getTracks().forEach(t=>t.stop());CX();}video.srcObject=stream;video.hidden=false;await video.play();CX();
     stat("Memuatkan AI pengesan tangan…");
     let vision;try{vision=await import("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14");}catch(e){throw new Error(camErr(new Error("import "+(e&&e.message))));}
     const fs=await vision.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
     H.hl=await makeLandmarker(vision,fs);
+    if(H.cancel){H.stop();CX();}
     H.on=true;
   };
-  H.stop=()=>{H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
+  H.stop=()=>{H.cancel=true;H.on=false;H.pts=null;H.x=null;H.pinch=false;try{const s=video.srcObject;if(s)s.getTracks().forEach(t=>t.stop());}catch(e){}video.srcObject=null;video.hidden=true;try{if(H.hl)H.hl.close();}catch(e){}H.hl=null;};
   // kembalikan true apabila ada bingkai baharu
   H.update=(thr)=>{H.was=H.pinch;
     if(!H.on||!H.hl||video.readyState<2||video.currentTime===H.lastT)return false;H.lastT=video.currentTime;
@@ -490,8 +505,8 @@ function trackHand(){if(!hand.update(45))return;if(hand.x==null){if(L.held)relea
   if(hand.pinch&&!hand.was&&started){let best=null,bd=1e9;L.toks.forEach(k=>{const d=Math.hypot(k.x+k.w/2-hand.x,k.y+k.h/2-hand.y);if(d<bd&&d<90){bd=d;best=k;}});if(best)grab(best,hand.x,hand.y);}
   if(hand.pinch&&L.held)moveHeld(hand.x,hand.y);if(!hand.pinch&&hand.was&&L.held)release(hand.x,hand.y);}
 $("#camBtn").onclick=async()=>{const st=$("#camStat");try{await hand.start(t=>st.textContent=t);if(!started)$("#startBtn").click();st.textContent="Gerak tangan aktif: rangka tangan kamu kelihatan di skrin. Cubit kad untuk memegang, bawa ke Kotak Dengar, buka jari untuk melepaskan.";}
-  catch(e){st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
-(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;};cb.onclick=async(e)=>{if(hand.on){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}await orig(e);if(hand.on)cb.innerHTML="⏹ Tutup kamera";};window.__handOff=()=>{if(hand.on)off();};})();
+  catch(e){if(e&&e.message==="dibatalkan")return;st.textContent="Kamera atau gerak tangan tidak dapat digunakan di sini ("+(e&&e.message?e.message:e)+"). Guna sentuhan atau tetikus. Untuk AR, buka aplikasi melalui pautan https di Chrome.";hand.on=false;}};
+(function(){const cb=$("#camBtn");if(!cb)return;const orig=cb.onclick,lab=cb.innerHTML;const off=()=>{hand.stop();cb.innerHTML=lab;};cb.onclick=async(e)=>{if(hand.on||hand.starting){off();const st=$("#camStat");if(st)st.textContent="Kamera ditutup. Teruskan dengan jari atau tetikus.";return;}cb.innerHTML="⏹ Tutup kamera";await orig(e);if(!hand.on&&!hand.starting)cb.innerHTML=lab;};window.__handOff=()=>{if(hand.on||hand.starting)off();};})();
 
 /* ================= FASA 2 ================= */
 function renderRO(){const hs=S.heard.length?NUM.filter(d=>S.heard.includes(d.id)):NUM.slice(0,4);
@@ -851,7 +866,7 @@ $("#exitBtn").onclick=()=>{try{const s=hand.video.srcObject;if(s)s.getTracks().f
 <script>
 (function(){const R=document.getElementById('resetAll');let armT=null;
   window.resetApp=function(){if(!R)return;if(!R.classList.contains('warn')){R.classList.add('warn');R.textContent='Tekan lagi untuk padam semua';clearTimeout(armT);armT=setTimeout(()=>{R.classList.remove('warn');R.textContent='🔄 Mula semula';},4000);R.scrollIntoView({block:'nearest'});return;}
-    try{localStorage.removeItem(R.dataset.key);}catch(e){}location.reload();};
+    try{(R.dataset.key||"").split(",").forEach(k=>{k=k.trim();if(k)localStorage.removeItem(k);});}catch(e){}location.reload();};
   if(R)R.addEventListener('click',window.resetApp);})();
 (function(){const N=["Alami","Renung","Faham","Cuba"];
   const ph=n=>document.querySelector('.phb[data-p="'+n+'"]');
