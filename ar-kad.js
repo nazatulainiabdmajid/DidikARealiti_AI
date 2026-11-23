@@ -36,7 +36,8 @@
     }
   } catch (e) {}
 
-  var cfg = { kad: [], apabilaJumpa: null, apabilaHilang: null, misi: null };
+  var cfg = { kad: [], apabilaJumpa: null, apabilaHilang: null, misi: null, suara: true };
+  var last = { i: -1, t: 0 };
   var misT = null;
   var cards = [];       // data URL bagi setiap kad
   var mindar = null, run = 0, wrap = null;
@@ -92,6 +93,7 @@
     cfg.apabilaJumpa = o.apabilaJumpa || null;
     cfg.apabilaHilang = o.apabilaHilang || null;
     cfg.misi = o.misi || null;
+    cfg.suara = o.suara !== false;
     cards = cfg.kad.map(drawCard);
     return cards.slice();
   }
@@ -148,6 +150,18 @@
       return '<span class="ak-mt">' + esc(lines[0]) + "</span>" + lines.slice(1, 5).map(function (x, k) { return k === 0 ? "<b>" + esc(x) + "</b>" : "<p>" + esc(x) + "</p>"; }).join("");
     } catch (e) { return ""; }
   }
+  // Sebut nama kad jika aplikasi sendiri tidak bersuara (suara:false untuk mematikan).
+  function suara(k) {
+    try {
+      if (!cfg.suara || !window.speechSynthesis) return;
+      if (speechSynthesis.speaking || speechSynthesis.pending) return;
+      var u = new SpeechSynthesisUtterance(String(k.nama || "") + (k.info ? ". " + k.info : ""));
+      u.lang = "ms-MY";
+      var v = speechSynthesis.getVoices().filter(function (x) { return /^(ms|id)/i.test(x.lang); })[0];
+      if (v) u.voice = v;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
   function misi(t) { if (t !== undefined) cfg.misi = t; if (wrap) { var h = misiHTML(), b = wrap.querySelector(".ak-mis"); if (b && b.innerHTML !== h) b.innerHTML = h; } }
   function st(t) { if (wrap) wrap.querySelector(".ak-st").textContent = t; }
   function prog(p) { if (!wrap) return; var b = wrap.querySelector(".ak-bar"); b.hidden = p == null; b.querySelector("i").style.width = (p || 0) + "%"; }
@@ -179,6 +193,8 @@
   }
 
   async function mula() {
+    last = { i: -1, t: 0 };
+    try { if (window.speechSynthesis) speechSynthesis.getVoices(); } catch (e) {}
     if (!cfg.kad.length) { console.warn("ArKad: panggil ArKad.sediakan({kad:[...]}) dahulu."); return; }
     if (wrap) return;
     var my = ++run; ui();
@@ -198,7 +214,14 @@
           shown = i;
           lab.innerHTML = esc(k.nama) + (k.info ? "<small>" + esc(k.info) + "</small>" : ""); lab.hidden = false;
           info.style.display = k.terangan ? "block" : "none"; info.innerHTML = k.terangan ? esc(k.terangan) : "";
-          try { cfg.apabilaJumpa && cfg.apabilaJumpa(i, k); } catch (e) { console.error(e); }
+          // Kamera kerap "hilang dan jumpa semula" kad yang sama dalam sesaat. Panggil aplikasi sekali sahaja
+          // bagi setiap kad, kecuali kad itu dijumpai semula selepas 4 saat. Ini mengelakkan suara terputus-putus.
+          var now = Date.now();
+          if (i !== last.i || now - last.t > 4000) {
+            last = { i: i, t: now };
+            try { cfg.apabilaJumpa && cfg.apabilaJumpa(i, k); } catch (e) { console.error(e); }
+            setTimeout(function () { suara(k); }, 400);
+          } else last.t = now;
           setTimeout(misi, 150);
         };
         a.onTargetLost = function () {
