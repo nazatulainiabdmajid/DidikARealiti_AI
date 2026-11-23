@@ -36,7 +36,8 @@
     }
   } catch (e) {}
 
-  var cfg = { kad: [], apabilaJumpa: null, apabilaHilang: null };
+  var cfg = { kad: [], apabilaJumpa: null, apabilaHilang: null, misi: null };
+  var misT = null;
   var cards = [];       // data URL bagi setiap kad
   var mindar = null, run = 0, wrap = null;
 
@@ -90,6 +91,7 @@
     cfg.kad = (o.kad || []).map(function (k) { return typeof k === "string" ? { nama: k } : k; });
     cfg.apabilaJumpa = o.apabilaJumpa || null;
     cfg.apabilaHilang = o.apabilaHilang || null;
+    cfg.misi = o.misi || null;
     cards = cfg.kad.map(drawCard);
     return cards.slice();
   }
@@ -110,7 +112,8 @@
       + "#arkad .ak-bar{height:6px;background:#ffffff40;border-radius:3px;margin-top:6px;overflow:hidden;width:180px}#arkad .ak-bar i{display:block;height:100%;width:0;background:#FFD43B}"
       + "#arkad .ak-lab{position:absolute;z-index:4;transform:translate(-50%,-100%);background:#fff;color:#1B2430;border:3px solid #0E7C7B;border-radius:14px;padding:8px 12px;font-weight:700;font-size:18px;text-align:center;pointer-events:none;max-width:70vw;box-shadow:0 4px 14px #0006}"
       + "#arkad .ak-lab small{display:block;font-weight:400;font-size:14px;color:#33414C;margin-top:2px}"
-      + "#arkad .ak-info{position:absolute;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:5;background:#fffffff2;color:#1B2430;border-radius:14px;padding:10px 14px;font-size:16px;display:none}"
+      + "#arkad .ak-info{position:absolute;left:12px;right:12px;top:calc(64px + env(safe-area-inset-top,0px));z-index:5;background:#fffffff2;color:#1B2430;border-radius:14px;padding:10px 14px;font-size:16px;display:none}"
+      + "#arkad .ak-mis{position:absolute;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:5;background:#fffffff2;color:#1B2430;border-radius:14px;padding:10px 14px;font-size:15px;line-height:1.4;max-height:34vh;overflow:auto;box-shadow:0 4px 14px #0006}#arkad .ak-mis:empty{display:none}#arkad .ak-mis p{margin:4px 0 0}#arkad .ak-mis .ak-mt{display:block;font-size:12px;font-weight:700;color:#0E7C7B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}"
       + "#arkad .ak-err{position:absolute;left:16px;right:16px;top:40%;z-index:6;background:#fff;color:#1B2430;border-radius:14px;padding:14px;font-size:15px;display:none}"
       + ".arkad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}.arkad-grid figure{margin:0;text-align:center;font:600 13px Arial,sans-serif;color:#1B2430}.arkad-grid img{width:100%;max-width:7cm;aspect-ratio:1;border:1px dashed #999}"
       + "@media print{.arkad-noprint{display:none!important}.arkad-grid{grid-template-columns:repeat(2,7cm);gap:1cm}.arkad-grid img{width:7cm;height:7cm}}";
@@ -119,11 +122,33 @@
   function ui() {
     css();
     wrap = document.createElement("div"); wrap.id = "arkad";
-    wrap.innerHTML = '<div class="ak-box"></div><div class="ak-top"><div><div class="ak-st">Menyediakan kamera…</div><div class="ak-bar" hidden><i></i></div></div><button class="ak-x" type="button">✕ Tutup</button></div><div class="ak-lab" hidden></div><div class="ak-info"></div><div class="ak-err"></div>';
+    wrap.innerHTML = '<div class="ak-box"></div><div class="ak-top"><div><div class="ak-st">Menyediakan kamera…</div><div class="ak-bar" hidden><i></i></div></div><button class="ak-x" type="button">✕ Tutup</button></div><div class="ak-lab" hidden></div><div class="ak-info"></div><div class="ak-mis" aria-live="polite"></div><div class="ak-err"></div>';
     document.body.appendChild(wrap);
     wrap.querySelector(".ak-x").onclick = function () { henti(); };
     return wrap;
   }
+  // ---------- misi semasa (dipaparkan di atas video kamera) ----------
+  function misiHTML() {
+    var m = cfg.misi, el = null;
+    try {
+      if (typeof m === "function") m = m();
+      if (typeof m === "string" && m.trim()) {
+        if (/^[#.\[]/.test(m.trim())) { el = document.querySelector(m.trim()); }
+        else return '<span class="ak-mt">Misi</span>' + esc(m);
+      } else if (m && m.nodeType === 1) el = m;
+      if (!el) el = document.querySelector(".mcur") || document.querySelector("[id*='misi' i]:not(#arkad *),[class*='misi' i]:not(#arkad *)");
+      if (!el) return "";
+      var c = el.cloneNode(true);
+      c.querySelectorAll("button,input,select,textarea,script,style,svg,img,canvas,video").forEach(function (x) { x.remove(); });
+      c.style.cssText = "position:fixed;left:-10000px;top:0;width:600px;display:block"; c.removeAttribute("hidden"); document.body.appendChild(c);
+      var kids = Array.prototype.map.call(c.children, function (ch) { return (ch.innerText || ch.textContent || "").replace(/\s+/g, " ").trim(); }).filter(Boolean);
+      var txt = kids.length > 1 ? kids.join("\n") : (c.innerText || c.textContent || ""); c.remove(); txt = txt.replace(/\n{2,}/g, "\n").trim();
+      if (!txt) return "";
+      var lines = txt.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+      return '<span class="ak-mt">' + esc(lines[0]) + "</span>" + lines.slice(1, 5).map(function (x, k) { return k === 0 ? "<b>" + esc(x) + "</b>" : "<p>" + esc(x) + "</p>"; }).join("");
+    } catch (e) { return ""; }
+  }
+  function misi(t) { if (t !== undefined) cfg.misi = t; if (wrap) { var h = misiHTML(), b = wrap.querySelector(".ak-mis"); if (b && b.innerHTML !== h) b.innerHTML = h; } }
   function st(t) { if (wrap) wrap.querySelector(".ak-st").textContent = t; }
   function prog(p) { if (!wrap) return; var b = wrap.querySelector(".ak-bar"); b.hidden = p == null; b.querySelector("i").style.width = (p || 0) + "%"; }
 
@@ -174,6 +199,7 @@
           lab.innerHTML = esc(k.nama) + (k.info ? "<small>" + esc(k.info) + "</small>" : ""); lab.hidden = false;
           info.style.display = k.terangan ? "block" : "none"; info.innerHTML = k.terangan ? esc(k.terangan) : "";
           try { cfg.apabilaJumpa && cfg.apabilaJumpa(i, k); } catch (e) { console.error(e); }
+          setTimeout(misi, 150);
         };
         a.onTargetLost = function () {
           if (shown === i) { shown = -1; lab.hidden = true; info.style.display = "none"; }
@@ -182,7 +208,7 @@
       });
       var m = mindar; await m.start();
       if (my !== run) { try { m.renderer.setAnimationLoop(null); await m.stop(); } catch (_) {} return; }
-      st("Halakan kamera ke kad");
+      st("Halakan kamera ke kad"); misi(); clearInterval(misT); misT = setInterval(misi, 1000);
       m.renderer.setAnimationLoop(function () {
         m.renderer.render(m.scene, m.camera);
         if (shown >= 0 && m.anchors[shown]) {
@@ -203,6 +229,7 @@
   }
 
   async function cleanup(removeUi) {
+    clearInterval(misT); misT = null;
     var m = mindar; mindar = null;
     try { m && m.renderer.setAnimationLoop(null); } catch (e) {}
     try { m && await m.stop(); } catch (e) {}
@@ -230,5 +257,5 @@
     else { try { window.print(); } catch (e) {} }
   }
 
-  window.ArKad = { versi: V, sediakan: sediakan, mula: mula, henti: henti, gambarKad: gambarKad, paparKad: paparKad, cetak: cetak };
+  window.ArKad = { versi: V, sediakan: sediakan, mula: mula, misi: misi, henti: henti, gambarKad: gambarKad, paparKad: paparKad, cetak: cetak };
 })();
